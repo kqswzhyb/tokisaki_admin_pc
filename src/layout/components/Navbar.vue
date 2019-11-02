@@ -17,9 +17,7 @@
         <span class="name">玄机妙算</span>
       </div>
       <ul class="right-drawer">
-        <li class="drawer-cell" style="border-top:1px solid #ccc;"><svg-icon icon-class="message" /> <span style="margin-left:20px;">我的消息</span></li>
         <li v-for="item in configs" :key="item.path" class="drawer-cell" @click="$router.push(item.path);$store.commit('app/openDrawer',false)"><svg-icon :icon-class="item.icon" :style="{color:$route.path===item.path?'rgb(64, 158, 255)':'#000'}" /> <span :style="{marginLeft:'20px',color:$route.path===item.path?'rgb(64, 158, 255)':'#000'}">{{ item.text }}</span></li>
-        <li class="drawer-cell"><svg-icon icon-class="personalcenter" /> <span style="margin-left:20px;">个人中心</span></li>
         <li class="drawer-cell" @click="logout"><svg-icon icon-class="logout" /> <span style="margin-left:20px;">退出登录</span></li>
       </ul>
     </el-drawer>
@@ -42,14 +40,24 @@ export default {
     return {
       configs: [
         {
+          path: '/user/messages',
+          icon: 'message',
+          text: '我的消息'
+        },
+        {
           path: '/tasks',
           icon: 'task',
           text: '我的任务'
         },
         {
-          path: '/user/score',
+          path: '/user/scores',
           icon: 'star',
           text: '积分明细'
+        },
+        {
+          path: '/user/personal',
+          icon: 'personalcenter',
+          text: '个人中心'
         }
       ]
     }

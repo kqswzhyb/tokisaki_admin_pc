@@ -109,3 +109,14 @@ div:focus {
   padding:10px;
   border-radius: 50%;
 }
+
+.border {
+  padding:15px;
+  border-radius: 10px;
+  border:1px solid #ccc;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
+}
+
+.van-image-preview {
+  z-index: 2099 !important;
+}

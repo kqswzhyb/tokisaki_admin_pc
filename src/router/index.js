@@ -118,10 +118,22 @@ export const constantRoutes = [
     hidden: true,
     children: [
       {
-        path: 'score',
+        path: 'scores',
         component: () => import('@/views/user/score'), // Parent router-view
         name: 'Score',
         meta: { title: '积分明细' }
+      },
+      {
+        path: 'messages',
+        component: () => import('@/views/user/message'), // Parent router-view
+        name: 'Messages',
+        meta: { title: '我的消息' }
+      },
+      {
+        path: 'personal',
+        component: () => import('@/views/user/personal'), // Parent router-view
+        name: 'Personal',
+        meta: { title: '个人中心' }
       }
     ]
   },
