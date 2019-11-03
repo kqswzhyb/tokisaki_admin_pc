@@ -2,13 +2,12 @@
   <div style="padding:20px;">
     <el-row style="margin-top:20px;" :gutter="40">
       <el-col :xs="24" :sm="12" :md="10" :lg="7">
-        <div style="margin: 0 30px 30px 0;">
-          <el-carousel height="300px">
-            <el-carousel-item v-for="(item,index) in images" :key="item">
-              <div :style="{width:'100%',height:'300px',background:`url(${item}) no-repeat center center`}" @click="getImg(images, index)" />
-            </el-carousel-item>
-          </el-carousel>
-        </div>
+        <p v-if="images.length!==0">公告附图</p>
+        <el-carousel v-if="images.length!==0" height="300px">
+          <el-carousel-item v-for="(item,index) in images" :key="item">
+            <div :style="{width:'100%',height:'300px',background:`url(${item}) no-repeat center center`,backgroundSize:'cover'}" @click="getImg(images, index)" />
+          </el-carousel-item>
+        </el-carousel>
         <div>
           <p>操作</p>
           <el-button type="primary" icon="el-icon-edit" round @click="$router.push('/tasks/edit/2')">修改任务</el-button>
@@ -16,7 +15,7 @@
         </div>
         <div>
           <p>功能</p>
-          <el-button type="primary" style="margin-bottom:15px;" round>我的提交</el-button>
+          <el-button type="primary" style="margin-bottom:15px;" round @click="$router.push('/user/record/2?uid=2')">我的提交</el-button>
           <el-button type="warning" style="margin-bottom:15px;" round>小组情况</el-button>
           <el-button type="danger" style="margin-bottom:15px;" round @click="dialogFormVisible=true">去完成任务</el-button>
         </div>
@@ -44,7 +43,7 @@
           <el-tab-pane label="组内排行" name="one">
             <div style="height:75vh;">
               <el-scrollbar style="height:100%;">
-                <div v-for="(item,index) in 10" :key="item" class="flex-start" style="padding:5px 0;border-bottom:1px solid #ccc;">
+                <div v-for="(item,index) in 10" :key="item" class="flex-start" style="padding:5px 0;border-bottom:1px solid #ccc;cursor:pointer;" @click="$router.push('/user/record/2')">
                   <div class="rank flex-center" :style="{backgroundColor: index===0?'#ff9800':index===1?'#ccc':index===2?'#b87333':'#3c9cfe'}"><span style="color:#fff;">{{ index+1 }}</span></div>
                   <div class="flex-between" style="width:100%;">
                     <div class="flex-start">

@@ -56,22 +56,22 @@ export const constantRoutes = [
   },
 
   {
-    path: '/example',
+    path: '/group',
     component: Layout,
-    redirect: '/example/table',
-    name: 'Example',
+    redirect: '/group/members',
+    name: 'Group',
     meta: { title: '群管理', icon: 'example' },
     children: [
       {
-        path: 'table',
-        name: 'Table',
-        component: () => import('@/views/table/index'),
+        path: 'members',
+        name: 'Members',
+        component: () => import('@/views/group/member'),
         meta: { title: '组员管理', icon: 'group' }
       },
       {
-        path: 'tree',
-        name: 'Tree',
-        component: () => import('@/views/tree/index'),
+        path: 'teams',
+        name: 'Teams',
+        component: () => import('@/views/group/team'),
         meta: { title: '小组管理', icon: 'setting' }
       }
     ]
@@ -115,6 +115,7 @@ export const constantRoutes = [
     path: '/user',
     component: Layout,
     name: 'User',
+    redirect: '/user/personal',
     hidden: true,
     children: [
       {
@@ -134,6 +135,12 @@ export const constantRoutes = [
         component: () => import('@/views/user/personal'), // Parent router-view
         name: 'Personal',
         meta: { title: '个人中心' }
+      },
+      {
+        path: 'record/:id',
+        component: () => import('@/views/user/record'), // Parent router-view
+        name: 'Record',
+        meta: { title: '我的提交' }
       }
     ]
   },

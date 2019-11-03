@@ -43,7 +43,7 @@
       <el-row style="margin-top:20px;">
         <el-col v-for="(o) in 4" :key="o" :xs="10" :sm="5" :md="4" style="margin: 0 20px 20px 0;">
           <el-card :body-style="{ padding: '0px' }">
-            <div style="padding: 14px;" @click="$router.push('/tasks/2')">
+            <div style="padding: 14px;cursor:pointer;" @click="$router.push('/tasks/2')">
               <div class="flex-between">
                 <span>好吃的汉堡好吃的汉堡</span>
                 <svg-icon icon-class="working" style="font-size:30px;" />
@@ -62,7 +62,7 @@
       <el-row style="margin-top:20px;">
         <el-col v-for="(o) in 4" :key="o" :xs="10" :sm="5" :md="4" style="margin: 0 20px 20px 0;">
           <el-card :body-style="{ padding: '0px' }">
-            <div style="padding: 14px;" @click="$router.push('/tasks/2')">
+            <div style="padding: 14px;cursor:pointer;" @click="$router.push('/tasks/2')">
               <div class="flex-between">
                 <span>好吃的汉堡好吃的汉堡</span>
                 <svg-icon icon-class="working" style="font-size:30px;" />

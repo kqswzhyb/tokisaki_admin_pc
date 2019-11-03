@@ -74,6 +74,7 @@ export default {
     },
     async logout() {
       await this.$store.dispatch('user/logout')
+      this.$store.commit('app/openDrawer', false)
       this.$router.push(`/login?redirect=${this.$route.fullPath}`)
     }
   }
