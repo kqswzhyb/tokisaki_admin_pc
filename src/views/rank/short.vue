@@ -2,25 +2,21 @@
   <div style="padding:20px;">
     <el-row :gutter="40">
       <el-col :xs="24" :sm="15" :md="16" :lg="17">
-        <el-calendar id="calendar" v-model="value">
-          <template
-            slot="dateCell"
-            slot-scope="{date, data}"
-          >
-            <div>
-              <div class="calendar-day">{{ data.day.split('-').slice(2).join('-') }}</div>
-              <div v-for="(item,index) in calendarData" :key="index">
-                <div v-if="(item.months).indexOf(data.day.split('-').slice(1)[0])!=-1">
-                  <div v-if="(item.days).indexOf(data.day.split('-').slice(2).join('-'))!=-1">
-                    <div class="is-selected" @click.stop="getData(item.things)">{{ item.things }}</div>
-                  </div>
-                  <div v-else />
-                </div>
-                <div v-else />
-              </div>
-            </div>
-          </template>
-        </el-calendar>
+        <FullCalendar
+          default-view="dayGridMonth"
+          :plugins="calendarPlugins"
+          :events="[
+            { id:1,title: 'event 1', start : '2019-11-01',
+              end : '2019-11-04' },
+            { id:2,title: 'event 2', start : '2019-11-05',
+              end : '2019-11-08' },
+            { id:3,title: 'event 3', date: '2019-11-02' },
+            { id:4,title: 'event 4', date: '2019-11-02' },
+
+          ]"
+          locale="zh-cn"
+          @eventClick="eventClick"
+        />
       </el-col>
       <el-col :xs="24" :sm="9" :md="8" :lg="7">
         <p class="main" style="font-size:20px;">{{ active }}</p>
@@ -31,7 +27,7 @@
             <div style="height:468px;">
               <el-scrollbar style="height:100%;">
                 <div v-for="(item,index) in 10" :key="item" class="flex-start" style="padding:5px 0;border-bottom:1px solid #ccc;">
-                  <div class="rank flex-center" :style="{backgroundColor: index===0?'#ff9800':index===1?'#ccc':index===2?'#b87333':'#3c9cfe'}"><span style="color:#fff;">{{ index+1 }}</span></div>
+                  <div class="rank flex-center" :style="{backgroundColor: index===0?'#ff9800':index===1?'#ccc':index===2?'#b87333':'#3c9cfe'}"><span style="color:#fff;font-size:12px">{{ index+1 }}</span></div>
                   <div class="flex-between" style="width:100%;">
                     <div class="flex-start">
                       <img src="https://cdn.quasar.dev/img/avatar2.jpg" style="margin-right:15px;border-radius:50%;" alt="" width="50">
@@ -55,42 +51,30 @@
   </div>
 </template>
 <script>
+import FullCalendar from '@fullcalendar/vue'
+import dayGridPlugin from '@fullcalendar/daygrid'
 export default {
+  components: {
+    FullCalendar
+  },
   data() {
     return {
+      calendarPlugins: [dayGridPlugin],
       value: new Date(),
       activeName: 'one',
-      active: '世萌外交',
-      calendarData: [
-        { months: ['09', '11'], days: ['15'], things: '世萌外交' },
-        { months: ['10', '11'], days: ['02'], things: '开会' },
-        { months: ['11'], days: ['02'], things: '点赞评论' },
-        { months: ['11'], days: ['02'], things: '世萌外交' }
-      ]
+      active: '世萌外交'
     }
   },
   methods: {
-    getData(data) {
-      this.active = data
+    eventClick(data) {
+      console.log(data)
     }
   }
 }
 </script>
 
-<style lang="scss" scoped>
-.calendar-day{
-  text-align: center;
-  color: #202535;
-  line-height: 30px;
-  font-size: 12px;
-}
-.is-selected{
-    color: #e66457;
-    font-size: 10px;
-    margin-top: 5px;
-}
-#calendar .el-button-group>.el-button:not(:first-child):not(:last-child):after{
-    content: '当月';
-}
+<style lang="scss">
+@import '~@fullcalendar/core/main.css';
+@import '~@fullcalendar/daygrid/main.css';
 </style>
 

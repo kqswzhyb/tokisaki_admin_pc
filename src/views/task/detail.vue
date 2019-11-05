@@ -10,13 +10,11 @@
         </el-carousel>
         <div>
           <p>操作</p>
-          <el-button type="primary" icon="el-icon-edit" round @click="$router.push('/tasks/edit/2')">修改任务</el-button>
-          <el-button type="danger" icon="el-icon-delete" round @click="deleteTask">删除任务</el-button>
+          <el-button type="warning" icon="el-icon-edit" round @click="$router.push('/tasks/edit/2')">修改任务</el-button>
         </div>
         <div>
           <p>功能</p>
           <el-button type="primary" style="margin-bottom:15px;" round @click="$router.push('/user/record/2?uid=2')">我的提交</el-button>
-          <el-button type="warning" style="margin-bottom:15px;" round>小组情况</el-button>
           <el-button type="danger" style="margin-bottom:15px;" round @click="dialogFormVisible=true">去完成任务</el-button>
         </div>
       </el-col>
@@ -44,7 +42,7 @@
             <div style="height:75vh;">
               <el-scrollbar style="height:100%;">
                 <div v-for="(item,index) in 10" :key="item" class="flex-start" style="padding:5px 0;border-bottom:1px solid #ccc;cursor:pointer;" @click="$router.push('/user/record/2')">
-                  <div class="rank flex-center" :style="{backgroundColor: index===0?'#ff9800':index===1?'#ccc':index===2?'#b87333':'#3c9cfe'}"><span style="color:#fff;">{{ index+1 }}</span></div>
+                  <div class="rank flex-center" :style="{backgroundColor: index===0?'#ff9800':index===1?'#ccc':index===2?'#b87333':'#3c9cfe'}"><span style="color:#fff;font-size:12px">{{ index+1 }}</span></div>
                   <div class="flex-between" style="width:100%;">
                     <div class="flex-start">
                       <img src="https://cdn.quasar.dev/img/avatar2.jpg" style="margin-right:15px;border-radius:50%;" alt="" width="50">
@@ -152,23 +150,6 @@ export default {
           console.log('error submit!!')
           return false
         }
-      })
-    },
-    deleteTask() {
-      this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.$message({
-          type: 'success',
-          message: '删除成功!'
-        })
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消删除'
-        })
       })
     }
   }

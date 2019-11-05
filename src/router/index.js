@@ -78,6 +78,21 @@ export const constantRoutes = [
   },
 
   {
+    path: '/reward',
+    component: Layout,
+    meta: { title: '积分奖励', icon: 'example' },
+    hidden: true,
+    children: [
+      {
+        path: '',
+        name: 'Reward',
+        component: () => import('@/views/reward'),
+        meta: { title: '积分奖励一览', icon: 'group' }
+      }
+    ]
+  },
+
+  {
     path: '/tasks',
     component: Layout,
     meta: { title: '任务', icon: 'form' },

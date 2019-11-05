@@ -1,5 +1,24 @@
 <template>
   <div class="dashboard-container">
+    <div style="margin-bottom:30px;">
+      <span>短期任务</span>
+      <el-row style="margin-top:20px;">
+        <el-col v-for="(o) in 4" :key="o" :xs="10" :sm="5" :md="4" style="margin: 0 20px 20px 0;">
+          <el-card :body-style="{ padding: '0px' }">
+            <div style="padding: 14px;cursor:pointer;" @click="$router.push('/tasks/2')">
+              <div class="flex-between">
+                <span>好吃的汉堡好吃的汉堡</span>
+                <svg-icon icon-class="working" style="font-size:30px;" />
+              </div>
+              <div class="bottom clearfix">
+                <p style="font-size:14px;color:#666;">by <span class="main">玄机妙算</span></p>
+                <time class="time">2019-10-21 22：00</time>
+              </div>
+            </div>
+          </el-card>
+        </el-col>
+      </el-row>
+    </div>
     <el-row>
       <el-col :xs="10" :sm="5" :md="4">
         <div class="tag">
@@ -38,8 +57,8 @@
         </div>
       </el-col>
     </el-row>
-    <div>
-      <span>短期任务</span>
+    <div style="margin-top:30px;">
+      <span>长期任务</span>
       <el-row style="margin-top:20px;">
         <el-col v-for="(o) in 4" :key="o" :xs="10" :sm="5" :md="4" style="margin: 0 20px 20px 0;">
           <el-card :body-style="{ padding: '0px' }">
@@ -57,14 +76,14 @@
         </el-col>
       </el-row>
     </div>
-    <div style="margin-top:50px;">
-      <span>长期任务</span>
+    <div style="margin-top:30px;">
+      <span>积分奖励</span>
       <el-row style="margin-top:20px;">
-        <el-col v-for="(o) in 4" :key="o" :xs="10" :sm="5" :md="4" style="margin: 0 20px 20px 0;">
+        <el-col :xs="10" :sm="5" :md="4" style="margin: 0 20px 20px 0;">
           <el-card :body-style="{ padding: '0px' }">
-            <div style="padding: 14px;cursor:pointer;" @click="$router.push('/tasks/2')">
+            <div style="padding: 14px;cursor:pointer;" @click="$router.push('/reward')">
               <div class="flex-between">
-                <span>好吃的汉堡好吃的汉堡</span>
+                <span>积分奖励一览</span>
                 <svg-icon icon-class="working" style="font-size:30px;" />
               </div>
               <div class="bottom clearfix">
