@@ -3,16 +3,16 @@
     <div style="margin-bottom:30px;">
       <span>短期任务</span>
       <el-row style="margin-top:20px;">
-        <el-col v-for="(o) in 4" :key="o" :xs="10" :sm="5" :md="4" style="margin: 0 20px 20px 0;">
+        <el-col v-for="(o) in shorts" :key="o.id" :xs="10" :sm="5" :md="4" style="margin: 0 20px 20px 0;">
           <el-card :body-style="{ padding: '0px' }">
-            <div style="padding: 14px;cursor:pointer;" @click="$router.push('/tasks/2')">
+            <div style="padding: 14px;cursor:pointer;" @click="$router.push(`/tasks/${o.id}`)">
               <div class="flex-between">
-                <span>好吃的汉堡好吃的汉堡</span>
-                <svg-icon icon-class="working" style="font-size:30px;" />
+                <span>{{ o.taskName }}</span>
+                <svg-icon :icon-class="o.endDate>currentDate?'working':'finish'" style="font-size:30px;" />
               </div>
               <div class="bottom clearfix">
                 <p style="font-size:14px;color:#666;">by <span class="main">玄机妙算</span></p>
-                <time class="time">2019-10-21 22：00</time>
+                <time class="time">{{ o.startDate | prettyDate }}</time>
               </div>
             </div>
           </el-card>
@@ -60,16 +60,16 @@
     <div style="margin-top:30px;">
       <span>长期任务</span>
       <el-row style="margin-top:20px;">
-        <el-col v-for="(o) in 4" :key="o" :xs="10" :sm="5" :md="4" style="margin: 0 20px 20px 0;">
+        <el-col v-for="(o) in longs" :key="o.id" :xs="10" :sm="5" :md="4" style="margin: 0 20px 20px 0;">
           <el-card :body-style="{ padding: '0px' }">
-            <div style="padding: 14px;cursor:pointer;" @click="$router.push('/tasks/2')">
+            <div style="padding: 14px;cursor:pointer;" @click="$router.push(`/tasks/${o.id}`)">
               <div class="flex-between">
-                <span>好吃的汉堡好吃的汉堡</span>
-                <svg-icon icon-class="working" style="font-size:30px;" />
+                <span>{{ o.taskName }}</span>
+                <svg-icon :icon-class="o.endDate>currentDate?'working':'finish'" style="font-size:30px;" />
               </div>
               <div class="bottom clearfix">
                 <p style="font-size:14px;color:#666;">by <span class="main">玄机妙算</span></p>
-                <time class="time">2019-10-21 22：00</time>
+                <time class="time">{{ o.startDate | prettyDate }}</time>
               </div>
             </div>
           </el-card>
@@ -101,7 +101,6 @@
 <script>
 import { mapGetters } from 'vuex'
 import SvgIcon from '../../components/SvgIcon/index'
-
 export default {
   name: 'Dashboard',
   components: {
@@ -109,13 +108,34 @@ export default {
   },
   data() {
     return {
-      currentDate: new Date()
+      currentDate: new Date(),
+      shorts: [],
+      longs: []
     }
   },
   computed: {
     ...mapGetters([
       'name'
     ])
+  },
+  created() {
+    this.$store.commit('app/openLoading', true)
+    this.$axios.get('/v1/task').then((res) => {
+      if (res.status === 200) {
+        res.data.forEach(item => {
+          if (item.taskType === 'ShortTerm') {
+            this.shorts.push(item)
+          } else {
+            this.longs.push(item)
+          }
+        })
+        this.shorts.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
+        this.longs.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
+        this.$store.commit('app/openLoading', false)
+      }
+    }).catch(() => {
+      this.$message.error('请求出错')
+    })
   },
   methods: {
   }

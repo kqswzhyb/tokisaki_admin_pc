@@ -60,19 +60,19 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/group/members',
     name: 'Group',
-    meta: { title: '群管理', icon: 'example' },
+    meta: { title: '群管理', icon: 'example', role: 2 },
     children: [
       {
         path: 'members',
         name: 'Members',
         component: () => import('@/views/group/member'),
-        meta: { title: '组员管理', icon: 'group' }
+        meta: { title: '组员管理', icon: 'group', role: 2 }
       },
       {
         path: 'teams',
         name: 'Teams',
         component: () => import('@/views/group/team'),
-        meta: { title: '小组管理', icon: 'setting' }
+        meta: { title: '小组管理', icon: 'setting', role: 3 }
       }
     ]
   },
@@ -107,7 +107,7 @@ export const constantRoutes = [
         path: 'create',
         name: 'Create',
         component: () => import('@/views/task/create'),
-        meta: { title: '创建任务', icon: 'create' }
+        meta: { title: '创建任务', icon: 'create', role: 3 }
       },
       {
         path: ':id',
@@ -121,7 +121,7 @@ export const constantRoutes = [
         name: 'Edit',
         component: () => import('@/views/task/edit'),
         hidden: true,
-        meta: { title: '修改任务' }
+        meta: { title: '修改任务', role: 3 }
       }
     ]
   },

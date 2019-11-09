@@ -33,8 +33,31 @@ router.beforeEach(async(to, from, next) => {
         try {
           // get user info
           await store.dispatch('user/getInfo')
-
-          next()
+          const routes = router.options.routes
+          routes[3].hidden = false
+          routes[3].children[1].hidden = false
+          routes[5].children[1].hidden = false
+          switch (store.getters.info.roles.length) {
+            case 1 :
+              routes[3].hidden = true
+              routes[5].children[1].hidden = true
+              if (to.path.includes('/group') || to.path.includes('/tasks/create') || to.path.includes('/tasks/edit')) {
+                next('/404')
+              }
+              next()
+              break
+            case 2 :
+              routes[3].children[1].hidden = true
+              routes[5].children[1].hidden = true
+              if (to.path.includes('/group/teams') || to.path.includes('/tasks/create') || to.path.includes('/tasks/edit')) {
+                next('/404')
+              }
+              next()
+              break
+            case 3 :
+              next()
+              break
+          }
         } catch (error) {
           // remove token and go to login page to re-login
           await store.dispatch('user/resetToken')

@@ -6,7 +6,8 @@
       <div :class="{'fixed-header':fixedHeader}">
         <navbar />
       </div>
-      <app-main />
+      <app-main v-show="!loading" />
+      <Loading v-show="loading" />
     </div>
   </div>
 </template>
@@ -14,13 +15,15 @@
 <script>
 import { Navbar, Sidebar, AppMain } from './components'
 import ResizeMixin from './mixin/ResizeHandler'
+import Loading from '../components/loading'
 
 export default {
   name: 'Layout',
   components: {
     Navbar,
     Sidebar,
-    AppMain
+    AppMain,
+    Loading
   },
   mixins: [ResizeMixin],
   computed: {
@@ -29,6 +32,9 @@ export default {
     },
     device() {
       return this.$store.state.app.device
+    },
+    loading() {
+      return this.$store.state.app.loading
     },
     fixedHeader() {
       return this.$store.state.settings.fixedHeader

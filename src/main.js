@@ -36,6 +36,35 @@ if (process.env.NODE_ENV === 'production') {
   mockXHR()
 }
 
+import dayjs from 'dayjs'
+import 'dayjs/locale/zh-cn'
+import utc from 'dayjs/plugin/utc'
+
+dayjs.locale('zh-cn')
+dayjs.extend(utc)
+
+Vue.filter('prettyDate', dateString => {
+  const date = dayjs
+    .utc(dateString)
+    .local()
+    .format('YYYY年MM月DD日 HH:mm:ss')
+  return date
+})
+
+import { getToken } from '@/utils/auth'
+import axios from 'axios'
+axios.interceptors.request.use((config) => {
+  if (config.method === 'get') {
+    config.data = true
+    // config.headers['Content-Type'] = 'application/x-www-form-urlencoded;charset=utf-8'
+    config.headers['Authorization'] = `Bearer ${getToken()}`
+  }
+  return config
+})
+
+// axios.defaults.withCredentials = true
+axios.defaults.baseURL = 'http://localhost:8090/api'
+Vue.prototype.$axios = axios
 // set ElementUI lang to EN
 // Vue.use(ElementUI, { locale })
 // 如果想要中文版 element-ui，按如下方式声明

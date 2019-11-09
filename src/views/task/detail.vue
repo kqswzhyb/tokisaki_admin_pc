@@ -119,6 +119,21 @@ export default {
       formLabelWidth: '120px'
     }
   },
+  created() {
+    this.$store.commit('app/openLoading', true)
+    this.$axios.get(`/v1/task/${this.$route.params.id}`).then((res) => {
+      if (res.status === 200) {
+        this.$store.commit('app/openLoading', false)
+        console.log(res.data)
+      }
+      if (res.status === 202) {
+        this.$store.commit('app/openLoading', false)
+        this.$router.push('/404')
+      }
+    }).catch(() => {
+      this.$message.error('请求出错')
+    })
+  },
   methods: {
     ReplaceUrl(text) {
       var re = /(http:\/\/|https:\/\/)((\w|=|\?|\.|\/|&|-)+)/gi

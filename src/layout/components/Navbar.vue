@@ -5,7 +5,8 @@
     <breadcrumb class="breadcrumb-container" />
 
     <div class="right-menu">
-      <img :src="avatar+'?imageView2/1/w/80/h/80'" class="user-avatar" @click="$store.commit('app/openDrawer',true)">
+      <img v-if="!$store.state.user.info.avatar" src="@/assets/images/default_user.jpg" class="user-avatar" @click="$store.commit('app/openDrawer',true)">
+      <img v-else :src="avatar" class="user-avatar">
     </div>
     <el-drawer
       :visible.sync="$store.state.app.drawer"
@@ -13,8 +14,9 @@
       size="15%"
     >
       <div class="avatar-bg flex-start">
-        <img :src="avatar+'?imageView2/1/w/80/h/80'" class="drawer-avatar">
-        <span class="name">玄机妙算</span>
+        <img v-if="!$store.state.user.info.avatar" src="@/assets/images/default_user.jpg" class="drawer-avatar">
+        <img v-else :src="avatar" class="drawer-avatar">
+        <span class="name">{{ username|| '未登录' }}</span>
       </div>
       <ul class="right-drawer">
         <li v-for="item in configs" :key="item.path" class="drawer-cell" @click="$router.push(item.path);$store.commit('app/openDrawer',false)"><svg-icon :icon-class="item.icon" :style="{color:$route.path===item.path?'rgb(64, 158, 255)':'#000'}" /> <span :style="{marginLeft:'20px',color:$route.path===item.path?'rgb(64, 158, 255)':'#000'}">{{ item.text }}</span></li>
@@ -65,8 +67,37 @@ export default {
   computed: {
     ...mapGetters([
       'sidebar',
-      'avatar'
-    ])
+      'info'
+    ]),
+    username() {
+      return this.$store.state.user.info.username
+    },
+    avatar() {
+      return this.$store.state.user.info.avatar
+    }
+  },
+  watch: {
+    // '$store.state.user.token':{
+    //   handler:function (value) {
+    //     if(value) {
+    //       this.$axios.get('/me').then((res) => {
+    //         if (res.status === 200) {
+    //           this.$store.commit('user/SET_INFO',res.data)
+    //           this.$store.commit('app/openLoading',false)
+
+    //         }
+    //         if (res.status === 202) {
+    //           this.$store.commit('app/openLoading',false)
+    //           this.$router.push('/404')
+    //         }
+    //       }).catch(() => {
+    //         this.$message.error('请求出错')
+    //       })
+    //     }
+    //   },
+    //   deep:true,
+    //   immediate:true
+    // }
   },
   methods: {
     toggleSideBar() {

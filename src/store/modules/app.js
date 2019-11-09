@@ -6,12 +6,16 @@ const state = {
     withoutAnimation: false
   },
   drawer: false,
+  loading: false,
   device: 'desktop'
 }
 
 const mutations = {
   openDrawer: (state, bol) => {
     state.drawer = bol
+  },
+  openLoading: (state, bol) => {
+    state.loading = bol
   },
   TOGGLE_SIDEBAR: state => {
     state.sidebar.opened = !state.sidebar.opened
