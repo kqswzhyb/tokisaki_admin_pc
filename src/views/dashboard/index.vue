@@ -2,13 +2,13 @@
   <div class="dashboard-container">
     <div style="margin-bottom:30px;">
       <span>短期任务</span>
-      <el-row style="margin-top:20px;">
-        <el-col v-for="(o) in shorts" :key="o.id" :xs="10" :sm="5" :md="4" style="margin: 0 20px 20px 0;">
+      <el-row v-if="shorts.some(item=>new Date(item.endDate).getTime()>currentDate.getTime())" style="margin-top:20px;">
+        <el-col v-for="(o) in shorts" v-if="new Date(o.endDate).getTime()>currentDate.getTime()" :key="o.id" :xs="10" :sm="5" :md="4" style="margin: 0 20px 20px 0;">
           <el-card :body-style="{ padding: '0px' }">
             <div style="padding: 14px;cursor:pointer;" @click="$router.push(`/tasks/${o.id}`)">
               <div class="flex-between">
                 <span>{{ o.taskName }}</span>
-                <svg-icon :icon-class="o.endDate>currentDate?'working':'finish'" style="font-size:30px;" />
+                <svg-icon :icon-class="new Date(o.endDate).getTime()>currentDate.getTime()?'working':'finish'" style="font-size:30px;" />
               </div>
               <div class="bottom clearfix">
                 <p style="font-size:14px;color:#666;">by <span class="main">玄机妙算</span></p>
@@ -17,6 +17,11 @@
             </div>
           </el-card>
         </el-col>
+      </el-row>
+      <el-row v-else style="margin-top:20px;">
+        <div style="margin-left:50px;color:#505050;">
+          暂无进行中的任务...
+        </div>
       </el-row>
     </div>
     <el-row>
@@ -59,13 +64,13 @@
     </el-row>
     <div style="margin-top:30px;">
       <span>长期任务</span>
-      <el-row style="margin-top:20px;">
-        <el-col v-for="(o) in longs" :key="o.id" :xs="10" :sm="5" :md="4" style="margin: 0 20px 20px 0;">
+      <el-row v-if="longs.some(item=>new Date(item.endDate).getTime()>currentDate.getTime())" style="margin-top:20px;">
+        <el-col v-for="(o) in longs" v-if="new Date(o.endDate).getTime()>currentDate.getTime()" :key="o.id" :xs="10" :sm="5" :md="4" style="margin: 0 20px 20px 0;">
           <el-card :body-style="{ padding: '0px' }">
             <div style="padding: 14px;cursor:pointer;" @click="$router.push(`/tasks/${o.id}`)">
               <div class="flex-between">
                 <span>{{ o.taskName }}</span>
-                <svg-icon :icon-class="o.endDate>currentDate?'working':'finish'" style="font-size:30px;" />
+                <svg-icon :icon-class="new Date(o.endDate).getTime()>currentDate.getTime()?'working':'finish'" style="font-size:30px;" />
               </div>
               <div class="bottom clearfix">
                 <p style="font-size:14px;color:#666;">by <span class="main">玄机妙算</span></p>
@@ -74,6 +79,11 @@
             </div>
           </el-card>
         </el-col>
+      </el-row>
+      <el-row v-else style="margin-top:20px;">
+        <div style="margin-left:50px;color:#505050;">
+          暂无进行中的任务...
+        </div>
       </el-row>
     </div>
     <div style="margin-top:30px;">

@@ -13,7 +13,7 @@ export default {
 
 <style lang="scss" scoped>
 .view {
-  height:calc(100vh - 50px);
+  height:calc(100vh - 83px);
   flex-direction:column;
 }
 .tip {

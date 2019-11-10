@@ -5,7 +5,7 @@
     <breadcrumb class="breadcrumb-container" />
 
     <div class="right-menu">
-      <img v-if="!$store.state.user.info.avatar" src="@/assets/images/default_user.jpg" class="user-avatar" @click="$store.commit('app/openDrawer',true)">
+      <img v-if="!avatar" src="@/assets/images/default_user.jpg" class="user-avatar" @click="$store.commit('app/openDrawer',true)">
       <img v-else :src="avatar" class="user-avatar">
     </div>
     <el-drawer
@@ -14,7 +14,7 @@
       size="15%"
     >
       <div class="avatar-bg flex-start">
-        <img v-if="!$store.state.user.info.avatar" src="@/assets/images/default_user.jpg" class="drawer-avatar">
+        <img v-if="!avatar" src="@/assets/images/default_user.jpg" class="drawer-avatar">
         <img v-else :src="avatar" class="drawer-avatar">
         <span class="name">{{ username|| '未登录' }}</span>
       </div>

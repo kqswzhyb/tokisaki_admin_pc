@@ -5,6 +5,7 @@
     <div class="main-container">
       <div :class="{'fixed-header':fixedHeader}">
         <navbar />
+        <tags-view />
       </div>
       <app-main v-show="!loading" />
       <Loading v-show="loading" />
@@ -13,7 +14,7 @@
 </template>
 
 <script>
-import { Navbar, Sidebar, AppMain } from './components'
+import { Navbar, Sidebar, AppMain, TagsView } from './components'
 import ResizeMixin from './mixin/ResizeHandler'
 import Loading from '../components/loading'
 
@@ -23,7 +24,8 @@ export default {
     Navbar,
     Sidebar,
     AppMain,
-    Loading
+    Loading,
+    TagsView
   },
   mixins: [ResizeMixin],
   computed: {

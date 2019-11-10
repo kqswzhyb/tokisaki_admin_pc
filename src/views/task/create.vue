@@ -2,7 +2,7 @@
   <div style="padding:20px;">
     <el-form ref="form" :model="form" label-width="80px">
       <el-form-item label="任务名称">
-        <el-input v-model="form.name" style="width:300px;" />
+        <el-input v-model="form.name" style="width:300px;" placeholder="请输入任务名称" />
       </el-form-item>
       <el-form-item label="任务时间">
         <el-date-picker
@@ -15,8 +15,8 @@
       </el-form-item>
       <el-form-item label="任务类型">
         <el-radio-group v-model="form.type">
-          <el-radio-button :label="0">短期</el-radio-button>
-          <el-radio-button :label="1">长期</el-radio-button>
+          <el-radio-button label="ShortTerm">短期</el-radio-button>
+          <el-radio-button label="LongTerm">长期</el-radio-button>
         </el-radio-group>
       </el-form-item>
       <el-form-item label="获得积分">
@@ -34,7 +34,7 @@
         <van-uploader v-model="form.images" multiple />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit">立即创建</el-button>
+        <el-button :loading="loading" type="primary" @click="onSubmit">立即创建</el-button>
         <el-button>取消</el-button>
       </el-form-item>
     </el-form>
@@ -43,17 +43,19 @@
 
 <script>
 import { Uploader as VanUploader } from 'vant'
+import dayjs from 'dayjs'
 export default {
   components: {
     VanUploader
   },
   data() {
     return {
+      loading: false,
       form: {
         name: '',
-        type: 0,
+        type: 'ShortTerm',
         score: '',
-        date: '',
+        date: [],
         content: '',
         images: [
           { url: 'https://img.yzcdn.cn/vant/leaf.jpg' },
@@ -85,8 +87,32 @@ export default {
     }
   },
   methods: {
-    onSubmit() {
-      console.log('submit!')
+    async onSubmit() {
+      this.loading = true
+      try {
+        const res = await this.$axios.post('/v1/task', {
+          taskName: this.form.name,
+          startDate: dayjs
+            .utc(this.form.date[0]).format(),
+          endDate: dayjs
+            .utc(this.form.date[1]).format(),
+          taskType: this.form.type,
+          taskScore: this.form.score
+        }, {
+          headers: {
+            'Content-Type': 'application/json; charset=UTF-8'
+          }
+        })
+        if (res.status !== 200) {
+          this.$message.error('错误')
+          this.loading = false
+        } else {
+          this.loading = false
+        }
+      } catch {
+        this.$message.error('请求出错')
+        this.loading = false
+      }
     }
   }
 }
