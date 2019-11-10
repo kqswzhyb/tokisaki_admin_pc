@@ -51,7 +51,7 @@ export const constantRoutes = [
       path: 'dashboard',
       name: 'Dashboard',
       component: () => import('@/views/dashboard/index'),
-      meta: { title: '首页', icon: 'dashboard' }
+      meta: { title: '首页', icon: 'dashboard', affix: true }
     }]
   },
 
@@ -185,6 +185,17 @@ export const constantRoutes = [
         path: 'interval',
         component: () => import('@/views/rank/interval'),
         meta: { title: '周期排行', icon: 'rank3' }
+      }
+    ]
+  },
+  {
+    path: '/redirect',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: '/redirect/:path*',
+        component: () => import('@/views/redirect')
       }
     ]
   },

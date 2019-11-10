@@ -34,7 +34,7 @@
         <van-uploader v-model="form.images" multiple />
       </el-form-item>
       <el-form-item>
-        <el-button :loading="loading" type="primary" @click="onSubmit">立即创建</el-button>
+        <el-button :loading="loading" :disabled="loading" type="primary" @click="onSubmit">立即创建</el-button>
         <el-button>取消</el-button>
       </el-form-item>
     </el-form>
@@ -58,10 +58,10 @@ export default {
         date: [],
         content: '',
         images: [
-          { url: 'https://img.yzcdn.cn/vant/leaf.jpg' },
+          // { url: 'https://img.yzcdn.cn/vant/leaf.jpg' },
           // Uploader 根据文件后缀来判断是否为图片文件
           // 如果图片 URL 中不包含类型信息，可以添加 isImage 标记来声明
-          { url: 'https://cloud-image', isImage: true }
+          // { url: 'https://cloud-image', isImage: true }
         ]
       },
       options: {
@@ -97,13 +97,14 @@ export default {
           endDate: dayjs
             .utc(this.form.date[1]).format(),
           taskType: this.form.type,
-          taskScore: this.form.score
+          taskScore: this.form.score,
+          taskDetail: this.form.content
         }, {
           headers: {
             'Content-Type': 'application/json; charset=UTF-8'
           }
         })
-        if (res.status !== 200) {
+        if (res.status !== 201) {
           this.$message.error('错误')
           this.loading = false
         } else {

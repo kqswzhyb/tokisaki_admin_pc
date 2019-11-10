@@ -11,7 +11,7 @@
                 <svg-icon :icon-class="new Date(o.endDate).getTime()>currentDate.getTime()?'working':'finish'" style="font-size:30px;" />
               </div>
               <div class="bottom clearfix">
-                <p style="font-size:14px;color:#666;">by <span class="main">玄机妙算</span></p>
+                <p style="font-size:14px;color:#666;">by <span class="main">{{ o.createUser&&o.createUser.nickName || '管理员' }}</span></p>
                 <time class="time">{{ o.startDate | prettyDate }}</time>
               </div>
             </div>
@@ -73,7 +73,7 @@
                 <svg-icon :icon-class="new Date(o.endDate).getTime()>currentDate.getTime()?'working':'finish'" style="font-size:30px;" />
               </div>
               <div class="bottom clearfix">
-                <p style="font-size:14px;color:#666;">by <span class="main">玄机妙算</span></p>
+                <p style="font-size:14px;color:#666;">by <span class="main">{{ o.createUser&&o.createUser.nickName || '管理员' }}</span></p>
                 <time class="time">{{ o.startDate | prettyDate }}</time>
               </div>
             </div>
