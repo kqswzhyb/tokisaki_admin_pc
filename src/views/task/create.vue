@@ -104,10 +104,18 @@ export default {
             'Content-Type': 'application/json; charset=UTF-8'
           }
         })
+        console.log(res)
         if (res.status !== 201) {
           this.$message.error('错误')
           this.loading = false
         } else {
+          this.$message({
+            message: '创建成功',
+            type: 'success'
+          })
+          setTimeout(() => {
+            this.$router.push(`/tasks/${res.headers.location}`)
+          }, 2000)
           this.loading = false
         }
       } catch {

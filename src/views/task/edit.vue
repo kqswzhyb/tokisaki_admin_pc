@@ -101,7 +101,7 @@ export default {
     async onSubmit() {
       this.loading = true
       try {
-        const res = await this.$axios.post(`/v1/task/${this.$route.params.id}`, {
+        const res = await this.$axios.put(`/v1/task/${this.$route.params.id}`, {
           taskName: this.form.name,
           startDate: dayjs
             .utc(this.form.date[0]).format(),
@@ -109,7 +109,8 @@ export default {
             .utc(this.form.date[1]).format(),
           taskType: this.form.type,
           taskScore: this.form.score,
-          taskDetail: this.form.content
+          taskDetail: this.form.content,
+          id: this.$route.params.id
         }, {
           headers: {
             'Content-Type': 'application/json; charset=UTF-8'
@@ -119,6 +120,13 @@ export default {
           this.$message.error('错误')
           this.loading = false
         } else {
+          this.$message({
+            message: '修改成功',
+            type: 'success'
+          })
+          setTimeout(() => {
+            this.$router.push(`/tasks/${this.$route.params.id}`)
+          }, 2000)
           this.loading = false
         }
       } catch {
