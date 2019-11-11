@@ -76,29 +76,6 @@ export default {
       return this.$store.state.user.info.avatar
     }
   },
-  watch: {
-    // '$store.state.user.token':{
-    //   handler:function (value) {
-    //     if(value) {
-    //       this.$axios.get('/me').then((res) => {
-    //         if (res.status === 200) {
-    //           this.$store.commit('user/SET_INFO',res.data)
-    //           this.$store.commit('app/openLoading',false)
-
-    //         }
-    //         if (res.status === 202) {
-    //           this.$store.commit('app/openLoading',false)
-    //           this.$router.push('/404')
-    //         }
-    //       }).catch(() => {
-    //         this.$message.error('请求出错')
-    //       })
-    //     }
-    //   },
-    //   deep:true,
-    //   immediate:true
-    // }
-  },
   methods: {
     toggleSideBar() {
       this.$store.dispatch('app/toggleSideBar')
@@ -106,7 +83,7 @@ export default {
     async logout() {
       await this.$store.dispatch('user/logout')
       this.$store.commit('app/openDrawer', false)
-      this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+      this.$router.push(`/login?redirect=dashboard`)
     }
   }
 }

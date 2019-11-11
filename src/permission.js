@@ -1,4 +1,4 @@
-import router from './router'
+import router, { resetRouter } from './router'
 import store from './store'
 import { Message } from 'element-ui'
 import NProgress from 'nprogress' // progress bar
@@ -27,41 +27,20 @@ router.beforeEach(async(to, from, next) => {
       NProgress.done()
     } else {
       const hasGetUserInfo = store.getters.info
-      console.log(hasGetUserInfo)
       if (!hasGetUserInfo) {
         await store.dispatch('user/getInfo')
       }
+
       try {
-        const routes = router.options.routes
-        routes[3].hidden = false
-        routes[3].children[1].hidden = false
-        routes[5].children[1].hidden = false
-        switch (store.getters.info.roles.length) {
-          case 1 :
-            routes[3].hidden = true
-            routes[5].children[1].hidden = true
-            if (to.path.includes('/group') || to.path.includes('/tasks/create') || to.path.includes('/tasks/edit')) {
-              next('/404')
-            }
-            next()
-            break
-          case 2 :
-            routes[3].children[1].hidden = true
-            routes[5].children[1].hidden = true
-            if (to.path.includes('/group/teams') || to.path.includes('/tasks/create') || to.path.includes('/tasks/edit')) {
-              next('/404')
-            }
-            next()
-            break
-          case 3 :
-            next()
-            break
-        }
+        const accessRoutes = await store.dispatch('permission/generateRoutes', store.getters.info.roles)
+        resetRouter(accessRoutes)
+
+        next()
       } catch (error) {
         // remove token and go to login page to re-login
         await store.dispatch('user/resetToken')
         Message.error(error || 'Has Error')
-        next(`/login?redirect=${to.path}`)
+        next(`/login?redirect=dashboard`)
         NProgress.done()
       }
     }
@@ -73,7 +52,7 @@ router.beforeEach(async(to, from, next) => {
       next()
     } else {
       // other pages that do not have permission to access are redirected to the login page.
-      next(`/login?redirect=${to.path}`)
+      next(`/login?redirect=dashboard`)
       NProgress.done()
     }
   }

@@ -48,7 +48,7 @@ export default {
       return this.$store.state.user.info.roles
     },
     routes() {
-      return this.$router.options.routes
+      return this.$store.state.permission.addRoutes
     }
   },
   watch: {
