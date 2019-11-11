@@ -65,7 +65,7 @@ axios.interceptors.request.use((config) => {
   return config
 })
 
-axios.defaults.withCredentials = true
+// axios.defaults.withCredentials = true
 axios.defaults.baseURL = 'http://localhost:8090/api'
 Vue.prototype.$axios = axios
 // set ElementUI lang to EN

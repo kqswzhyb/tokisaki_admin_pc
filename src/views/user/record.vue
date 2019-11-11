@@ -96,10 +96,12 @@ export default {
   methods: {
     ReplaceUrl(text) {
       var re = /(http:\/\/|https:\/\/)((\w|=|\?|\.|\/|&|-)+)/gi
-      var s = text.replace(re, a => {
-        return '<a href="' + a + '" target=_blank>' + a + '</a>'
-      })
-      return s
+      if (re.test(text)) {
+        return text.replace(re, a => {
+          return '<a href="' + a + '" target=_blank style="text-decoration: underline;color: #00c;">' + a + '</a>'
+        })
+      }
+      return text
     },
     open(index) {
       this.$prompt('请输入积分(数字)', '修改积分', {

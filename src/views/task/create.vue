@@ -104,7 +104,6 @@ export default {
             'Content-Type': 'application/json; charset=UTF-8'
           }
         })
-        console.log(res)
         if (res.status !== 201) {
           this.$message.error('错误')
           this.loading = false

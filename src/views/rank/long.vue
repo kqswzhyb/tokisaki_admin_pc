@@ -5,13 +5,13 @@
         <el-select v-model="value" placeholder="请选择">
           <el-option
             v-for="item in options"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
+            :key="item.id"
+            :label="item.taskName"
+            :value="item.id"
           />
         </el-select>
-        <p>本次任务起始时间: 2019.10.19 00:00:00</p>
-        <p>本次任务结束时间: 2019.10.26 00:00:00</p>
+        <p>本次任务起始时间: {{ value && options.find(item=>item.id===value).startDate | prettyDate }}</p>
+        <p>本次任务结束时间: {{ value && options.find(item=>item.id===value).endDate | prettyDate }}</p>
         <el-tabs v-model="activeName" type="border-card">
           <el-tab-pane label="组内排行" name="one">
             <div style="height:468px;">
@@ -46,25 +46,21 @@ export default {
   data() {
     return {
       activeName: 'one',
-      options: [{
-        value: '选项1',
-        label: '征集手绘作品'
-      }, {
-        value: '选项2',
-        label: '征集周边素材'
-      }, {
-        value: '选项3',
-        label: '征集同人文'
-      }, {
-        value: '选项4',
-        label: '征集应援词'
-      },
-      {
-        value: '选项4',
-        label: '众筹集资'
-      }],
+      options: [],
       value: ''
     }
+  },
+  created() {
+    this.$store.commit('app/openLoading', true)
+    this.$axios.get('/v1/task/search/?taskType=LongTerm').then((res) => {
+      if (res.status === 200) {
+        this.options = res.data.sort((a, b) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime())
+        this.value = this.options[0].id
+        this.$store.commit('app/openLoading', false)
+      }
+    }).catch(() => {
+      this.$message.error('请求出错')
+    })
   },
   methods: {
   }

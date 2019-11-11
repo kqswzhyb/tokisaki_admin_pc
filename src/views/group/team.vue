@@ -2,17 +2,17 @@
   <div style="padding:20px;">
     <el-button type="primary" round @click="create">新建小组</el-button>
     <el-row style="margin-top:20px;">
-      <el-col v-for="o in data" :key="o" :xs="12" :sm="8" :md="6" style="margin: 0 20px 20px 0;">
+      <el-col v-for="o in data" :key="o.id" :xs="12" :sm="8" :md="6" style="margin: 0 20px 20px 0;">
         <el-card :body-style="{ padding: '0px' }">
           <div style="padding: 14px;">
             <div class="flex-between">
-              <span>{{ o.name }}</span>
-              <span :style="{color:o.status===0?'#000':'#e66457'}">{{ statusList.find(item=>item.value===o.status).label }}</span>
+              <span>{{ o.groupName }}</span>
+              <span :style="{color:o.groupStatus==='Normal'?'#000':'#e66457'}">{{ statusList.find(item=>item.value===o.groupStatus).label }}</span>
             </div>
             <div class="bottom clearfix">
-              <p style="font-size:14px;color:#666;">邀请码： <span class="main">{{ o.code }}</span></p>
-              <el-button type="primary" size="small" plain @click="open(o.id,o.name)">更换邀请码</el-button>
-              <el-button type="warning" size="small" plain @click="editStatus(o.id,o.status)">状态管理</el-button>
+              <p style="font-size:14px;color:#666;">邀请码： <span class="main">{{ o.groupInviteCode }}</span></p>
+              <el-button type="primary" size="small" plain @click="open(o.id,o.groupName)">更换邀请码</el-button>
+              <el-button type="warning" size="small" plain @click="editStatus(o.id,o.groupStatus)">状态管理</el-button>
             </div>
           </div>
         </el-card>
@@ -21,13 +21,13 @@
     <el-dialog title="修改" :visible.sync="dialogFormVisible" @close="reset">
       <el-form>
         <el-form-item v-if="selectStatus!==''" label="状态" :label-width="formLabelWidth">
-          <el-radio v-model="selectStatus" :label="0">正常</el-radio>
-          <el-radio v-model="selectStatus" :label="1">停用</el-radio>
+          <el-radio v-model="selectStatus" label="Normal">正常</el-radio>
+          <el-radio v-model="selectStatus" label="Frozen">停用</el-radio>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+        <el-button type="primary" @click="onSubmit">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -41,31 +41,29 @@ export default {
       selectStatus: '',
       statusList: [
         {
-          value: 0,
+          value: 'Normal',
           label: '正常'
         },
         {
-          value: 1,
+          value: 'Frozen',
           label: '停用'
         }
       ],
-      data: [
-        {
-          id: 1,
-          name: '1组',
-          code: '2D4FZZ213',
-          status: 0
-        },
-        {
-          id: 2,
-          name: '2组',
-          code: '2D4FZZ213',
-          status: 1
-        }
-      ],
+      data: [],
       dialogFormVisible: false,
       formLabelWidth: '120px'
     }
+  },
+  created() {
+    this.$store.commit('app/openLoading', true)
+    this.$axios.get('/v1/usergroup/listall').then((res) => {
+      if (res.status === 200) {
+        this.data = res.data
+        this.$store.commit('app/openLoading', false)
+      }
+    }).catch(() => {
+      this.$message.error('请求出错')
+    })
   },
   methods: {
     open(id, name) {
@@ -74,28 +72,46 @@ export default {
         cancelButtonText: '取消',
         dangerouslyUseHTMLString: true,
         type: 'warning'
-      }).then(() => {
-        this.$message({
-          type: 'success',
-          message: '更换成功!'
-        })
+      }).then(async() => {
+        try {
+          await this.$axios.put(`/v1/usergroup/updateGroupInviteCode/${id}`, {
+            groupName: name
+          }, {
+            headers: {
+              'Content-Type': 'application/json; charset=UTF-8'
+            }})
+          this.$message({
+            type: 'success',
+            message: '更换成功'
+          })
+        } catch (err) {
+          console.log(err)
+          this.$message.error('请求出错')
+        }
       })
     },
     create() {
       this.$prompt('请输入组名', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消'
-      }).then(({ value }) => {
-        this.data.push({
-          id: this.data.length + 1,
-          name: value,
-          code: '2D4FZZ213',
-          status: 0
-        },)
-        this.$message({
-          type: 'success',
-          message: '创建成功'
-        })
+      }).then(async({ value }) => {
+        try {
+          await this.$axios.post(`/v1/usergroup/save`, {
+            groupName: value
+          }, {
+            headers: {
+              'Content-Type': 'application/json; charset=UTF-8'
+            }})
+          const res = await this.$axios.get('/v1/usergroup/listall')
+          this.data = res.data
+          this.$message({
+            type: 'success',
+            message: '创建成功'
+          })
+        } catch (err) {
+          console.log(err)
+          this.$message.error('请求出错')
+        }
       })
     },
     editStatus(id, status) {
@@ -105,6 +121,26 @@ export default {
     },
     reset() {
       this.selectStatus = ''
+    },
+    async onSubmit() {
+      try {
+        await this.$axios.put(`/v1/usergroup/updateGroupStatus/${this.selectId}`, {
+          groupStatus: this.selectStatus
+        }, {
+          headers: {
+            'Content-Type': 'application/json; charset=UTF-8'
+          }})
+        const index = this.data.findIndex(item => item.id === this.selectId)
+        this.data[index].groupStatus = this.selectStatus
+        this.$message({
+          type: 'success',
+          message: '修改成功'
+        })
+        this.dialogFormVisible = false
+      } catch (err) {
+        console.log(err)
+        this.$message.error('请求出错')
+      }
     }
   }
 }

@@ -178,11 +178,13 @@ export const constantRoutes = [
       },
       {
         path: 'long',
+        name: 'Long',
         component: () => import('@/views/rank/long'),
         meta: { title: '长期任务', icon: 'rank2' }
       },
       {
         path: 'interval',
+        name: 'Interval',
         component: () => import('@/views/rank/interval'),
         meta: { title: '周期排行', icon: 'rank3' }
       }

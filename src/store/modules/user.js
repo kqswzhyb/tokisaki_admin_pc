@@ -46,6 +46,9 @@ const actions = {
         }
         resolve(res.data)
       }).catch(error => {
+        commit('SET_TOKEN', '')
+        removeToken()
+        resetRouter(constantRoutes)
         reject(error)
       })
     })
