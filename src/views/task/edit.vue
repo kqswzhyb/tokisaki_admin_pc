@@ -94,7 +94,7 @@ export default {
         this.$store.commit('app/openLoading', false)
       }
     }).catch(() => {
-      this.$message.error('请求出错')
+      this.$message.error('请求出错,请检查网络或刷新重试！')
     })
   },
   methods: {
@@ -130,7 +130,7 @@ export default {
           this.loading = false
         }
       } catch {
-        this.$message.error('请求出错')
+        this.$message.error('请求出错,请检查网络或刷新重试！')
         this.loading = false
       }
     }

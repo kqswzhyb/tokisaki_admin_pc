@@ -62,7 +62,7 @@ export default {
         this.$store.commit('app/openLoading', false)
       }
     }).catch(() => {
-      this.$message.error('请求出错')
+      this.$message.error('请求出错,请检查网络或刷新重试！')
     })
   },
   methods: {
@@ -86,7 +86,7 @@ export default {
           })
         } catch (err) {
           console.log(err)
-          this.$message.error('请求出错')
+          this.$message.error('请求出错,请检查网络或刷新重试！')
         }
       })
     },
@@ -110,7 +110,7 @@ export default {
           })
         } catch (err) {
           console.log(err)
-          this.$message.error('请求出错')
+          this.$message.error('请求出错,请检查网络或刷新重试！')
         }
       })
     },
@@ -139,7 +139,7 @@ export default {
         this.dialogFormVisible = false
       } catch (err) {
         console.log(err)
-        this.$message.error('请求出错')
+        this.$message.error('请求出错,请检查网络或刷新重试！')
       }
     }
   }

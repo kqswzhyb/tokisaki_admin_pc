@@ -132,7 +132,7 @@ export default {
         this.$router.push('/404')
       }
     }).catch(() => {
-      this.$message.error('请求出错')
+      this.$message.error('请求出错,请检查网络或刷新重试！')
     })
   },
   methods: {
