@@ -74,12 +74,9 @@ export default {
         type: 'warning'
       }).then(async() => {
         try {
-          await this.$axios.put(`/v1/usergroup/updateGroupInviteCode/${id}`, {
-            groupName: name
-          }, {
-            headers: {
-              'Content-Type': 'application/json; charset=UTF-8'
-            }})
+          const res = await this.$axios.put(`/v1/usergroup/updateInviteCode/${id}`)
+          const index = this.data.findIndex(item => item.id === id)
+          this.data[index].groupInviteCode = res.data.groupInviteCode
           this.$message({
             type: 'success',
             message: '更换成功'
@@ -123,24 +120,21 @@ export default {
       this.selectStatus = ''
     },
     async onSubmit() {
-      try {
-        await this.$axios.put(`/v1/usergroup/updateGroupStatus/${this.selectId}`, {
-          groupStatus: this.selectStatus
-        }, {
-          headers: {
-            'Content-Type': 'application/json; charset=UTF-8'
-          }})
-        const index = this.data.findIndex(item => item.id === this.selectId)
-        this.data[index].groupStatus = this.selectStatus
-        this.$message({
-          type: 'success',
-          message: '修改成功'
-        })
-        this.dialogFormVisible = false
-      } catch (err) {
-        console.log(err)
-        this.$message.error('请求出错,请检查网络或刷新重试！')
+      const index = this.data.findIndex(item => item.id === this.selectId)
+      if (this.data[index].groupStatus !== this.selectStatus) {
+        try {
+          await this.$axios.put(`/v1/usergroup/updateGroupStatus/${this.selectId}/?taskType=${this.selectStatus}`)
+          this.data[index].groupStatus = this.selectStatus
+          this.$message({
+            type: 'success',
+            message: '修改成功'
+          })
+        } catch (err) {
+          console.log(err)
+          this.$message.error('请求出错,请检查网络或刷新重试！')
+        }
       }
+      this.dialogFormVisible = false
     }
   }
 }
