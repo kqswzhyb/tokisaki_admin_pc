@@ -62,8 +62,9 @@ export default {
     this.$store.commit('app/openLoading', true)
     this.$axios.get('/v1/task/search/?taskType=ShortTerm').then((res) => {
       if (res.status === 200) {
-        this.options = res.data.map(item => ({ ...item, start: item.startDate, end: item.endDate, title: item.taskName })).sort((a, b) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime())
+        this.options = res.data.map(item => ({ ...item, start: item.startDate, end: item.endDate, title: item.taskName, backgroundColor: '#3788d8', borderColor: '#3788d8' })).sort((a, b) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime())
         this.value = this.options[0].id
+        this.options[0] = Object.assign(this.options[0], { backgroundColor: '#e66457', borderColor: '#e66457' })
         this.active = this.options[0]
         this.$store.commit('app/openLoading', false)
       }
@@ -73,8 +74,12 @@ export default {
   },
   methods: {
     eventClick(data) {
-      const id = data.event.id
-      this.active = this.options.find(item => item.id === id)
+      const index = this.options.findIndex(item => item.id === this.value)
+      this.options[index] = Object.assign(this.options[index], { backgroundColor: '#3788d8', borderColor: '#3788d8' })
+      this.value = data.event.id
+      const index2 = this.options.findIndex(item => item.id === this.value)
+      this.options[index2] = Object.assign(this.options[index2], { backgroundColor: '#e66457', borderColor: '#e66457' })
+      this.active = this.options[index2]
     }
   }
 }
