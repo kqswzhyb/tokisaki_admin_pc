@@ -3,8 +3,14 @@
     <el-tabs v-model="activeName" type="card">
       <el-tab-pane label="短期任务" name="short">
         <el-row style="margin-top:20px;">
-          <ul v-infinite-scroll="load" class="infinite-list" style="overflow:auto">
-            <el-col v-for="(o) in shorts.slice(0,shortNumber)" :key="o.id" tag="li" :xs="10" :sm="5" :md="4" style="margin: 0 20px 20px 0;">
+          <van-list
+            v-model="loading"
+            :finished="finished"
+            finished-text=""
+            loading-text=""
+            @load="onLoad"
+          >
+            <el-col v-for="(o) in shorts.slice(0,shortNumber)" :key="o.id" :xs="10" :sm="5" :md="4" style="margin: 0 20px 20px 0;">
               <el-card :body-style="{ padding: '0px' }">
                 <div style="padding: 14px;cursor:pointer;" @click="$router.push(`/tasks/${o.id}`)">
                   <div class="flex-between">
@@ -18,7 +24,7 @@
                 </div>
               </el-card>
             </el-col>
-          </ul>
+          </van-list>
         </el-row>
       </el-tab-pane>
       <el-tab-pane label="长期任务" name="long">
@@ -44,14 +50,20 @@
 </template>
 
 <script>
+import { List as VanList } from 'vant'
 export default {
+  components: {
+    VanList
+  },
   data() {
     return {
       activeName: 'short',
       currentDate: new Date(),
-      shortNumber: 10,
+      shortNumber: 20,
       shorts: [],
-      longs: []
+      longs: [],
+      loading: false,
+      finished: false
     }
   },
   created() {
@@ -67,6 +79,16 @@ export default {
         })
         this.shorts.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
         this.longs.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
+        this.shorts = this.shorts.filter(
+          item => new Date(item.endDate).getTime() > this.currentDate.getTime()
+        ).concat(this.shorts.filter(
+          item => new Date(item.endDate).getTime() < this.currentDate.getTime()
+        ))
+        this.longs = this.longs.filter(
+          item => new Date(item.endDate).getTime() > this.currentDate.getTime()
+        ).concat(this.longs.filter(
+          item => new Date(item.endDate).getTime() < this.currentDate.getTime()
+        ))
         this.$store.commit('app/openLoading', false)
       }
     }).catch(() => {
@@ -74,8 +96,16 @@ export default {
     })
   },
   methods: {
-    load() {
-      this.shortNumber += 10
+    onLoad() {
+      setTimeout(() => {
+        if (this.shortNumber < this.shorts.length) {
+          this.shortNumber += 10
+        }
+        this.loading = false
+        if (this.shortNumber >= this.shorts.length) {
+          this.finished = true
+        }
+      }, 1000)
     }
   }
 }
