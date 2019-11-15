@@ -1,28 +1,29 @@
 <template>
   <div style="padding:20px;">
-    <el-form ref="form" :model="form" label-width="80px">
-      <el-form-item label="任务名称">
+    <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+      <el-form-item label="任务名称" prop="name">
         <el-input v-model="form.name" style="width:300px;" placeholder="请输入任务名称" />
       </el-form-item>
-      <el-form-item label="任务时间">
+      <el-form-item label="任务时间" prop="date">
         <el-date-picker
           v-model="form.date"
           type="datetimerange"
           range-separator="至"
+          :picker-options="pickerOption"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
         />
       </el-form-item>
-      <el-form-item label="任务类型">
+      <el-form-item label="任务类型" prop="type">
         <el-radio-group v-model="form.type">
           <el-radio-button label="ShortTerm">短期</el-radio-button>
           <el-radio-button label="LongTerm">长期</el-radio-button>
         </el-radio-group>
       </el-form-item>
-      <el-form-item label="获得积分">
+      <el-form-item label="获得积分" prop="score">
         <el-input-number v-model="form.score" :min="1" :max="999" />
       </el-form-item>
-      <el-form-item label="文字内容">
+      <el-form-item label="文字内容" prop="content">
         <quill-editor
           ref="myQuillEditor"
           v-model="form.content"
@@ -51,6 +52,11 @@ export default {
   data() {
     return {
       loading: false,
+      pickerOption: {
+        disabledDate(time) {
+          return time.getTime() < Date.now() - 8.64e7
+        }
+      },
       form: {
         name: '',
         type: 'ShortTerm',
@@ -62,6 +68,23 @@ export default {
           // Uploader 根据文件后缀来判断是否为图片文件
           // 如果图片 URL 中不包含类型信息，可以添加 isImage 标记来声明
           // { url: 'https://cloud-image', isImage: true }
+        ]
+      },
+      rules: {
+        name: [
+          { required: true, message: '请输入任务名称', trigger: 'blur' }
+        ],
+        date: [
+          { required: true, message: '请选择任务时间', trigger: 'blur' }
+        ],
+        type: [
+          { required: true, message: '请选择任务类型', trigger: 'blur' }
+        ],
+        score: [
+          { required: true, message: '请选择积分', trigger: 'blur' }
+        ],
+        content: [
+          { required: true, message: '请输入内容', trigger: 'change' }
         ]
       },
       options: {
@@ -87,40 +110,44 @@ export default {
     }
   },
   methods: {
-    async onSubmit() {
-      this.loading = true
-      try {
-        const res = await this.$axios.post('/v1/task', {
-          taskName: this.form.name,
-          startDate: dayjs
-            .utc(this.form.date[0]).format(),
-          endDate: dayjs
-            .utc(this.form.date[1]).format(),
-          taskType: this.form.type,
-          taskScore: this.form.score,
-          taskDetail: this.form.content
-        }, {
-          headers: {
-            'Content-Type': 'application/json; charset=UTF-8'
+    onSubmit() {
+      this.$refs.form.validate(async(valid) => {
+        if (valid) {
+          this.loading = true
+          try {
+            const res = await this.$axios.post('/v1/task', {
+              taskName: this.form.name,
+              startDate: dayjs
+                .utc(this.form.date[0]).format(),
+              endDate: dayjs
+                .utc(this.form.date[1]).format(),
+              taskType: this.form.type,
+              taskScore: this.form.score,
+              taskDetail: this.form.content
+            }, {
+              headers: {
+                'Content-Type': 'application/json; charset=UTF-8'
+              }
+            })
+            if (res.status !== 201) {
+              this.$message.error('错误')
+              this.loading = false
+            } else {
+              this.$message({
+                message: '创建成功',
+                type: 'success'
+              })
+              setTimeout(() => {
+                this.$router.push(`/tasks/${res.headers.location}`)
+              }, 2000)
+              this.loading = false
+            }
+          } catch {
+            this.$message.error('请求出错,请检查网络或刷新重试！')
+            this.loading = false
           }
-        })
-        if (res.status !== 201) {
-          this.$message.error('错误')
-          this.loading = false
-        } else {
-          this.$message({
-            message: '创建成功',
-            type: 'success'
-          })
-          setTimeout(() => {
-            this.$router.push(`/tasks/${res.headers.location}`)
-          }, 2000)
-          this.loading = false
         }
-      } catch {
-        this.$message.error('请求出错,请检查网络或刷新重试！')
-        this.loading = false
-      }
+      })
     }
   }
 }

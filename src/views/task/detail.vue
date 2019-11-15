@@ -15,7 +15,7 @@
         <div>
           <p>功能</p>
           <el-button type="primary" style="margin-bottom:15px;" round @click="$router.push('/user/record/2?uid=2')">我的提交</el-button>
-          <el-button type="danger" style="margin-bottom:15px;" round @click="dialogFormVisible=true">去完成任务</el-button>
+          <el-button v-if="new Date(data.endDate).getTime() > currentDate.getTime()" type="danger" style="margin-bottom:15px;" round @click="dialogFormVisible=true">去完成任务</el-button>
         </div>
       </el-col>
       <el-col :xs="24" :sm="12" :md="10" :lg="7">

@@ -47,7 +47,7 @@ export default {
           text: '我的消息'
         },
         {
-          path: '/tasks',
+          path: '/tasks?active=true',
           icon: 'task',
           text: '我的任务'
         },

@@ -66,34 +66,16 @@ export default {
       finished: false
     }
   },
+  watch: {
+    $route: {
+      handler: function() {
+        this.getData()
+      },
+      deep: true
+    }
+  },
   created() {
-    this.$store.commit('app/openLoading', true)
-    this.$axios.get('/v1/task').then((res) => {
-      if (res.status === 200) {
-        res.data.forEach(item => {
-          if (item.taskType === 'ShortTerm') {
-            this.shorts.push(item)
-          } else {
-            this.longs.push(item)
-          }
-        })
-        this.shorts.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
-        this.longs.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
-        this.shorts = this.shorts.filter(
-          item => new Date(item.endDate).getTime() > this.currentDate.getTime()
-        ).concat(this.shorts.filter(
-          item => new Date(item.endDate).getTime() < this.currentDate.getTime()
-        ))
-        this.longs = this.longs.filter(
-          item => new Date(item.endDate).getTime() > this.currentDate.getTime()
-        ).concat(this.longs.filter(
-          item => new Date(item.endDate).getTime() < this.currentDate.getTime()
-        ))
-        this.$store.commit('app/openLoading', false)
-      }
-    }).catch(() => {
-      this.$message.error('请求出错,请检查网络或刷新重试！')
-    })
+    this.getData()
   },
   methods: {
     onLoad() {
@@ -106,6 +88,47 @@ export default {
           this.finished = true
         }
       }, 1000)
+    },
+    getData() {
+      this.$store.commit('app/openLoading', true)
+      this.shorts = []
+      this.longs = []
+      this.$axios.get('/v1/task').then((res) => {
+        if (res.status === 200) {
+          res.data.forEach(item => {
+            if (item.taskType === 'ShortTerm') {
+              this.shorts.push(item)
+            } else {
+              this.longs.push(item)
+            }
+          })
+
+          this.shorts.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
+          this.longs.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
+          if (this.$route.query.active === 'true') {
+            this.shorts = this.shorts.filter(
+              item => new Date(item.endDate).getTime() > this.currentDate.getTime()
+            )
+            this.longs = this.longs.filter(
+              item => new Date(item.endDate).getTime() > this.currentDate.getTime()
+            )
+          } else {
+            this.shorts = this.shorts.filter(
+              item => new Date(item.endDate).getTime() > this.currentDate.getTime()
+            ).concat(this.shorts.filter(
+              item => new Date(item.endDate).getTime() < this.currentDate.getTime()
+            ))
+            this.longs = this.longs.filter(
+              item => new Date(item.endDate).getTime() > this.currentDate.getTime()
+            ).concat(this.longs.filter(
+              item => new Date(item.endDate).getTime() < this.currentDate.getTime()
+            ))
+          }
+          this.$store.commit('app/openLoading', false)
+        }
+      }).catch(() => {
+        this.$message.error('请求出错,请检查网络或刷新重试！')
+      })
     }
   }
 }

@@ -26,26 +26,14 @@
       fit
       highlight-current-row
     >
-      <el-table-column align="center" label="编号">
-        <template>
-          02001
-        </template>
-      </el-table-column>
+      <el-table-column align="center" label="编号" prop="userCode" />
       <el-table-column label="头像" align="center">
         <template>
           <el-image src="https://cdn.quasar.dev/img/avatar2.jpg" style="width:80px;" alt="" lazy />
         </template>
       </el-table-column>
-      <el-table-column label="昵称" align="center">
-        <template slot-scope="scope">
-          {{ scope.row.username }}
-        </template>
-      </el-table-column>
-      <el-table-column label="总积分" align="center">
-        <template>
-          <span>2000</span>
-        </template>
-      </el-table-column>
+      <el-table-column label="昵称" align="center" prop="username" />
+      <el-table-column label="总积分" align="center" prop="totalScore" />
 
       <el-table-column class-name="status-col" label="帐号状态" align="center">
         <template slot-scope="scope">
