@@ -4,9 +4,9 @@
     <el-select v-model="group" style="margin: 0 40px 20px 10px;" placeholder="请选择小组">
       <el-option
         v-for="item in groups"
-        :key="item.value"
-        :label="item.label"
-        :value="item.value"
+        :key="item.id"
+        :label="item.groupName"
+        :value="item.id"
       />
     </el-select>
     <span>状态</span>
@@ -21,52 +21,52 @@
     <el-table
       v-loading="listLoading"
       :data="data"
-      element-loading-text="Loading"
+      element-loading-text="加载中..."
       border
       fit
       highlight-current-row
     >
       <el-table-column align="center" label="编号">
-        <template slot-scope="scope">
-          {{ scope.row.uniqueNumber }}
+        <template>
+          02001
         </template>
       </el-table-column>
       <el-table-column label="头像" align="center">
-        <template slot-scope="scope">
-          <el-image :src="scope.row.avatar.url" style="width:80px;" alt="" lazy />
+        <template>
+          <el-image src="https://cdn.quasar.dev/img/avatar2.jpg" style="width:80px;" alt="" lazy />
         </template>
       </el-table-column>
       <el-table-column label="昵称" align="center">
         <template slot-scope="scope">
-          {{ scope.row.name }}
+          {{ scope.row.username }}
         </template>
       </el-table-column>
       <el-table-column label="总积分" align="center">
-        <template slot-scope="scope">
-          <span>{{ scope.row.score }}</span>
+        <template>
+          <span>2000</span>
         </template>
       </el-table-column>
 
       <el-table-column class-name="status-col" label="帐号状态" align="center">
         <template slot-scope="scope">
-          <span style="border-bottom:1px dashed #000;cursor:pointer;" @click="editStatus(scope.row.id,scope.row.status)">{{ statusList.find(item=>item.value===scope.row.status).label }}</span>
+          <span style="border-bottom:1px dashed #000;cursor:pointer;" @click="editStatus(scope.row.id,scope.row.userStatus)">{{ statuss.find(item=>item.value===scope.row.userStatus).label }}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" label="身份">
         <template slot-scope="scope">
-          <span style="border-bottom:1px dashed #000;cursor:pointer;" @click="editRole(scope.row.id,scope.row.role)">{{ roleList.find(item=>item.value===scope.row.role).label }}</span>
+          <span style="border-bottom:1px dashed #000;cursor:pointer;" @click="editRole(scope.row.id,scope.row.roles.length)">{{ roleList.find(item=>item.value===scope.row.roles.length).label }}</span>
         </template>
       </el-table-column>
     </el-table>
     <el-dialog title="修改" :visible.sync="dialogFormVisible" @close="reset">
       <el-form>
         <el-form-item v-if="selectRole!==''" label="身份" :label-width="formLabelWidth">
-          <el-radio v-model="selectRole" label="member">组员</el-radio>
-          <el-radio v-model="selectRole" label="leader">组长</el-radio>
+          <el-radio v-model="selectRole" :label="1">组员</el-radio>
+          <el-radio v-model="selectRole" :label="2">组长</el-radio>
         </el-form-item>
         <el-form-item v-if="selectStatus!==''" label="状态" :label-width="formLabelWidth">
-          <el-radio v-model="selectStatus" :label="0">正常</el-radio>
-          <el-radio v-model="selectStatus" :label="1">冻结</el-radio>
+          <el-radio v-model="selectStatus" label="Normal">正常</el-radio>
+          <el-radio v-model="selectStatus" label="Frozen">冻结</el-radio>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -78,111 +78,102 @@
 </template>
 
 <script>
-import { getList } from '@/api/table'
 
 export default {
   data() {
     return {
-      list: null,
-      listLoading: true,
+      listLoading: false,
       selectId: '',
       selectStatus: '',
       selectRole: '',
       group: 0,
-      groups: [
-        {
-          value: 0,
-          label: '全部'
-        }, {
-          value: 1,
-          label: '1组'
-        }, {
-          value: 2,
-          label: '2组'
-        }, {
-          value: 3,
-          label: '3组'
-        }, {
-          value: 4,
-          label: '4组'
-        }, {
-          value: 5,
-          label: '5组'
-        }],
-      statusList: [
-        {
-          value: 0,
-          label: '正常'
-        },
-        {
-          value: 1,
-          label: '冻结'
-        }
-      ],
-      status: -1,
+      groups: [],
+      status: 'All',
       statuss: [{
-        value: -1,
+        value: 'All',
         label: '全部'
       }, {
-        value: 0,
+        value: 'Normal',
         label: '正常'
       }, {
-        value: 1,
+        value: 'Frozen',
         label: '冻结'
       }],
       roleList: [
         {
-          value: 'admin',
-          label: '管理员'
-        },
-        {
-          value: 'leader',
+          value: 2,
           label: '组长'
         },
         {
-          value: 'member',
+          value: 1,
           label: '组员'
         }
       ],
-      data: [
-        {
-          id: 2332,
-          uniqueNumber: '02001',
-          name: '玄机妙算',
-          role: 'leader',
-          status: 0,
-          avatar: {
-            url: 'https://cdn.quasar.dev/img/avatar2.jpg'
-          },
-          score: 1000
-        },
-        {
-          id: 3212,
-          uniqueNumber: '02002',
-          name: '时光无声',
-          role: 'member',
-          status: 1,
-          avatar: {
-            url: 'https://cdn.quasar.dev/img/avatar2.jpg'
-          },
-          score: 2000
-        }
-      ],
+      data: [],
       dialogFormVisible: false,
       formLabelWidth: '120px'
     }
   },
+  watch: {
+    status: async function(val) {
+      try {
+        this.listLoading = true
+        let result
+        if (val === 'All' && this.group === 0) {
+          result = await this.$axios.get('/v1/user')
+        }
+        if (val === 'All' && this.group !== 0) {
+          result = await this.$axios.get(`/v1/user/search/?groupId=${this.group}`)
+        }
+        if (val !== 'All' && this.group === 0) {
+          result = await this.$axios.get(`/v1/user/search/?userStatus=${val}`)
+        }
+        if (val !== 'All' && this.group !== 0) {
+          result = await this.$axios.get(`/v1/user/search/?groupId=${this.group}&&userStatus=${val}`)
+        }
+        this.data = result.data.filter(item => item.roles.length !== 3)
+        this.listLoading = false
+      } catch (err) {
+        this.$message.error('请求出错,请检查网络或刷新重试！')
+      }
+    },
+    group: async function(val) {
+      try {
+        this.listLoading = true
+        let result
+        if (this.status === 'All' && val === 0) {
+          result = await this.$axios.get('/v1/user')
+        }
+        if (this.status === 'All' && val !== 0) {
+          result = await this.$axios.get(`/v1/user/search/?groupId=${val}`)
+        }
+        if (this.status !== 'All' && val === 0) {
+          result = await this.$axios.get(`/v1/user/search/?userStatus=${this.status}`)
+        }
+        if (this.status !== 'All' && val !== 0) {
+          result = await this.$axios.get(`/v1/user/search/?groupId=${val}&&userStatus=${this.status}`)
+        }
+        this.data = result.data.filter(item => item.roles.length !== 3)
+        this.listLoading = false
+      } catch (err) {
+        this.$message.error('请求出错,请检查网络或刷新重试！')
+      }
+    }
+  },
   created() {
-    this.fetchData()
+    this.$store.commit('app/openLoading', true)
+    this.$axios.get('/v1/usergroup/listall').then(async(res) => {
+      if (res.status === 200) {
+        this.groups = [{ id: 0, groupName: '全部' }, ...res.data]
+        const result = await this.$axios.get('/v1/user')
+        this.data = result.data.filter(item => item.roles.length !== 3)
+        this.$store.commit('app/openLoading', false)
+      }
+    }).catch(() => {
+      this.$message.error('请求出错,请检查网络或刷新重试！')
+    })
   },
   methods: {
-    fetchData() {
-      this.listLoading = true
-      getList().then(response => {
-        this.list = response.data.items
-        this.listLoading = false
-      })
-    },
     editStatus(id, status) {
       this.dialogFormVisible = true
       this.selectStatus = status
