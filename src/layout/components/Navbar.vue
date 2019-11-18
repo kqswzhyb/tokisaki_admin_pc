@@ -185,10 +185,10 @@ export default {
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  padding:20px 10px 20px 20px;
+  padding:20px 10px 20px 15px;
   height:150px;
   background:url('../../assets/images/bg.jpg') no-repeat center 20%;
-  background-size: 130%;
+  background-size: 100%;
   .drawer-avatar {
     margin:30px 0 6px;
     width: 44px;
@@ -196,9 +196,9 @@ export default {
     border-radius: 50%;
   }
   .name {
-    font-size:18px;
+    font-size:16px;
     font-weight: 500;
-    color:#e66457;
+    color:#505050;
   }
 }
 
