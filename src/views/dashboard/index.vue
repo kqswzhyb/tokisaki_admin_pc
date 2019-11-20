@@ -109,7 +109,6 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 import SvgIcon from '../../components/SvgIcon/index'
 export default {
   name: 'Dashboard',
@@ -122,11 +121,6 @@ export default {
       shorts: [],
       longs: []
     }
-  },
-  computed: {
-    ...mapGetters([
-      'name'
-    ])
   },
   created() {
     this.$store.commit('app/openLoading', true)

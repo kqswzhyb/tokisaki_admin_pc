@@ -186,7 +186,7 @@ export default {
   justify-content: center;
   align-items: flex-start;
   padding:20px 10px 20px 15px;
-  height:150px;
+  height:130px;
   background:url('../../assets/images/bg.jpg') no-repeat center 20%;
   background-size: 100%;
   .drawer-avatar {

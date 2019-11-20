@@ -5,7 +5,6 @@
       <div />
       <div />
     </div>
-    <p class="tip">加载中......</p>
   </div>
 </template>
 
@@ -19,10 +18,6 @@ export default {
 .view {
   height:calc(100vh - 83px);
   flex-direction:column;
-}
-.tip {
-  margin-top:50px;
-  font-size:20px;
 }
 .balls {
   width: 6.5em;

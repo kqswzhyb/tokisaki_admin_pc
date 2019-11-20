@@ -32,7 +32,13 @@
         />
       </el-form-item>
       <el-form-item label="图片">
-        <van-uploader v-model="form.images" multiple />
+        <div class="flex-start">
+          <van-uploader v-model="form.images" multiple :max-count="count" :before-read="beforeRead" :max-size="size" />
+          <div v-if="percentage!=0" style="margin-left:20px;">
+            <el-progress :stroke-width="5" type="circle" :width="78" :percentage="percentage" :format="format" color="#e66457" />
+          </div>
+        </div>
+
       </el-form-item>
       <el-form-item>
         <el-button :loading="loading" :disabled="loading" type="primary" @click="onSubmit">立即创建</el-button>
@@ -43,7 +49,7 @@
 </template>
 
 <script>
-import { Uploader as VanUploader } from 'vant'
+import { Uploader as VanUploader, Toast } from 'vant'
 import dayjs from 'dayjs'
 export default {
   components: {
@@ -52,23 +58,23 @@ export default {
   data() {
     return {
       loading: false,
+      current: {},
+      percentage: 0,
       pickerOption: {
         disabledDate(time) {
           return time.getTime() < Date.now() - 8.64e7
         }
       },
+      size: 1024 * 1024 * 3,
+      count: 6,
       form: {
         name: '',
         type: 'ShortTerm',
         score: '',
         date: [],
         content: '',
-        images: [
-          // { url: 'https://img.yzcdn.cn/vant/leaf.jpg' },
-          // Uploader 根据文件后缀来判断是否为图片文件
-          // 如果图片 URL 中不包含类型信息，可以添加 isImage 标记来声明
-          // { url: 'https://cloud-image', isImage: true }
-        ]
+        images: [],
+        urls: []
       },
       rules: {
         name: [
@@ -109,11 +115,10 @@ export default {
       }
     }
   },
-  methods: {
-    onSubmit() {
-      this.$refs.form.validate(async(valid) => {
-        if (valid) {
-          this.loading = true
+  watch: {
+    'form.urls': {
+      handler: async function(val) {
+        if (val.length === this.form.images.length) {
           try {
             const res = await this.$axios.post('/v1/task', {
               taskName: this.form.name,
@@ -123,7 +128,8 @@ export default {
                 .utc(this.form.date[1]).format(),
               taskType: this.form.type,
               taskScore: this.form.score,
-              taskDetail: this.form.content
+              taskDetail: this.form.content,
+              taskAttachment: this.form.urls
             }, {
               headers: {
                 'Content-Type': 'application/json; charset=UTF-8'
@@ -138,13 +144,91 @@ export default {
                 type: 'success'
               })
               setTimeout(() => {
+                this.loading = false
                 this.$router.push(`/tasks/${res.headers.location}`)
               }, 2000)
-              this.loading = false
             }
           } catch {
             this.$message.error('请求出错,请检查网络或刷新重试！')
             this.loading = false
+          }
+        }
+      }
+    }
+  },
+  methods: {
+    format(percentage) {
+      return percentage === 100 ? '图片完成' : `${parseInt(percentage)}%`
+    },
+    load() {
+      this.form.images.forEach(async(item, index) => {
+        const param = new FormData()
+        param.append('file', item.file)
+        const result = await this.$axios.post('/v1/fileupload/cosUpload?fileType=Task', param, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          },
+          onUploadProgress: (progressEvent) => {
+            this.current[progressEvent.total] = progressEvent.loaded
+            this.percentage = (Object.values(this.current).reduce((a, c) => a + c, 0)) / (Object.keys(this.current).reduce((a, c) => Number(a) + Number(c), 0)) * 100
+          }
+        })
+        this.form.urls.push({
+          taskOrder: this.form.images.length - index,
+          attachment: { id: result.data.id }
+        })
+      })
+    },
+    beforeRead(file) {
+      if (file instanceof Object && file.size >= this.size) {
+        Toast('上传单个图片不能大于3MB')
+        return false
+      }
+      if (file instanceof Array && !file.every(item => item.size <= this.size)) {
+        Toast('上传单个图片不能大于3MB')
+        return false
+      }
+      return true
+    },
+    onSubmit() {
+      this.$refs.form.validate(async(valid) => {
+        if (valid) {
+          this.loading = true
+          if (this.form.images.length === 0) {
+            try {
+              const res = await this.$axios.post('/v1/task', {
+                taskName: this.form.name,
+                startDate: dayjs
+                  .utc(this.form.date[0]).format(),
+                endDate: dayjs
+                  .utc(this.form.date[1]).format(),
+                taskType: this.form.type,
+                taskScore: this.form.score,
+                taskDetail: this.form.content
+              }, {
+                headers: {
+                  'Content-Type': 'application/json; charset=UTF-8'
+                }
+              })
+              if (res.status !== 201) {
+                this.$message.error('错误')
+                this.loading = false
+              } else {
+                this.$message({
+                  message: '创建成功',
+                  type: 'success'
+                })
+                setTimeout(() => {
+                  this.loading = false
+                  this.$router.push(`/tasks/${res.headers.location}`)
+                }, 2000)
+              }
+            } catch {
+              this.$message.error('请求出错,请检查网络或刷新重试！')
+              this.loading = false
+            }
+          } else {
+            this.load()
           }
         }
       })
