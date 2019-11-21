@@ -8,15 +8,6 @@
             <div :style="{width:'100%',height:'300px',background:`url(${item}) no-repeat center center`,backgroundSize:'cover'}" @click="getImg(images, index)" />
           </el-carousel-item>
         </el-carousel>
-        <div>
-          <p>操作</p>
-          <el-button type="warning" icon="el-icon-edit" round @click="$router.push(`/tasks/edit/${$route.params.id}`)">修改任务</el-button>
-        </div>
-        <div>
-          <p>功能</p>
-          <el-button type="primary" style="margin-bottom:15px;" round @click="$router.push('/user/record/2?uid=2')">我的提交</el-button>
-          <el-button v-if="new Date(data.endDate).getTime() > currentDate.getTime()" type="danger" style="margin-bottom:15px;" round @click="dialogFormVisible=true">去完成任务</el-button>
-        </div>
       </el-col>
       <el-col :xs="24" :sm="12" :md="10" :lg="7">
         <div class="border">
@@ -29,7 +20,12 @@
             <p style="font-size:14px;color:#666;">by <span class="main">{{ data.createUser&&data.createUser.nickName || '管理员' }}</span></p>
           </div>
           <div v-html="ReplaceUrl(data.taskDetail)" />
-          <div style="margin-top:20px;">
+          <div style="margin:20px 0 10px;">
+            <el-button v-if="$store.state.user.info.roles.length===3" type="warning" size="mini" round @click="$router.push(`/tasks/edit/${$route.params.id}`)">修改任务</el-button>
+            <el-button type="primary" size="mini" round @click="$router.push('/user/record/2?uid=2')">我的提交</el-button>
+            <el-button v-if="new Date(data.endDate).getTime() > currentDate.getTime()" type="danger" size="mini" round @click="dialogFormVisible=true">去完成任务</el-button>
+          </div>
+          <div>
             <span style="font-size:18px;color:#ff9800;">本次任务每次完成可获得：</span>
             <svg-icon icon-class="star" style="margin-right:5px;font-size:18px;color:#ff9800;" />
             <span style="font-size:18px;color:#ff9800;">{{ data.taskScore }}</span>
@@ -99,13 +95,7 @@ export default {
     return {
       currentDate: new Date(),
       activeName: 'one',
-      images: [
-        'https://cdn.quasar.dev/img/mountains.jpg',
-        'https://cdn.quasar.dev/img/parallax1.jpg',
-        'https://cdn.quasar.dev/img/parallax2.jpg',
-        'https://cdn.quasar.dev/img/quasar.jpg'
-      ],
-      editor: `<div style="text-align: left;">世萌绿宝石项链赛外交</div><div style="text-align: left;">时间：10.19日晚23:00--10.20日晚23.00&nbsp;</div><div style="text-align: left;">票根发给组长</div><div style="text-align: left;">外交：</div><div style="text-align: left;">绿宝石项链赛：</div><div style="text-align: left;">时崎狂三（1）</div><div style="text-align: left;">绿宝石垂饰赛：</div><div style="text-align: left;">冈崎朋也（1）</div><div style="text-align: left;">萌皇赛：蕾姆</div><div style="text-align: left;">夏季番：格蕾-《君主埃尔梅罗二世事件簿》</div><div style="text-align: left;">莱妮丝··埃尔梅罗·阿奇佐尔缇</div><div style="text-align: left;">网址：https://www.internationalsaimoe.com/voting</div><div style="text-align: left;">注意事项</div><div style="text-align: left;">1.截图要带上时间和voteID！！！注意截图要文字部分。</div><div style="text-align: left;">要能够看到[时崎狂三-1]</div><div style="text-align: left;">2.打不开请耐心等待一会，或者刷新再试试</div><div style="text-align: left;">建议截长图，不用截角色图直接截文字部分</div>`,
+      images: [],
       dialogFormVisible: false,
       data: {},
       form: {
@@ -125,6 +115,11 @@ export default {
     this.$axios.get(`/v1/task/${this.$route.params.id}`).then((res) => {
       if (res.status === 200) {
         this.data = res.data
+        if (res.data.taskAttachment) {
+          res.data.taskAttachment.forEach(item => {
+            this.images.push(`${this.$baseURL}/task/${item.attachment.attachName}.${item.attachment.attachExtName}`)
+          })
+        }
         this.$store.commit('app/openLoading', false)
       }
       if (res.status === 202) {

@@ -32,10 +32,15 @@
         />
       </el-form-item>
       <el-form-item label="图片">
-        <van-uploader v-model="form.images" multiple />
+        <MyUploader ref="child" :size="1024*1024*3" :image="images" :count="6" @input="getImages" @img="getImage" />
+        <el-alert
+          title="因技术限制修改图片时需要重新上传"
+          type="warning"
+          style="width:500px;"
+        />
       </el-form-item>
       <el-form-item>
-        <el-button :loading="loading" type="primary" :disabled="loading" @click="onSubmit">修改</el-button>
+        <el-button :loading="loading" type="primary" :disabled="loading" @click="onSubmit">{{ loading?'正在提交':'修改' }}</el-button>
         <el-button>取消</el-button>
       </el-form-item>
     </el-form>
@@ -43,15 +48,17 @@
 </template>
 
 <script>
-import { Uploader as VanUploader } from 'vant'
+import MyUploader from '../../components/Upload'
 import dayjs from 'dayjs'
 export default {
   components: {
-    VanUploader
+    MyUploader
   },
   data() {
     return {
       loading: false,
+      size: 1024 * 1024 * 3,
+      count: 6,
       form: {
         name: '',
         type: '',
@@ -61,6 +68,7 @@ export default {
         images: [
         ]
       },
+      images: [],
       pickerOption: {
         disabledDate(time) {
           return time.getTime() < Date.now() - 8.64e7
@@ -114,6 +122,11 @@ export default {
         this.form.score = res.data.taskScore
         this.form.content = res.data.taskDetail
         this.form.date = [res.data.startDate, res.data.endDate]
+        if (res.data.taskAttachment) {
+          res.data.taskAttachment.forEach(item => {
+            this.images.push({ url: `${this.$baseURL}/task/${item.attachment.attachName}.${item.attachment.attachExtName}` })
+          })
+        }
         this.$store.commit('app/openLoading', false)
       }
     }).catch(() => {
@@ -121,42 +134,85 @@ export default {
     })
   },
   methods: {
+    getImage(data) {
+      this.form.images = data
+    },
+    async getImages(data) {
+      try {
+        const res = await this.$axios.put(`/v1/task/${this.$route.params.id}`, {
+          taskName: this.form.name,
+          startDate: dayjs
+            .utc(this.form.date[0]).format(),
+          endDate: dayjs
+            .utc(this.form.date[1]).format(),
+          taskType: this.form.type,
+          taskScore: this.form.score,
+          taskDetail: this.form.content,
+          taskAttachment: data,
+          id: this.$route.params.id
+        }, {
+          headers: {
+            'Content-Type': 'application/json; charset=UTF-8'
+          }
+        })
+        if (res.status !== 200) {
+          this.$message.error('错误')
+          this.loading = false
+        } else {
+          this.$message({
+            message: '修改成功',
+            type: 'success'
+          })
+          setTimeout(() => {
+            this.loading = false
+            this.$router.push(`/tasks/${this.$route.params.id}`)
+          }, 2000)
+        }
+      } catch {
+        this.$message.error('请求出错,请检查网络或刷新重试！')
+        this.loading = false
+      }
+    },
     onSubmit() {
       this.$refs.form.validate(async(valid) => {
         if (valid) {
           this.loading = true
-          try {
-            const res = await this.$axios.put(`/v1/task/${this.$route.params.id}`, {
-              taskName: this.form.name,
-              startDate: dayjs
-                .utc(this.form.date[0]).format(),
-              endDate: dayjs
-                .utc(this.form.date[1]).format(),
-              taskType: this.form.type,
-              taskScore: this.form.score,
-              taskDetail: this.form.content,
-              id: this.$route.params.id
-            }, {
-              headers: {
-                'Content-Type': 'application/json; charset=UTF-8'
-              }
-            })
-            if (res.status !== 200) {
-              this.$message.error('错误')
-              this.loading = false
-            } else {
-              this.$message({
-                message: '修改成功',
-                type: 'success'
+          if (this.form.images.length === 0) {
+            try {
+              const res = await this.$axios.put(`/v1/task/${this.$route.params.id}`, {
+                taskName: this.form.name,
+                startDate: dayjs
+                  .utc(this.form.date[0]).format(),
+                endDate: dayjs
+                  .utc(this.form.date[1]).format(),
+                taskType: this.form.type,
+                taskScore: this.form.score,
+                taskDetail: this.form.content,
+                id: this.$route.params.id
+              }, {
+                headers: {
+                  'Content-Type': 'application/json; charset=UTF-8'
+                }
               })
-              setTimeout(() => {
-                this.$router.push(`/tasks/${this.$route.params.id}`)
-              }, 2000)
+              if (res.status !== 200) {
+                this.$message.error('错误')
+                this.loading = false
+              } else {
+                this.$message({
+                  message: '修改成功',
+                  type: 'success'
+                })
+                setTimeout(() => {
+                  this.$router.push(`/tasks/${this.$route.params.id}`)
+                }, 2000)
+                this.loading = false
+              }
+            } catch {
+              this.$message.error('请求出错,请检查网络或刷新重试！')
               this.loading = false
             }
-          } catch {
-            this.$message.error('请求出错,请检查网络或刷新重试！')
-            this.loading = false
+          } else {
+            this.$refs.child.load()
           }
         }
       })

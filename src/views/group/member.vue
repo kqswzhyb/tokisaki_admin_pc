@@ -1,23 +1,30 @@
 <template>
   <div class="app-container">
-    <span>小组</span>
-    <el-select v-model="group" style="margin: 0 40px 20px 10px;" placeholder="请选择小组">
-      <el-option
-        v-for="item in groups"
-        :key="item.id"
-        :label="item.groupName"
-        :value="item.id"
-      />
-    </el-select>
-    <span>状态</span>
-    <el-select v-model="status" style="margin:0 0 20px 20px;" placeholder="请选择帐号状态">
-      <el-option
-        v-for="item in statuss"
-        :key="item.value"
-        :label="item.label"
-        :value="item.value"
-      />
-    </el-select>
+    <div class="flex-start">
+      <div v-if="!$store.state.user.info.user.userGroup">
+        <span>小组</span>
+        <el-select v-model="group" style="margin: 0 40px 20px 10px;" placeholder="请选择小组">
+          <el-option
+            v-for="item in groups"
+            :key="item.id"
+            :label="item.groupName"
+            :value="item.id"
+          />
+        </el-select>
+      </div>
+      <div>
+        <span>状态</span>
+        <el-select v-model="status" style="margin:0 0 20px 20px;" placeholder="请选择帐号状态">
+          <el-option
+            v-for="item in statuss"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </div>
+    </div>
+
     <el-table
       v-loading="listLoading"
       :data="data"
@@ -150,16 +157,21 @@ export default {
   },
   created() {
     this.$store.commit('app/openLoading', true)
-    this.$axios.get('/v1/usergroup/listall').then(async(res) => {
-      if (res.status === 200) {
-        this.groups = [{ id: 0, groupName: '全部' }, ...res.data]
-        const result = await this.$axios.get('/v1/user')
-        this.data = result.data.filter(item => item.roles.length !== 3)
-        this.$store.commit('app/openLoading', false)
-      }
-    }).catch(() => {
-      this.$message.error('请求出错,请检查网络或刷新重试！')
-    })
+    if (this.$store.state.user.info.user.userGroup) {
+      this.group = this.$store.state.user.info.user.userGroup.id
+      this.$store.commit('app/openLoading', false)
+    } else {
+      this.$axios.get('/v1/usergroup/listall').then(async(res) => {
+        if (res.status === 200) {
+          this.groups = [{ id: 0, groupName: '全部' }, ...res.data]
+          const result = await this.$axios.get('/v1/user')
+          this.data = result.data.filter(item => item.roles.length !== 3)
+          this.$store.commit('app/openLoading', false)
+        }
+      }).catch(() => {
+        this.$message.error('请求出错,请检查网络或刷新重试！')
+      })
+    }
   },
   methods: {
     editStatus(id, status) {
