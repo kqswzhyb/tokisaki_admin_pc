@@ -232,7 +232,6 @@ export default {
         if (res.status === 200 && res2.status === 200 && res3.status === 200) {
           const taskIdList = Array.from(new Set(res2.data.map(item => item.task.id)))
           this.tasks = taskIdList.map(item => res3.data.find(item2 => item2.id === item))
-          console.log(this.tasks)
           this.$store.commit('app/openLoading', false)
         } else {
           this.$store.commit('app/openLoading', false)

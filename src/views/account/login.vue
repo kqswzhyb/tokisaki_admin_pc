@@ -42,7 +42,9 @@
       </el-form-item>
 
       <el-button :loading="loading" :disabled="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">登录</el-button>
-
+      <div style="text-align:right;">
+        <img width="112" style="cursor:pointer;" src="@/assets/images/qq_login.png" @click="goQQ">
+      </div>
     </el-form>
   </div>
 </template>
@@ -99,6 +101,9 @@ export default {
         this.$refs.password.focus()
       })
     },
+    goQQ() {
+      window.location.href = 'https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id=101825291&redirect_uri=https://tokisaki.cn/qqloin&state=test'
+    },
     async handleLogin() {
       this.$refs.loginForm.validate(async valid => {
         if (valid) {
@@ -125,36 +130,7 @@ export default {
             this.$message.error('请求出错')
             this.loading = false
           }
-
-          // this.$axios.post('/auth/signin', {
-          //   username: this.loginForm.username,
-          //   password: this.loginForm.password
-          // }, {
-          //   headers: {
-          //     'Content-Type': 'application/json; charset=UTF-8'
-          //   }
-          // }).then((res) => {
-          //   if (res.status !== 200) {
-          //     this.$message.error('帐号或密码错误')
-          //     this.loading = false
-          //   } else {
-          //     this.$store.commit('user/SET_TOKEN', res.data.token)
-          //     setToken(res.data.token)
-          //     this.$router.push({ path: this.redirect || '/' })
-          //     this.loading = false
-          //   }
-          // }).catch(() => {
-          //   this.$message.error('请求出错')
-          //   this.loading = false
-          // })
-          // this.$store.dispatch('user/login', this.loginForm).then(() => {
-          //   this.$router.push({ path: this.redirect || '/' })
-          //   this.loading = false
-          // }).catch(() => {
-          //   this.loading = false
-          // })
         } else {
-          console.log('error submit!!')
           return false
         }
       })
