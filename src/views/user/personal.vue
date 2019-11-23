@@ -12,14 +12,14 @@
           </div>
           <div style="margin:10px 0 0 50px;">
             <div style="margin-bottom:15px;">
-              <span class="main" style="font-size:18px;">玄机妙算</span>
+              <span class="main" style="font-size:18px;">{{ info.user.nickName }}</span>
             </div>
             <div style="margin-bottom:15px;">
-              <span style="color:#505050;font-size:14px;">02001</span>
+              <span style="color:#505050;font-size:14px;">{{ info.user.userCode }}</span>
             </div>
             <div class="flex-start">
               <svg-icon icon-class="star" style="margin-right:15px;font-size:20px;color:#ff9800;" />
-              <span style="color:#ff9800;" class="text-h6">1000</span>
+              <span style="color:#ff9800;" class="text-h6">{{ info.user.totalScore }}</span>
             </div>
           </div>
         </div>
@@ -33,12 +33,12 @@
           <el-row :gutter="40" style="margin:20px 0 0 20px;">
             <el-col :xs="24" :lg="12">
               <div style="margin-bottom:30px;">
-                <span style="color:#999;">QQ：</span>465604612
+                <span style="color:#999;">QQ：</span>{{ info.user.qqNo }}
               </div>
             </el-col>
             <el-col :xs="24" :lg="12">
               <div style="margin-bottom:30px;">
-                <span style="color:#999;">身份：</span>组长
+                <span style="color:#999;">身份：</span>{{ roleList.find(item=>item.value===info.roles.length).label }}
               </div>
             </el-col>
           </el-row>
@@ -53,7 +53,7 @@
           <el-row :gutter="40" style="margin:20px 0 0 20px;">
             <el-col :xs="24" :lg="12">
               <div style="margin-bottom:30px;">
-                <span style="color:#999;">状态：</span>正常
+                <span style="color:#999;">状态：</span>{{ statuss.find(item=>item.value===info.user.userStatus).label }}
               </div>
             </el-col>
             <el-col :xs="24" :lg="12">
@@ -80,24 +80,35 @@
         >
           任务情况
         </div>
-        <el-row>
-          <el-col v-for="(o) in 10" :key="o" :xs="22" :sm="11" :md="7" style="margin: 0 20px 20px 0;">
-            <div>
-              <el-card :body-style="{ padding: '0px' }">
-                <div style="padding: 14px;" @click="$router.push('/tasks/2')">
-                  <div class="flex-between">
-                    <span>好吃的汉堡好吃的汉堡</span>
-                    <svg-icon icon-class="done" style="font-size:30px;" />
+        <el-row v-if="tasks.length!==0">
+          <van-list
+            v-model="loading"
+            :finished="finished"
+            finished-text=""
+            loading-text=""
+            @load="onLoad"
+          >
+            <el-col v-for="(o) in tasks.slice(0,number)" :key="o.id" :xs="22" :sm="15" :md="11" style="margin: 0 20px 20px 0; cursor:pointer;">
+              <div>
+                <el-card :body-style="{ padding: '0px' }">
+                  <div style="padding: 14px;" @click="$router.push(`/tasks/${o.id}`)">
+                    <div class="flex-between">
+                      <span>{{ o.taskName }}</span>
+                      <svg-icon icon-class="done" style="font-size:30px;" />
+                    </div>
+                    <div class="bottom clearfix">
+                      <p style="font-size:14px;color:#666;">by <span class="main">{{ o.createUser.nickName }}</span></p>
+                      <time class="time">{{ o.startDate | prettyDate }}</time>
+                    </div>
                   </div>
-                  <div class="bottom clearfix">
-                    <p style="font-size:14px;color:#666;">by <span class="main">玄机妙算</span></p>
-                    <time class="time">2019-10-21 22：00</time>
-                  </div>
-                </div>
-              </el-card>
-            </div>
-          </el-col>
+                </el-card>
+              </div>
+            </el-col>
+          </van-list>
         </el-row>
+        <div v-else class="flex-center" style="height:100px;">
+          暂无完成过的任务
+        </div>
       </el-col>
     </el-row>
     <el-dialog title="修改密码" :visible.sync="dialogFormVisible" @close="reset">
@@ -137,8 +148,10 @@
 
 <script>
 import SvgIcon from '../../components/SvgIcon/index'
+import { List as VanList } from 'vant'
 export default {
   components: {
+    VanList,
     SvgIcon
   },
   data() {
@@ -162,12 +175,37 @@ export default {
       }
     }
     return {
+      roleList: [
+        {
+          value: 3,
+          label: '管理员'
+        },
+        {
+          value: 2,
+          label: '组长'
+        },
+        {
+          value: 1,
+          label: '组员'
+        }
+      ],
+      number: 20,
+      loading: false,
+      finished: false,
+      statuss: [{
+        value: 'Normal',
+        label: '正常'
+      }, {
+        value: 'Frozen',
+        label: '冻结'
+      }],
       dialogFormVisible: false,
       form: {
         origin: '',
         password: '',
         confirm: ''
       },
+      tasks: [],
       rules: {
         origin: [
           { required: true, message: '必须输入原密码', trigger: 'blur' }
@@ -182,7 +220,40 @@ export default {
       formLabelWidth: '120px'
     }
   },
+  computed: {
+    info() {
+      return this.$store.state.user.info
+    }
+  },
+  created() {
+    this.$store.commit('app/openLoading', true)
+    this.$axios.all([this.$axios.get(`/v1/user?${this.$route.query.uid}`), this.$axios.get(`/v1/usertask/user/${this.$route.query.uid}/`), this.$axios.get(`/v1/task`)])
+      .then(this.$axios.spread((res, res2, res3) => {
+        if (res.status === 200 && res2.status === 200 && res3.status === 200) {
+          const taskIdList = Array.from(new Set(res2.data.map(item => item.task.id)))
+          this.tasks = taskIdList.map(item => res3.data.find(item2 => item2.id === item))
+          console.log(this.tasks)
+          this.$store.commit('app/openLoading', false)
+        } else {
+          this.$store.commit('app/openLoading', false)
+          this.$router.push('/404')
+        }
+      })).catch(() => {
+        this.$message.error('请求出错,请检查网络或刷新重试！')
+      })
+  },
   methods: {
+    onLoad() {
+      setTimeout(() => {
+        if (this.number < this.tasks.length) {
+          this.number += 10
+        }
+        this.loading = false
+        if (this.number >= this.tasks.length) {
+          this.finished = true
+        }
+      }, 1000)
+    },
     reset() {
       this.$refs.form.clearValidate()
       this.form = {

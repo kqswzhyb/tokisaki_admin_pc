@@ -31,7 +31,7 @@
           >
             <template slot-scope="scope">
               <span v-if="!scope.row.scoreAwardAttachment">暂无预览图片</span>
-              <img v-else :src="`${$baseURL}/task/${scope.row.scoreAwardAttachment&&scope.row.scoreAwardAttachment[0].attachment.attachName}.${scope.row.scoreAwardAttachment&&scope.row.scoreAwardAttachment[0].attachment.attachExtName}`" style="width:120px;" alt="" @click="getImg(`${$baseURL}/task/${scope.row.scoreAwardAttachment&&scope.row.scoreAwardAttachment[0].attachment.attachName}.${scope.row.scoreAwardAttachment&&scope.row.scoreAwardAttachment[0].attachment.attachExtName}`)">
+              <img v-else :src="`${$baseURL}/scoreAward/${scope.row.scoreAwardAttachment&&scope.row.scoreAwardAttachment[0].attachment.attachName}.${scope.row.scoreAwardAttachment&&scope.row.scoreAwardAttachment[0].attachment.attachExtName}`" style="width:120px;" alt="" @click="getImg(`${$baseURL}/scoreAward/${scope.row.scoreAwardAttachment&&scope.row.scoreAwardAttachment[0].attachment.attachName}.${scope.row.scoreAwardAttachment&&scope.row.scoreAwardAttachment[0].attachment.attachExtName}`)">
             </template>
           </el-table-column>
           <el-table-column
@@ -58,7 +58,7 @@
           <el-input v-model="form.score" type="number" :min="0" placeholder="请输入积分" />
         </el-form-item>
         <el-form-item label="图片" :label-width="formLabelWidth" prop="images">
-          <MyUploader ref="child" :size="1024*1024*3" :count="1" @input="getImages" @img="getImage" />
+          <MyUploader ref="child" type="ScoreAward" :image="form.images" :size="1024*1024*3" :count="1" @input="getImages" @img="getImage" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -77,6 +77,20 @@ export default {
     MyUploader
   },
   data() {
+    var checkScore = (rule, value, callback) => {
+      if (!value && value !== '0') {
+        return callback(new Error('请输入积分'))
+      }
+      value = String(value)
+      if (value.indexOf('-') !== -1) {
+        return callback(new Error('积分不能为负数'))
+      }
+      const index = value.indexOf('.')
+      if (index !== -1) {
+        return callback(new Error('积分不能为小数'))
+      }
+      callback()
+    }
     return {
       loading: false,
       rewards: [],
@@ -87,12 +101,13 @@ export default {
         score: '',
         images: []
       },
+      selectedId: '',
       rules: {
         text: [
           { required: true, message: '请输入奖励名称', trigger: 'blur' }
         ],
         score: [
-          { required: true, message: '请输入积分', trigger: 'blur' }
+          { required: true, validator: checkScore, trigger: 'blur' }
         ]
       },
       formLabelWidth: '120px'
@@ -104,45 +119,53 @@ export default {
     }
   },
   created() {
-    this.$store.commit('app/openLoading', true)
-    this.$axios.get('/v1/scoreAward').then((res) => {
-      if (res.status === 200) {
-        this.rewards = res.data
-        this.$store.commit('app/openLoading', false)
-      }
-      if (res.status === 202) {
-        this.$store.commit('app/openLoading', false)
-        this.$router.push('/404')
-      }
-    }).catch(() => {
-      this.$message.error('请求出错,请检查网络或刷新重试！')
-    })
+    this.getData()
   },
   methods: {
+    getData() {
+      this.$store.commit('app/openLoading', true)
+      this.$axios.get('/v1/scoreAward').then((res) => {
+        if (res.status === 200) {
+          this.rewards = res.data.sort((a, c) => a.awardPoint - c.awardPoint)
+          this.$store.commit('app/openLoading', false)
+        }
+        if (res.status === 202) {
+          this.$store.commit('app/openLoading', false)
+          this.$router.push('/404')
+        }
+      }).catch(() => {
+        this.$message.error('请求出错,请检查网络或刷新重试！')
+      })
+    },
     getImage(data) {
       this.form.images = data
     },
     async getImages(data) {
+      const isNew = (this.title === '新增奖励')
       try {
-        const res = await this.$axios.post('/v1/scoreAward', {
+        const res = await this.$axios[isNew ? 'post' : 'put'](isNew ? '/v1/scoreAward' : `/v1/scoreAward/${this.selectedId}`, Object.assign({
           awardPoint: this.form.score,
           awardTitle: this.form.text,
           scoreAwardAttachment: data
-        }, {
+        }, isNew ? {} : { id: this.selectedId }), {
           headers: {
             'Content-Type': 'application/json; charset=UTF-8'
           }
         })
-        if (res.status !== 201) {
+        if (res.status !== (isNew ? 201 : 200)) {
           this.$message.error('错误')
           this.loading = false
         } else {
           this.$message({
-            message: '创建成功',
+            message: isNew ? '创建成功' : '修改成功',
             type: 'success'
           })
           this.loading = false
           this.onReset()
+          this.$refs.child.initData()
+          this.$nextTick(() => {
+            this.getData()
+          })
         }
       } catch {
         this.$message.error('请求出错,请检查网络或刷新重试！')
@@ -163,30 +186,36 @@ export default {
         score: '',
         images: []
       }
+      this.dialogFormVisible = false
     },
     onSubmit() {
       this.$refs.form.validate(async(valid) => {
         if (valid) {
           this.loading = true
+          const isNew = (this.title === '新增奖励')
           if (this.form.images.length === 0) {
             try {
-              const res = await this.$axios.post('/v1/scoreAward', {
+              const res = await this.$axios[isNew ? 'post' : 'put'](isNew ? '/v1/scoreAward' : `/v1/scoreAward/${this.selectedId}`, Object.assign({
                 awardPoint: this.form.score,
                 awardTitle: this.form.text
-              }, {
+              }, isNew ? {} : { id: this.selectedId }), {
                 headers: {
                   'Content-Type': 'application/json; charset=UTF-8'
                 }
               })
-              if (res.status !== 201) {
+              if (res.status !== (isNew ? 201 : 200)) {
                 this.$message.error('错误')
                 this.loading = false
               } else {
                 this.$message({
-                  message: '创建成功',
+                  message: isNew ? '创建成功' : '修改成功',
                   type: 'success'
                 })
                 this.loading = false
+                this.onReset()
+                this.$nextTick(() => {
+                  this.getData()
+                })
               }
             } catch {
               this.$message.error('请求出错,请检查网络或刷新重试！')
@@ -199,6 +228,7 @@ export default {
       })
     },
     create() {
+      this.selectedId = ''
       this.dialogFormVisible = true
       this.title = '新增奖励'
       this.form = {
@@ -208,15 +238,16 @@ export default {
       }
     },
     edit(id) {
+      this.selectedId = id
       this.dialogFormVisible = true
       this.title = '修改奖励'
       const data = this.rewards.find(item => item.id === id)
-      const image = []
-      image[0] = data.images
       this.form = {
-        text: data.text,
-        score: data.score,
-        images: data.images.url ? image : []
+        text: data.awardTitle,
+        score: data.awardPoint,
+        images: data.scoreAwardAttachment ? data.scoreAwardAttachment.map(item => ({
+          url: `${this.$baseURL}/${item.attachment.attachType.slice(0, 1).toLowerCase() + item.attachment.attachType.slice(1)}/${item.attachment.attachName}.${item.attachment.attachExtName}`, attachment: item.attachment
+        })) : []
       }
     },
     remove(id) {
@@ -225,11 +256,17 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        const index = this.rewards.findIndex(item => item.id === id)
-        this.rewards.splice(index, 1)
-        this.$message({
-          type: 'success',
-          message: '删除成功!'
+        this.$axios.delete(`/v1/scoreAward/${id}`).then((res) => {
+          if (res.status === 200) {
+            const index = this.rewards.findIndex(item => item.id === id)
+            this.rewards.splice(index, 1)
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            })
+          }
+        }).catch(() => {
+          this.$message.error('请求出错,请检查网络或刷新重试！')
         })
       })
     }

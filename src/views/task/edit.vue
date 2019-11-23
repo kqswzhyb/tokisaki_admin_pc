@@ -33,11 +33,6 @@
       </el-form-item>
       <el-form-item label="图片">
         <MyUploader ref="child" :size="1024*1024*3" :image="images" :count="6" @input="getImages" @img="getImage" />
-        <el-alert
-          title="因技术限制修改图片时需要重新上传"
-          type="warning"
-          style="width:500px;"
-        />
       </el-form-item>
       <el-form-item>
         <el-button :loading="loading" type="primary" :disabled="loading" @click="onSubmit">{{ loading?'正在提交':'修改' }}</el-button>
@@ -124,7 +119,7 @@ export default {
         this.form.date = [res.data.startDate, res.data.endDate]
         if (res.data.taskAttachment) {
           res.data.taskAttachment.forEach(item => {
-            this.images.push({ url: `${this.$baseURL}/task/${item.attachment.attachName}.${item.attachment.attachExtName}` })
+            this.images.push(Object.assign({}, { url: `${this.$baseURL}/${item.attachment.attachType.slice(0, 1).toLowerCase() + item.attachment.attachType.slice(1)}/${item.attachment.attachName}.${item.attachment.attachExtName}`, attachment: item.attachment }))
           })
         }
         this.$store.commit('app/openLoading', false)

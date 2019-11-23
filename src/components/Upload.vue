@@ -25,6 +25,10 @@ export default {
     image: {
       type: Array,
       default: () => []
+    },
+    type: {
+      type: String,
+      default: 'Task'
     }
   },
   data() {
@@ -36,6 +40,9 @@ export default {
     }
   },
   watch: {
+    image: function(val) {
+      this.images = val
+    },
     urls: function(val) {
       if (val.length === this.images.length) {
         this.$emit('input', val)
@@ -45,20 +52,23 @@ export default {
       this.$emit('img', val)
     }
   },
-  mounted() {
-    setTimeout(() => {
-      this.images = []
-    }, 1000)
-  },
   methods: {
+    initData() {
+      this.percentage = ''
+      this.current = {}
+      this.images = []
+      this.urls = []
+    },
     format(percentage) {
       return percentage === 100 ? '图片完成' : `${parseInt(percentage)}%`
     },
     async load() {
-      this.images.forEach(async(item, index) => {
+      this.urls = [...this.images.filter(item => item.url)]
+      const uploadList = this.images.filter(item => item.file)
+      uploadList.forEach(async(item, index) => {
         const param = new FormData()
         param.append('file', item.file)
-        const result = await this.$axios.post('/v1/fileupload/cosUpload?fileType=Task', param, {
+        const result = await this.$axios.post(`/v1/fileupload/cosUpload?fileType=${this.type}`, param, {
           headers: {
             'Content-Type': 'multipart/form-data'
           },
@@ -68,7 +78,6 @@ export default {
           }
         })
         this.urls.push({
-          taskOrder: this.images.length - index,
           attachment: { id: result.data.id }
         })
       })

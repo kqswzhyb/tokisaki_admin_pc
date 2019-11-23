@@ -22,7 +22,7 @@
           <div v-html="ReplaceUrl(data.taskDetail)" />
           <div style="margin:20px 0 10px;">
             <el-button v-if="$store.state.user.info.roles.length===3" type="warning" size="mini" round @click="$router.push(`/tasks/edit/${$route.params.id}`)">修改任务</el-button>
-            <el-button type="primary" size="mini" round @click="$router.push('/user/record/2?uid=2')">我的提交</el-button>
+            <el-button type="primary" size="mini" round @click="$router.push(`/user/record/${$route.params.id}?uid=${$store.state.user.info.user.id}`)">我的提交</el-button>
             <el-button v-if="new Date(data.endDate).getTime() > currentDate.getTime()" type="danger" size="mini" round @click="dialogFormVisible=true">去完成任务</el-button>
           </div>
           <div>
@@ -59,7 +59,7 @@
         </el-tabs>
       </el-col>
     </el-row>
-    <el-dialog title="做任务" :visible.sync="dialogFormVisible" @close="reset">
+    <el-dialog title="做任务" :visible.sync="dialogFormVisible" @close="onReset">
       <el-form ref="form" :model="form" :rules="rules">
         <el-form-item label="文字" :label-width="formLabelWidth" prop="text">
           <el-input
@@ -70,12 +70,12 @@
           />
         </el-form-item>
         <el-form-item label="图片" :label-width="formLabelWidth" prop="images">
-          <van-uploader v-model="form.images" multiple />
+          <MyUploader ref="child" type="UserTask" :size="1024*1024*3" :count="6" @input="getImages" @img="getImage" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false;">取 消</el-button>
-        <el-button type="primary" @click="submitForm('form')">确 定</el-button>
+        <el-button type="primary" :loading="loading" :disabled="loading" @click="onSubmit('form')">{{ loading?'正在提交':'确 定' }}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -83,13 +83,13 @@
 
 <script>
 import SvgIcon from '../../components/SvgIcon/index'
-import { Uploader as VanUploader } from 'vant'
+import MyUploader from '../../components/Upload'
 import { ImagePreview } from 'vant'
 import '@vant/touch-emulator'
 export default {
   components: {
     SvgIcon,
-    VanUploader
+    MyUploader
   },
   data() {
     return {
@@ -97,6 +97,7 @@ export default {
       activeName: 'one',
       images: [],
       dialogFormVisible: false,
+      loading: false,
       data: {},
       form: {
         text: '',
@@ -140,6 +141,35 @@ export default {
       }
       return text
     },
+    getImage(data) {
+      this.form.images = data
+    },
+    async getImages(data) {
+      try {
+        const res = await this.$axios.post(`/v1/usertask/task/${this.$route.params.id}/`, {
+          taskMemo: this.form.text,
+          utAttachment: data
+        }, {
+          headers: {
+            'Content-Type': 'application/json; charset=UTF-8'
+          }
+        })
+        if (res.status !== 201) {
+          this.$message.error('错误')
+          this.loading = false
+        } else {
+          this.$message({
+            message: '提交成功',
+            type: 'success'
+          })
+          this.loading = false
+          this.onReset()
+        }
+      } catch {
+        this.$message.error('请求出错,请检查网络或刷新重试！')
+        this.loading = false
+      }
+    },
     getImg(item, index) {
       ImagePreview({
         images: item,
@@ -148,19 +178,20 @@ export default {
         startPosition: index
       })
     },
-    reset() {
+    onReset() {
       this.$refs.form.clearValidate()
       this.form = {
         text: '',
         images: []
       }
+      this.dialogFormVisible = false
     },
-    submitForm(formName) {
+    onSubmit(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          this.dialogFormVisible = false
+          this.loading = true
+          this.$refs.child.load()
         } else {
-          console.log('error submit!!')
           return false
         }
       })

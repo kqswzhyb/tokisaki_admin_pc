@@ -16,7 +16,7 @@
       <div class="avatar-bg">
         <img v-if="!avatar" src="@/assets/images/default_user.jpg" class="drawer-avatar">
         <img v-else :src="avatar" class="drawer-avatar">
-        <span class="name">{{ username|| '未登录' }}</span>
+        <span class="name">{{ nickName|| '未登录' }}</span>
       </div>
       <ul class="right-drawer">
         <li v-for="item in configs" :key="item.path" class="drawer-cell" @click="$router.push(item.path);$store.commit('app/openDrawer',false)"><svg-icon :icon-class="item.icon" :style="{color:$route.path===item.path?'rgb(64, 158, 255)':'#000'}" /> <span :style="{marginLeft:'20px',color:$route.path===item.path?'rgb(64, 158, 255)':'#000'}">{{ item.text }}</span></li>
@@ -57,7 +57,7 @@ export default {
           text: '积分明细'
         },
         {
-          path: '/user/personal',
+          path: `/user/personal?uid=${this.$store.state.user.info.user.id}`,
           icon: 'personalcenter',
           text: '个人中心'
         }
@@ -69,8 +69,8 @@ export default {
       'sidebar',
       'info'
     ]),
-    username() {
-      return this.$store.state.user.info.username
+    nickName() {
+      return this.$store.state.user.info.user.nickName
     },
     avatar() {
       return this.$store.state.user.info.avatar
