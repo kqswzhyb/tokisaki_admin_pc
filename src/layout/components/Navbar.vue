@@ -11,7 +11,6 @@
     <el-drawer
       :visible.sync="$store.state.app.drawer"
       direction="rtl"
-      size="15%"
     >
       <div class="avatar-bg">
         <img v-if="!avatar" src="@/assets/images/default_user.jpg" class="drawer-avatar">

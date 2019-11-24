@@ -118,7 +118,7 @@ export default {
         this.data = res.data
         if (res.data.taskAttachment) {
           res.data.taskAttachment.forEach(item => {
-            this.images.push(`${this.$baseURL}/task/${item.attachment.attachName}.${item.attachment.attachExtName}`)
+            this.images.push(`${this.$baseURL}/${item.attachment.attachType.slice(0, 1).toLowerCase() + item.attachment.attachType.slice(1)}/${item.attachment.attachName}.${item.attachment.attachExtName}`)
           })
         }
         this.$store.commit('app/openLoading', false)

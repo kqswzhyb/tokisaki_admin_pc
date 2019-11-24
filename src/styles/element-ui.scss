@@ -66,3 +66,9 @@
 .el-select-dropdown__list {
   padding:18px 0;
 }
+.el-drawer__body {
+  width:230px;
+}
+.el-drawer__open .el-drawer.rtl {
+  width:230px !important;
+}

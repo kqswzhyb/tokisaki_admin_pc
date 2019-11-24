@@ -107,7 +107,7 @@ export default {
     const validateUsername = (rule, value, callback) => {
       if (!value) {
         callback(new Error('请输入用户名'))
-      } else if (!(/^[\u4e00-\u9fa5a-z]+$/gi).test(value)) {
+      } else if (!(/^[\u4e00-\u9fa5A-Za-z0-9]+$/gi).test(value)) {
         callback(new Error('只能输入汉字和英文字母和数字'))
       } else {
         callback()
@@ -116,7 +116,7 @@ export default {
     const validatePassword = (rule, value, callback) => {
       if (value.length < 6) {
         callback(new Error('密码长度不少于6位'))
-      } else if (!(/^[\u4e00-\u9fa5a-z]+$/gi).test(value)) {
+      } else if (!(/^[\u4e00-\u9fa5A-Za-z0-9]+$/gi).test(value)) {
         callback(new Error('只能输入英文字母和数字'))
       } else {
         callback()
@@ -125,7 +125,7 @@ export default {
     const validateConfirm = (rule, value, callback) => {
       if (value !== this.form.password) {
         callback(new Error('确认密码必须与密码相同'))
-      } else if (!(/^[\u4e00-\u9fa5a-z]+$/gi).test(value)) {
+      } else if (!(/^[\u4e00-\u9fa5A-Za-z0-9]+$/gi).test(value)) {
         callback(new Error('只能输入英文字母和数字'))
       } else {
         callback()
