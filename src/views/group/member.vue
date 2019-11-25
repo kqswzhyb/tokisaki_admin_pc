@@ -23,6 +23,10 @@
           />
         </el-select>
       </div>
+      <div style="margin:0 0 20px 20px;">
+        <ExportExcel v-if="$store.state.user.info.roles.length>=2&&data.length!==0" :data="excel" :t-header="['uid','昵称','小组编号','QQ号码','总积分','角色','帐号状态']" />
+      </div>
+
     </div>
 
     <el-table
@@ -73,8 +77,11 @@
 </template>
 
 <script>
-
+import ExportExcel from '../../components/ExportExcel'
 export default {
+  components: {
+    ExportExcel
+  },
   data() {
     return {
       listLoading: false,
@@ -105,6 +112,7 @@ export default {
         }
       ],
       data: [],
+      excel: [],
       dialogFormVisible: false,
       formLabelWidth: '120px'
     }
@@ -127,6 +135,7 @@ export default {
           result = await this.$axios.get(`/v1/user/search/?groupId=${this.group}&&userStatus=${val}`)
         }
         this.data = result.data.filter(item => item.roles.length !== 3)
+        this.formatData(this.data)
         this.listLoading = false
       } catch (err) {
         this.$message.error('请求出错,请检查网络或刷新重试！')
@@ -149,6 +158,7 @@ export default {
           result = await this.$axios.get(`/v1/user/search/?groupId=${val}&&userStatus=${this.status}`)
         }
         this.data = result.data.filter(item => item.roles.length !== 3)
+        this.formatData(this.data)
         this.listLoading = false
       } catch (err) {
         this.$message.error('请求出错,请检查网络或刷新重试！')
@@ -166,6 +176,7 @@ export default {
           this.groups = [{ id: 0, groupName: '全部' }, ...res.data]
           const result = await this.$axios.get('/v1/user')
           this.data = result.data.filter(item => item.roles.length !== 3)
+          this.formatData(this.data)
           this.$store.commit('app/openLoading', false)
         }
       }).catch(() => {
@@ -178,6 +189,19 @@ export default {
       this.dialogFormVisible = true
       this.selectStatus = status
       this.selectId = id
+    },
+    formatData(data) {
+      this.excel = data.map(item => {
+        return {
+          uid: item.id,
+          nickName: item.nickName,
+          code: Number(item.userCode),
+          qqNo: Number(item.qqNo),
+          totalScore: Number(item.totalScore),
+          role: this.roleList.find(item2 => item2.value === item.roles.length).label,
+          status: this.statuss.find(item2 => item2.value === item.userStatus).label
+        }
+      })
     },
     editRole(id, role) {
       this.dialogFormVisible = true

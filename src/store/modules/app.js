@@ -2,7 +2,7 @@ import Cookies from 'js-cookie'
 
 const state = {
   sidebar: {
-    opened: Cookies.get('sidebarStatus') ? !!+Cookies.get('sidebarStatus') : true,
+    opened: true,
     withoutAnimation: false
   },
   drawer: false,

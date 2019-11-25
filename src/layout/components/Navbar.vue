@@ -11,6 +11,7 @@
     <el-drawer
       :visible.sync="$store.state.app.drawer"
       direction="rtl"
+      :size="'15%'"
     >
       <div class="avatar-bg">
         <img v-if="!avatar" src="@/assets/images/default_user.jpg" class="drawer-avatar">
@@ -18,7 +19,7 @@
         <span class="name">{{ nickName|| '未登录' }}</span>
       </div>
       <ul class="right-drawer">
-        <li v-for="item in configs" :key="item.path" class="drawer-cell" @click="$router.push(item.path);$store.commit('app/openDrawer',false)"><svg-icon :icon-class="item.icon" :style="{color:$route.path===item.path?'rgb(64, 158, 255)':'#000'}" /> <span :style="{marginLeft:'20px',color:$route.path===item.path?'rgb(64, 158, 255)':'#000'}">{{ item.text }}</span></li>
+        <li v-for="item in configs" :key="item.path" class="drawer-cell" @click="$router.push(item.path);$store.commit('app/openDrawer',false)"><svg-icon :icon-class="item.icon" :style="{color:item.path.includes($route.path)?'#E66457':'#000'}" /> <span :style="{marginLeft:'20px',color:item.path.includes($route.path)?'#E66457':'#000'}">{{ item.text }}</span></li>
         <li class="drawer-cell" @click="logout"><svg-icon icon-class="logout" /> <span style="margin-left:20px;">退出登录</span></li>
       </ul>
     </el-drawer>
