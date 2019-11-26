@@ -1,6 +1,6 @@
 <template>
   <div style="padding:20px;">
-    <div v-for="item in lists" :key="item.time" class="border" style="margin-bottom:20px;">
+    <div v-for="item in lists" :key="item.time" class="border" style="margin-bottom:20px;background:#fff;">
       <span class="title">系统消息</span> <span class="time">{{ item.time }}</span>
       <div class="text" v-html="ReplaceUrl(item.text, item.url)" />
     </div>

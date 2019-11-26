@@ -51,6 +51,14 @@ Vue.filter('prettyDate', dateString => {
   return date
 })
 
+Vue.filter('simplePrettyDate', dateString => {
+  const date = dayjs
+    .utc(dateString)
+    .local()
+    .format('YYYY年MM月DD日')
+  return date
+})
+
 import { getToken } from '@/utils/auth'
 import axios from 'axios'
 const noToken = ['/auth/signin']

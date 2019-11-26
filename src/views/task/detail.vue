@@ -10,7 +10,7 @@
         </el-carousel>
       </el-col>
       <el-col :xs="24" :sm="12" :md="10" :lg="7">
-        <div class="border">
+        <div class="border" style="background:#fff;">
           <div>
             <h4
               class="flex-between"
@@ -24,6 +24,7 @@
             <el-button v-if="$store.state.user.info.roles.length===3" type="warning" size="mini" round @click="$router.push(`/tasks/edit/${$route.params.id}`)">修改任务</el-button>
             <el-button type="primary" size="mini" round @click="$router.push(`/user/record/${$route.params.id}?uid=${$store.state.user.info.user.id}`)">我的提交</el-button>
             <el-button v-if="new Date(data.endDate).getTime() > currentDate.getTime()" type="danger" size="mini" round @click="dialogFormVisible=true">去完成任务</el-button>
+            <el-button v-if="$store.state.user.info.roles.length===3" type="success" size="mini" round style="margin: 10px 0 0 0;" @click="$router.push(`/tasks/record/${$route.params.id}`)">任务记录</el-button>
           </div>
           <div>
             <span style="font-size:18px;color:#ff9800;">本次任务每次完成可获得：</span>

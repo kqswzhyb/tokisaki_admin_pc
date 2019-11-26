@@ -2,13 +2,15 @@
   <div style="padding:20px;">
     <el-row :gutter="40">
       <el-col :xs="24" :sm="15" :md="16" :lg="17">
-        <FullCalendar
-          default-view="dayGridMonth"
-          :plugins="calendarPlugins"
-          :events="options"
-          locale="zh-cn"
-          @eventClick="eventClick"
-        />
+        <div style="padding:20px;background:#fff;border-radius:8px;">
+          <FullCalendar
+            default-view="dayGridMonth"
+            :plugins="calendarPlugins"
+            :events="options"
+            locale="zh-cn"
+            @eventClick="eventClick"
+          />
+        </div>
       </el-col>
       <el-col :xs="24" :sm="9" :md="8" :lg="7">
         <p class="main" style="font-size:20px;">{{ active.taskName }}</p>

@@ -1,14 +1,14 @@
 <template>
   <div style="padding:20px;">
     <div style="margin-bottom:20px;">
-      当前用户：<span style="color:#505050;font-size:18px;">{{ $store.state.user.info.user.nickName }}</span>
-    </div>
-    <div style="margin-bottom:20px;">
       当前任务：<span
         class="main"
         style="font-size:18px;cursor:pointer;"
         @click="$router.push(`/tasks/${$route.params.id}`)"
       >{{ taskName }}</span>
+    </div>
+    <div style="margin-bottom:20px;">
+      <ExportImages :data="images" />
     </div>
     <div
       v-if="data.length === 0"
@@ -20,69 +20,86 @@
       </p>
       <span style="font-size:24px;">没有提交过</span>
     </div>
-    <el-row :gutter="40">
-      <el-col
-        v-for="(item, index) in data"
-        :key="item.id"
-        :xs="24"
-        :sm="20"
-        :md="16"
-        :lg="12"
-        style="margin-bottom:15px;"
-      >
-        <el-card>
-          <p style="padding-bottom:10px;border-bottom:1px solid #E1E1E1;" class="flex-between"><span class="main">第 {{ index+1 }} 次提交</span> <span style="font-size:14px;color:#666;">{{ item.finishedDate| prettyDate }}</span></p>
-          <div>
-            <span style="color:#505050;">获得积分：</span> <span style="color:#ff9800;border-bottom:1px dashed #000;cursor:pointer;" @click="open(index,item.id,item.task.taskScore)">{{ item.taskScore }}</span>
-            分
-            <div style="margin: 20px 0;">
-              <span style="color:#505050;">提交内容：</span><div style="margin-top:20px;" v-html="ReplaceUrl(item.taskMemo)" />
-            </div>
+    <van-list
+      v-model="loading"
+      :finished="finished"
+      finished-text="没有更多数据了"
+      loading-text=""
+      :offset="30"
+      @load="onLoad"
+    >
+      <el-row :gutter="40">
+        <el-col
+          v-for="(item, index) in data.slice(0,number)"
+          :key="item.id"
+          :xs="24"
+          :sm="20"
+          :md="16"
+          :lg="12"
+          style="margin-bottom:15px;"
+        >
+          <el-card>
+            <p style="padding-bottom:10px;border-bottom:1px solid #E1E1E1;" class="flex-between"><span class="main" style="font-size:14px;">{{ item.user.userCode }}</span>{{ item.user.nickName }}<span style="font-size:14px;color:#666;">{{ item.finishedDate| prettyDate }}</span></p>
             <div>
-              <span style="color:#505050;">提交图片：</span>
-              <span v-if="item.images.length === 0">
-                没有提交图片
-              </span>
-              <div v-else class="flex-start" style="margin-top:20px;">
-                <div
-                  v-for="(item2, index2) in item.images"
-                  :key="index2"
-                  :style="{marginRight:'20px',background:`url(${item2}) no-repeat center center`,backgroundSize:'cover',width:'100px',height:'100px'}"
-                  @click="getImg(item.images, index2)"
-                />
+              <span style="color:#505050;">获得积分：</span> <span style="color:#ff9800;border-bottom:1px dashed #000;cursor:pointer;" @click="open(index,item.id,item.task.taskScore)">{{ item.taskScore }}</span>
+              分
+              <div style="margin: 20px 0;">
+                <span style="color:#505050;">提交内容：</span><div style="margin-top:20px;" v-html="ReplaceUrl(item.taskMemo)" />
+              </div>
+              <div>
+                <span style="color:#505050;">提交图片：</span>
+                <span v-if="item.images.length === 0">
+                  没有提交图片
+                </span>
+                <div v-else class="flex-start" style="margin-top:20px;">
+                  <div
+                    v-for="(item2, index2) in item.images"
+                    :key="index2"
+                    :style="{marginRight:'20px',background:`url(${item2}) no-repeat center center`,backgroundSize:'cover',width:'100px',height:'100px'}"
+                    @click="getImg(item.images, index2)"
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        </el-card>
-      </el-col>
-    </el-row>
-
+          </el-card>
+        </el-col>
+      </el-row>
+    </van-list>
   </div>
 </template>
 
 <script>
+import ExportImages from '../../components/ExportImages'
 import SvgIcon from '../../components/SvgIcon/index'
-import { ImagePreview } from 'vant'
+import { ImagePreview, List as VanList } from 'vant'
 export default {
-  name: 'Record',
   components: {
-    SvgIcon
+    SvgIcon,
+    ExportImages,
+    VanList
   },
   data() {
     return {
       data: [],
-      taskName: ''
+      images: [],
+      taskName: '',
+      loading: false,
+      finished: false,
+      number: 10
     }
   },
   created() {
     this.$store.commit('app/openLoading', true)
-    this.$axios.all([this.$axios.get(`/v1/usertask/user/${this.$route.query.uid}/task/${this.$route.params.id}/`), this.$axios.get(`/v1/task/${this.$route.params.id}`)])
+    this.$axios.all([this.$axios.get(`/v1/usertask/task/${this.$route.params.id}/`), this.$axios.get(`/v1/task/${this.$route.params.id}`)])
       .then(this.$axios.spread((res, res2) => {
         if (res.status === 200 && res2.status === 200) {
           this.data = res.data
           this.taskName = res2.data.taskName
           this.data = this.data.map(item => {
             return Object.assign({}, item, { images: item.utAttachment && item.utAttachment.map(item2 => `${this.$baseURL}/${item2.attachment.attachType.slice(0, 1).toLowerCase() + item2.attachment.attachType.slice(1)}/${item2.attachment.attachName}.${item2.attachment.attachExtName}`) || [] })
+          })
+          this.data.forEach(item => {
+            if (item.images.length !== 0 && item.taskScore !== 0) { this.images = this.images.concat(item.images) }
           })
           this.$store.commit('app/openLoading', false)
         }
@@ -95,6 +112,17 @@ export default {
       })
   },
   methods: {
+    onLoad() {
+      setTimeout(() => {
+        if (this.number < this.data.length) {
+          this.number += 10
+        }
+        this.loading = false
+        if (this.number >= this.data.length) {
+          this.finished = true
+        }
+      }, 1000)
+    },
     ReplaceUrl(text) {
       var re = /(http:\/\/|https:\/\/)((\w|=|\?|\.|\/|&|-)+)/gi
       if (re.test(text)) {
@@ -146,3 +174,7 @@ export default {
   }
 }
 </script>
+
+<style>
+
+</style>

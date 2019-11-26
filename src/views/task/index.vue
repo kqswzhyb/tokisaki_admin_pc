@@ -2,14 +2,15 @@
   <div class="app-container">
     <el-tabs v-model="activeName" type="card">
       <el-tab-pane label="短期任务" name="short">
-        <el-row style="margin-top:20px;">
-          <van-list
-            v-model="loading"
-            :finished="finished"
-            finished-text=""
-            loading-text=""
-            @load="onLoad"
-          >
+        <van-list
+          v-model="loading"
+          :finished="finished"
+          finished-text="没有更多任务了"
+          loading-text=""
+          :offset="30"
+          @load="onLoad"
+        >
+          <el-row style="margin-top:20px;">
             <el-col v-for="(o) in shorts.slice(0,shortNumber)" :key="o.id" :xs="10" :sm="5" :md="4" style="margin: 0 20px 20px 0;">
               <el-card :body-style="{ padding: '0px' }">
                 <div style="padding: 14px;cursor:pointer;" @click="$router.push(`/tasks/${o.id}`)">
@@ -24,8 +25,8 @@
                 </div>
               </el-card>
             </el-col>
-          </van-list>
-        </el-row>
+          </el-row>
+        </van-list>
       </el-tab-pane>
       <el-tab-pane label="长期任务" name="long">
         <el-row style="margin-top:20px;">

@@ -27,7 +27,7 @@
         <quill-editor
           ref="myQuillEditor"
           v-model="form.content"
-          style="width:500px;"
+          style="width:500px;background:#fff;"
           :options="options"
         />
       </el-form-item>

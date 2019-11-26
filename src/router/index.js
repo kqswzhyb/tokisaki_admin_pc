@@ -109,6 +109,13 @@ export const constantRoutes = [
         meta: { title: '任务列表', icon: 'table' }
       },
       {
+        path: 'record/:id',
+        name: 'Commit',
+        hidden: true,
+        component: () => import('@/views/task/record'),
+        meta: { title: '提交记录', icon: 'table', role: 3 }
+      },
+      {
         path: 'create',
         name: 'Create',
         component: () => import('@/views/task/create'),

@@ -1,7 +1,7 @@
 <template>
   <div class="flex-start">
     <van-button
-      style="width:35%;color: #fff;background-color: #e66457;border: 1px solid #e66457;"
+      style="width:120px;color: #fff;background-color: #e66457;border: 1px solid #e66457;cursor:pointer;"
       type="submit"
       :loading="loading"
       :disabled="loading"
@@ -46,6 +46,7 @@ export default {
       return percentage === 100 ? '图片完成' : `${parseInt(percentage)}%`
     },
     async handleBatchDownload(imgList) {
+      console.log(imgList)
       let current = 0
       const length = imgList.length
       const data = imgList

@@ -12,14 +12,14 @@
           </div>
           <div style="margin:10px 0 0 50px;">
             <div style="margin-bottom:15px;">
-              <span class="main" style="font-size:18px;">{{ info.user.nickName }}</span>
+              <span class="main" style="font-size:18px;">{{ info.nickName }}</span>
             </div>
             <div style="margin-bottom:15px;">
-              <span style="color:#505050;font-size:14px;">{{ info.user.userCode }}</span>
+              <span style="color:#505050;font-size:14px;">{{ info.userCode }}</span>
             </div>
             <div class="flex-start">
               <svg-icon icon-class="star" style="margin-right:15px;font-size:20px;color:#ff9800;" />
-              <span style="color:#ff9800;" class="text-h6">{{ info.user.totalScore }}</span>
+              <span style="color:#ff9800;" class="text-h6">{{ info.totalScore }}</span>
             </div>
           </div>
         </div>
@@ -33,12 +33,12 @@
           <el-row :gutter="40" style="margin:20px 0 0 20px;">
             <el-col :xs="24" :lg="12">
               <div style="margin-bottom:30px;">
-                <span style="color:#999;">QQ：</span>{{ info.user.qqNo }}
+                <span style="color:#999;">QQ：</span>{{ info.qqNo }}
               </div>
             </el-col>
             <el-col :xs="24" :lg="12">
               <div style="margin-bottom:30px;">
-                <span style="color:#999;">身份：</span>{{ roleList.find(item=>item.value===info.roles.length).label }}
+                <span style="color:#999;">身份：</span>{{ info.roles&& roleList.find(item=>item.value===info.roles.length).label }}
               </div>
             </el-col>
           </el-row>
@@ -53,12 +53,12 @@
           <el-row :gutter="40" style="margin:20px 0 0 20px;">
             <el-col :xs="24" :lg="12">
               <div style="margin-bottom:30px;">
-                <span style="color:#999;">状态：</span>{{ statuss.find(item=>item.value===info.user.userStatus).label }}
+                <span style="color:#999;">帐号状态：</span>{{ info.roles&& statuss.find(item=>item.value===info.userStatus).label }}
               </div>
             </el-col>
             <el-col :xs="24" :lg="12">
               <div style="margin-bottom:30px;">
-                <span style="color:#999;">密码：</span>修改密码 >>
+                <span style="color:#999;">密码设置：</span>修改密码 >>
                 <svg-icon icon-class="lock" style="cursor:pointer;margin-left:15px;font-size:20px;color:#2c2c2c;" @click="dialogFormVisible=true" />
               </div>
             </el-col>
@@ -67,7 +67,7 @@
               :lg="12"
             >
               <div style="margin-bottom:30px;">
-                <span style="color:#999;">注册时间：</span> 2019-10-21 22：01
+                <span style="color:#999;">注册时间：</span> {{ info.registerDate | simplePrettyDate }}
               </div>
             </el-col>
           </el-row>
@@ -80,14 +80,15 @@
         >
           任务情况
         </div>
-        <el-row v-if="tasks.length!==0">
-          <van-list
-            v-model="loading"
-            :finished="finished"
-            finished-text=""
-            loading-text=""
-            @load="onLoad"
-          >
+        <van-list
+          v-model="loading"
+          :finished="finished"
+          finished-text="没有更多数据了"
+          loading-text=""
+          :offset="30"
+          @load="onLoad"
+        >
+          <el-row v-if="tasks.length!==0">
             <el-col v-for="(o) in tasks.slice(0,number)" :key="o.id" :xs="22" :sm="15" :md="11" style="margin: 0 20px 20px 0; cursor:pointer;">
               <div>
                 <el-card :body-style="{ padding: '0px' }">
@@ -104,9 +105,9 @@
                 </el-card>
               </div>
             </el-col>
-          </van-list>
-        </el-row>
-        <div v-else class="flex-center" style="height:100px;">
+          </el-row>
+        </van-list>
+        <div v-if="tasks.length===0" class="flex-center" style="height:100px;">
           暂无完成过的任务
         </div>
       </el-col>
@@ -192,6 +193,7 @@ export default {
       number: 20,
       loading: false,
       finished: false,
+      info: {},
       statuss: [{
         value: 'Normal',
         label: '正常'
@@ -220,16 +222,12 @@ export default {
       formLabelWidth: '120px'
     }
   },
-  computed: {
-    info() {
-      return this.$store.state.user.info
-    }
-  },
   created() {
     this.$store.commit('app/openLoading', true)
-    this.$axios.all([this.$axios.get(`/v1/user?${this.$route.query.uid}`), this.$axios.get(`/v1/usertask/user/${this.$route.query.uid}/`), this.$axios.get(`/v1/task`)])
+    this.$axios.all([this.$axios.get(`/v1/user/${this.$route.query.uid}`), this.$axios.get(`/v1/usertask/user/${this.$route.query.uid}/`), this.$axios.get(`/v1/task`)])
       .then(this.$axios.spread((res, res2, res3) => {
         if (res.status === 200 && res2.status === 200 && res3.status === 200) {
+          this.info = res.data
           const taskIdList = Array.from(new Set(res2.data.map(item => item.task.id)))
           this.tasks = taskIdList.map(item => res3.data.find(item2 => item2.id === item))
           this.$store.commit('app/openLoading', false)
