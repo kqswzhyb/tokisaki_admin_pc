@@ -165,6 +165,7 @@ export default {
           })
           this.loading = false
           this.onReset()
+          this.$refs.child.initData()
         }
       } catch {
         this.$message.error('请求出错,请检查网络或刷新重试！')

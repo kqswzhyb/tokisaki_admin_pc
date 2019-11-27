@@ -92,7 +92,7 @@
             <el-col v-for="(o) in tasks.slice(0,number)" :key="o.id" :xs="22" :sm="15" :md="11" style="margin: 0 20px 20px 0; cursor:pointer;">
               <div>
                 <el-card :body-style="{ padding: '0px' }">
-                  <div style="padding: 14px;" @click="$router.push(`/tasks/${o.id}`)">
+                  <div style="padding: 14px;" @click="$router.push(`/user/record/${o.id}?uid=${$route.query.uid}`)">
                     <div class="flex-between">
                       <span>{{ o.taskName }}</span>
                       <svg-icon icon-class="done" style="font-size:30px;" />

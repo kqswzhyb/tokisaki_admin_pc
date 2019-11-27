@@ -1,7 +1,7 @@
 <template>
   <div style="padding:20px;">
     <div style="margin-bottom:20px;">
-      当前用户：<span style="color:#505050;font-size:18px;">{{ $store.state.user.info.user.nickName }}</span>
+      当前用户：<span style="color:#505050;font-size:18px;">{{ nickName }}</span>
     </div>
     <div style="margin-bottom:20px;">
       当前任务：<span
@@ -71,22 +71,23 @@ export default {
   data() {
     return {
       data: [],
-      taskName: ''
+      taskName: '',
+      nickName: ''
     }
   },
   created() {
     this.$store.commit('app/openLoading', true)
-    this.$axios.all([this.$axios.get(`/v1/usertask/user/${this.$route.query.uid}/task/${this.$route.params.id}/`), this.$axios.get(`/v1/task/${this.$route.params.id}`)])
-      .then(this.$axios.spread((res, res2) => {
-        if (res.status === 200 && res2.status === 200) {
+    this.$axios.all([this.$axios.get(`/v1/usertask/user/${this.$route.query.uid}/task/${this.$route.params.id}/`), this.$axios.get(`/v1/task/${this.$route.params.id}`), this.$axios.get(`/v1/user/${this.$route.query.uid}`)])
+      .then(this.$axios.spread((res, res2, res3) => {
+        if (res.status === 200 && res2.status === 200 && res3.status === 200) {
           this.data = res.data
           this.taskName = res2.data.taskName
+          this.nickName = res3.data.nickName
           this.data = this.data.map(item => {
             return Object.assign({}, item, { images: item.utAttachment && item.utAttachment.map(item2 => `${this.$baseURL}/${item2.attachment.attachType.slice(0, 1).toLowerCase() + item2.attachment.attachType.slice(1)}/${item2.attachment.attachName}.${item2.attachment.attachExtName}`) || [] })
           })
           this.$store.commit('app/openLoading', false)
-        }
-        if (res.status === 202) {
+        } else {
           this.$store.commit('app/openLoading', false)
           this.$router.push('/404')
         }

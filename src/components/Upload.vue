@@ -1,6 +1,6 @@
 <template>
   <div class="flex-start">
-    <van-uploader v-model="images" multiple :max-count="count" :before-read="beforeRead" :max-size="size" />
+    <van-uploader v-model="images" multiple :max-count="count" :before-read="beforeRead" :max-size="size" :disabled="disabled" />
     <div v-if="percentage!=0" style="margin-left:20px;">
       <el-progress :stroke-width="5" type="circle" :width="78" :percentage="percentage" :format="format" color="#e66457" />
     </div>
@@ -36,7 +36,8 @@ export default {
       current: {},
       percentage: 0,
       images: this.image,
-      urls: []
+      urls: [],
+      disabled: false
     }
   },
   watch: {
@@ -44,7 +45,8 @@ export default {
       this.images = val
     },
     urls: function(val) {
-      if (val.length === this.images.length) {
+      if (val.length !== 0 && val.length === this.images.length) {
+        this.disabled = false
         this.$emit('input', val)
       }
     },
@@ -56,13 +58,15 @@ export default {
     initData() {
       this.percentage = ''
       this.current = {}
-      this.images = []
       this.urls = []
+      this.images = []
+      this.disabled = false
     },
     format(percentage) {
       return percentage === 100 ? '图片完成' : `${parseInt(percentage)}%`
     },
     async load() {
+      this.disabled = true
       this.urls = [...this.images.filter(item => item.url)]
       const uploadList = this.images.filter(item => item.file)
       uploadList.forEach(async(item, index) => {
