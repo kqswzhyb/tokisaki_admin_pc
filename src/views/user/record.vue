@@ -72,7 +72,8 @@ export default {
     return {
       data: [],
       taskName: '',
-      nickName: ''
+      nickName: '',
+      role: 0
     }
   },
   created() {
@@ -83,6 +84,7 @@ export default {
           this.data = res.data
           this.taskName = res2.data.taskName
           this.nickName = res3.data.nickName
+          this.role = res3.data.roles.length
           this.data = this.data.map(item => {
             return Object.assign({}, item, { images: item.utAttachment && item.utAttachment.map(item2 => `${this.$baseURL}/${item2.attachment.attachType.slice(0, 1).toLowerCase() + item2.attachment.attachType.slice(1)}/${item2.attachment.attachName}.${item2.attachment.attachExtName}`) || [] })
           })
@@ -106,7 +108,7 @@ export default {
       return text
     },
     open(index, id, score) {
-      if (this.$store.state.user.info.roles.length >= 2) {
+      if (this.$store.state.user.info.roles.length > this.role) {
         this.$prompt('请输入积分(数字)', '修改积分', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',

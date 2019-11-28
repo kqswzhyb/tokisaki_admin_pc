@@ -31,7 +31,7 @@
             <svg-icon icon-class="star" style="margin-right:15px;font-size:30px;color:#fff;" />
             <span style="font-size:18px;color:#fff;">总积分</span>
           </div>
-          <span style="font-size:18px;color:#fff;">1000</span>
+          <span style="font-size:18px;color:#fff;">{{ $store.state.user.info.user.totalScore }}</span>
         </div>
       </el-col>
       <el-col :xs="10" :sm="5" :md="4">
@@ -40,7 +40,7 @@
             <svg-icon icon-class="rank3" style="margin-right:15px;font-size:30px;color:#fff;" />
             <span style="font-size:18px;color:#fff;">总排名</span>
           </div>
-          <span style="font-size:18px;color:#fff;">3/444</span>
+          <span style="font-size:18px;color:#fff;">{{ rank.total }}</span>
         </div>
       </el-col>
       <el-col :xs="10" :sm="5" :md="4">
@@ -49,7 +49,7 @@
             <svg-icon icon-class="rank2" style="margin-right:15px;font-size:30px;color:#fff;" />
             <span style="font-size:18px;color:#fff;">月排名</span>
           </div>
-          <span style="font-size:18px;color:#fff;">3/444</span>
+          <span style="font-size:18px;color:#fff;">{{ rank.month }}</span>
         </div>
       </el-col>
       <el-col :xs="10" :sm="5" :md="4">
@@ -58,7 +58,7 @@
             <svg-icon icon-class="rank1" style="margin-right:15px;font-size:30px;color:#fff;" />
             <span style="font-size:18px;color:#fff;">周排名</span>
           </div>
-          <span style="font-size:18px;color:#fff;">3/444</span>
+          <span style="font-size:18px;color:#fff;">{{ rank.week }}</span>
         </div>
       </el-col>
     </el-row>
@@ -97,8 +97,7 @@
                 <svg-icon icon-class="working" style="font-size:30px;" />
               </div>
               <div class="bottom clearfix">
-                <p style="font-size:14px;color:#666;">by <span class="main">玄机妙算</span></p>
-                <time class="time">2019-10-21 22：00</time>
+                <p style="font-size:14px;color:#666;line-height:20px;">达到积分节点请联系时光，QQ：2507321376</p>
               </div>
             </div>
           </el-card>
@@ -119,27 +118,34 @@ export default {
     return {
       currentDate: new Date(),
       shorts: [],
-      longs: []
+      longs: [],
+      rank: {}
     }
   },
   created() {
     this.$store.commit('app/openLoading', true)
-    this.$axios.get('/v1/task').then((res) => {
-      if (res.status === 200) {
-        res.data.forEach(item => {
-          if (item.taskType === 'ShortTerm') {
-            this.shorts.push(item)
-          } else {
-            this.longs.push(item)
-          }
-        })
-        this.shorts.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
-        this.longs.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
-        this.$store.commit('app/openLoading', false)
-      }
-    }).catch(() => {
-      this.$message.error('请求出错,请检查网络或刷新重试！')
-    })
+    this.$axios.all([this.$axios.get(`/v1/task`), this.$axios.get('/v1/rank/groupRank')])
+      .then(this.$axios.spread((res, res2) => {
+        if (res.status === 200 && res2.status === 200) {
+          res.data.forEach(item => {
+            if (item.taskType === 'ShortTerm') {
+              this.shorts.push(item)
+            } else {
+              this.longs.push(item)
+            }
+          })
+          const id = this.$store.state.user.info.user.id
+          this.rank = { week: `${res2.data.weekList.findIndex(item => item.id === id) + 1} / ${res2.data.weekList.length}`, month: `${res2.data.monthList.findIndex(item => item.id === id) + 1} / ${res2.data.monthList.length}`, total: `${res2.data.allList.findIndex(item => item.id === id) + 1} / ${res2.data.allList.length}` }
+          this.shorts.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
+          this.longs.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
+          this.$store.commit('app/openLoading', false)
+        } else {
+          this.$store.commit('app/openLoading', false)
+          this.$router.push('/404')
+        }
+      })).catch(() => {
+        this.$message.error('请求出错,请检查网络或刷新重试！')
+      })
   },
   methods: {
   }

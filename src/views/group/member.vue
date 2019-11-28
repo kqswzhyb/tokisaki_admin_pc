@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <div class="flex-start">
-      <div v-if="!$store.state.user.info.user.userGroup">
+      <div v-if="$store.state.user.info.roles.length>=3">
         <span>小组</span>
         <el-select v-model="group" style="margin: 0 40px 20px 10px;" placeholder="请选择小组">
           <el-option
@@ -28,35 +28,37 @@
       </div>
 
     </div>
+    <div style="box-shadow: 0px 5px 15px 0px rgba(0, 0, 0, 0.08);">
+      <el-table
+        v-loading="listLoading"
+        :data="data"
+        element-loading-text="加载中..."
+        border
+        fit
+        highlight-current-row
+      >
+        <el-table-column align="center" label="编号" prop="userCode" />
+        <el-table-column label="头像" align="center">
+          <template>
+            <el-image src="https://cdn.quasar.dev/img/avatar2.jpg" style="width:80px;" alt="" lazy />
+          </template>
+        </el-table-column>
+        <el-table-column label="昵称" align="center" prop="username" />
+        <el-table-column label="总积分" align="center" prop="totalScore" />
 
-    <el-table
-      v-loading="listLoading"
-      :data="data"
-      element-loading-text="加载中..."
-      border
-      fit
-      highlight-current-row
-    >
-      <el-table-column align="center" label="编号" prop="userCode" />
-      <el-table-column label="头像" align="center">
-        <template>
-          <el-image src="https://cdn.quasar.dev/img/avatar2.jpg" style="width:80px;" alt="" lazy />
-        </template>
-      </el-table-column>
-      <el-table-column label="昵称" align="center" prop="username" />
-      <el-table-column label="总积分" align="center" prop="totalScore" />
+        <el-table-column class-name="status-col" label="帐号状态" align="center">
+          <template slot-scope="scope">
+            <span style="border-bottom:1px dashed #000;cursor:pointer;" @click="editStatus(scope.row.id,scope.row.userStatus,scope.row.roles.length)">{{ statuss.find(item=>item.value===scope.row.userStatus).label }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" label="身份">
+          <template slot-scope="scope">
+            <span style="border-bottom:1px dashed #000;cursor:pointer;" @click="editRole(scope.row.id,scope.row.roles.length)">{{ roleList.find(item=>item.value===scope.row.roles.length).label }}</span>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
 
-      <el-table-column class-name="status-col" label="帐号状态" align="center">
-        <template slot-scope="scope">
-          <span style="border-bottom:1px dashed #000;cursor:pointer;" @click="editStatus(scope.row.id,scope.row.userStatus)">{{ statuss.find(item=>item.value===scope.row.userStatus).label }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column align="center" label="身份">
-        <template slot-scope="scope">
-          <span style="border-bottom:1px dashed #000;cursor:pointer;" @click="editRole(scope.row.id,scope.row.roles.length)">{{ roleList.find(item=>item.value===scope.row.roles.length).label }}</span>
-        </template>
-      </el-table-column>
-    </el-table>
     <el-dialog title="修改" :visible.sync="dialogFormVisible" @close="reset">
       <el-form>
         <el-form-item v-if="selectRole!==''" label="身份" :label-width="formLabelWidth">
@@ -185,10 +187,12 @@ export default {
     }
   },
   methods: {
-    editStatus(id, status) {
-      this.dialogFormVisible = true
-      this.selectStatus = status
-      this.selectId = id
+    editStatus(id, status, role) {
+      if (this.$store.state.user.info.roles.length > role) {
+        this.dialogFormVisible = true
+        this.selectStatus = status
+        this.selectId = id
+      }
     },
     formatData(data) {
       this.excel = data.map(item => {
@@ -203,9 +207,11 @@ export default {
       })
     },
     editRole(id, role) {
-      this.dialogFormVisible = true
-      this.selectRole = role
-      this.selectId = id
+      if (this.$store.state.user.info.roles.length > role) {
+        this.dialogFormVisible = true
+        this.selectRole = role
+        this.selectId = id
+      }
     },
     reset() {
       this.selectRole = ''

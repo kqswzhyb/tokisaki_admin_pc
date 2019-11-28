@@ -56,7 +56,7 @@
                 <span style="color:#999;">帐号状态：</span>{{ info.roles&& statuss.find(item=>item.value===info.userStatus).label }}
               </div>
             </el-col>
-            <el-col :xs="24" :lg="12">
+            <el-col v-if="$store.state.user.info.user.id===$route.query.uid" :xs="24" :lg="12">
               <div style="margin-bottom:30px;">
                 <span style="color:#999;">密码设置：</span>修改密码 >>
                 <svg-icon icon-class="lock" style="cursor:pointer;margin-left:15px;font-size:20px;color:#2c2c2c;" @click="dialogFormVisible=true" />
@@ -222,24 +222,32 @@ export default {
       formLabelWidth: '120px'
     }
   },
+  watch: {
+    '$route.query.uid': function() {
+      this.getData()
+    }
+  },
   created() {
-    this.$store.commit('app/openLoading', true)
-    this.$axios.all([this.$axios.get(`/v1/user/${this.$route.query.uid}`), this.$axios.get(`/v1/usertask/user/${this.$route.query.uid}/`), this.$axios.get(`/v1/task`)])
-      .then(this.$axios.spread((res, res2, res3) => {
-        if (res.status === 200 && res2.status === 200 && res3.status === 200) {
-          this.info = res.data
-          const taskIdList = Array.from(new Set(res2.data.map(item => item.task.id)))
-          this.tasks = taskIdList.map(item => res3.data.find(item2 => item2.id === item))
-          this.$store.commit('app/openLoading', false)
-        } else {
-          this.$store.commit('app/openLoading', false)
-          this.$router.push('/404')
-        }
-      })).catch(() => {
-        this.$message.error('请求出错,请检查网络或刷新重试！')
-      })
+    this.getData()
   },
   methods: {
+    getData() {
+      this.$store.commit('app/openLoading', true)
+      this.$axios.all([this.$axios.get(`/v1/user/${this.$route.query.uid}`), this.$axios.get(`/v1/usertask/user/${this.$route.query.uid}/`), this.$axios.get(`/v1/task`)])
+        .then(this.$axios.spread((res, res2, res3) => {
+          if (res.status === 200 && res2.status === 200 && res3.status === 200) {
+            this.info = res.data
+            const taskIdList = Array.from(new Set(res2.data.map(item => item.task.id)))
+            this.tasks = taskIdList.map(item => res3.data.find(item2 => item2.id === item))
+            this.$store.commit('app/openLoading', false)
+          } else {
+            this.$store.commit('app/openLoading', false)
+            this.$router.push('/404')
+          }
+        })).catch(() => {
+          this.$message.error('请求出错,请检查网络或刷新重试！')
+        })
+    },
     onLoad() {
       setTimeout(() => {
         if (this.number < this.tasks.length) {

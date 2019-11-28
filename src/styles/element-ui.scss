@@ -19,6 +19,10 @@
   display: none;
 }
 
+.el-table th {
+  background: #ddd  !important;
+}
+
 // to fixed https://github.com/ElemeFE/element/issues/2461
 .el-dialog {
   transform: none;
