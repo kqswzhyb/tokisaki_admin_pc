@@ -13,31 +13,76 @@
         </div>
       </el-col>
       <el-col :xs="24" :sm="9" :md="8" :lg="7">
-        <p class="main" style="font-size:20px;">{{ active.taskName }}</p>
+        <div v-if="$store.state.user.info.roles.length>=3" style="width:100%;">
+          <span>小组</span>
+          <el-select v-model="groupId" style="margin: 0 40px 20px 10px;" placeholder="请选择小组">
+            <el-option
+              v-for="item in groups"
+              :key="item.id"
+              :label="item.groupName"
+              :value="item.id"
+            />
+          </el-select>
+        </div>
+        <p class="main" style="font-size:20px;cursor:pointer;" @click="$router.push(`/tasks/${active.id}`)">{{ active.taskName }}</p>
         <p>本次任务起始时间: {{ active.startDate|prettyDate }}</p>
         <p>本次任务结束时间: {{ active.endDate|prettyDate }}</p>
         <el-tabs v-model="activeName" type="border-card">
           <el-tab-pane label="组内排行" name="one">
             <div style="height:468px;">
               <el-scrollbar style="height:100%;">
-                <div v-for="(item,index) in 10" :key="item" class="flex-start" style="padding:5px 0;border-bottom:1px solid #ccc;">
-                  <div class="rank flex-center" :style="{backgroundColor: index===0?'#ff9800':index===1?'#ccc':index===2?'#b87333':'#3c9cfe'}"><span style="color:#fff;font-size:12px">{{ index+1 }}</span></div>
-                  <div class="flex-between" style="width:100%;">
-                    <div class="flex-start">
-                      <img src="https://cdn.quasar.dev/img/avatar2.jpg" style="margin-right:15px;border-radius:50%;" alt="" width="50">
-                      <div>
-                        <p>玄机妙算</p>
-                        <p style="color:#505050;font-size:14px;">02001</p>
+                <van-list
+                  v-model="oneLoading"
+                  :finished="oneFinished"
+                  finished-text="已经到底了..."
+                  loading-text=""
+                  :offset="30"
+                  @load="onLoad('oneNumber','oneLoading','oneFinished','one')"
+                >
+                  <div v-for="(item,index) in one.slice(0,oneNumber)" :key="item.id" class="flex-start" style="padding:5px 0;border-bottom:1px solid #ccc;cursor:pointer;" @click="goPersonal(item.id)">
+                    <div class="rank flex-center" :style="{backgroundColor: index===0?'#ff9800':index===1?'#ccc':index===2?'#b87333':'#3c9cfe'}"><span style="color:#fff;font-size:12px">{{ index+1 }}</span></div>
+                    <div class="flex-between" style="width:100%;">
+                      <div class="flex-start">
+                        <img src="https://cdn.quasar.dev/img/avatar2.jpg" style="margin-right:15px;border-radius:50%;" alt="" width="50">
+                        <div>
+                          <p>{{ item.nickName }}</p>
+                          <p style="color:#505050;font-size:14px;">{{ item.userCode }}</p>
+                        </div>
                       </div>
+                      <div style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
                     </div>
-                    <div><span style="color:#ff9800;">1000</span></div>
                   </div>
-                </div>
+                </van-list>
               </el-scrollbar>
             </div>
           </el-tab-pane>
           <el-tab-pane label="群内排行" name="all">
-            群内排行
+            <div style="height:468px;">
+              <el-scrollbar style="height:100%;">
+                <van-list
+                  v-model="allLoading"
+                  :finished="allFinished"
+                  finished-text="已经到底了..."
+                  loading-text=""
+                  :offset="30"
+                  @load="onLoad('allNumber','allLoading','allFinished','all')"
+                >
+                  <div v-for="(item,index) in all.slice(0,allNumber)" :key="item.id" class="flex-start" style="padding:5px 0;border-bottom:1px solid #ccc;cursor:pointer;" @click="goPersonal(item.id)">
+                    <div class="rank flex-center" :style="{backgroundColor: index===0?'#ff9800':index===1?'#ccc':index===2?'#b87333':'#3c9cfe'}"><span style="color:#fff;font-size:12px">{{ index+1 }}</span></div>
+                    <div class="flex-between" style="width:100%;">
+                      <div class="flex-start">
+                        <img src="https://cdn.quasar.dev/img/avatar2.jpg" style="margin-right:15px;border-radius:50%;" alt="" width="50">
+                        <div>
+                          <p>{{ item.nickName }}</p>
+                          <p style="color:#505050;font-size:14px;">{{ item.userCode }}</p>
+                        </div>
+                      </div>
+                      <div style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
+                    </div>
+                  </div>
+                </van-list>
+              </el-scrollbar>
+            </div>
           </el-tab-pane>
         </el-tabs>
       </el-col>
@@ -47,32 +92,92 @@
 <script>
 import FullCalendar from '@fullcalendar/vue'
 import dayGridPlugin from '@fullcalendar/daygrid'
+import { List as VanList } from 'vant'
 export default {
   components: {
-    FullCalendar
+    FullCalendar,
+    VanList
   },
   data() {
     return {
       calendarPlugins: [dayGridPlugin],
       value: '',
-      activeName: 'one',
+      activeName: 'all',
       active: {},
-      options: []
+      options: [],
+
+      all: [],
+      one: [],
+      allNumber: 20,
+      allLoading: false,
+      allFinished: false,
+      oneNumber: 20,
+      oneLoading: false,
+      oneFinished: false,
+
+      groupId: '',
+      groups: []
     }
   },
-  created() {
-    this.$store.commit('app/openLoading', true)
-    this.$axios.get('/v1/task/search/?taskType=ShortTerm').then((res) => {
-      if (res.status === 200) {
-        this.options = res.data.map(item => ({ ...item, start: item.startDate, end: item.endDate, title: item.taskName, backgroundColor: '#3788d8', borderColor: '#3788d8' })).sort((a, b) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime())
-        this.value = this.options[0].id
-        this.options[0] = Object.assign(this.options[0], { backgroundColor: '#e66457', borderColor: '#e66457' })
-        this.active = this.options[0]
-        this.$store.commit('app/openLoading', false)
+  watch: {
+    value: async function(val) {
+      if (val && this.groupId) {
+        this.$store.commit('app/openLoading', true)
+        this.initData()
+        try {
+          const res2 = await this.$axios.get(`/v1/rank/groupRankforTask/${val}`)
+          const res3 = await this.$axios.get(`/v1/rank/groupRankforTask/${val}/${this.groupId}`)
+          if (res2.data.allList) {
+            this.all = res2.data.allList
+          }
+          if (res3.data.groupList) {
+            this.one = res3.data.groupList
+          }
+          this.$store.commit('app/openLoading', false)
+        } catch (err) {
+          this.$message.error('请求出错,请检查网络或刷新重试！')
+        }
       }
-    }).catch(() => {
+    },
+    groupId: async function(val) {
+      if (val && this.value) {
+        this.$store.commit('app/openLoading', true)
+        this.initGroup()
+        try {
+          const res = await this.$axios.get(`/v1/rank/groupRankforTask/${this.value}/${val}`)
+          if (res.data.groupList) {
+            this.one = res.data.groupList
+          }
+          this.$store.commit('app/openLoading', false)
+        } catch (err) {
+          this.$message.error('请求出错,请检查网络或刷新重试！')
+        }
+      }
+    }
+  },
+  async created() {
+    this.$store.commit('app/openLoading', true)
+    try {
+      const result = await this.$axios.get('/v1/usergroup/listall')
+      if (result.status === 200) {
+        this.groups = result.data
+      } else {
+        this.$router.push('/404')
+      }
+      if (this.$store.state.user.info.user.userGroup) {
+        this.groupId = this.$store.state.user.info.user.userGroup.id
+      } else {
+        this.groupId = this.groups[0].id
+      }
+      const result2 = await this.$axios.get('/v1/task/search/?taskType=ShortTerm')
+      this.options = result2.data.map(item => ({ ...item, start: item.startDate, end: item.endDate, title: item.taskName, backgroundColor: '#3788d8', borderColor: '#3788d8' })).sort((a, b) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime())
+      this.value = this.options[0].id
+      this.options[0] = Object.assign(this.options[0], { backgroundColor: '#e66457', borderColor: '#e66457' })
+      this.active = this.options[0]
+      this.$store.commit('app/openLoading', false)
+    } catch (err) {
       this.$message.error('请求出错,请检查网络或刷新重试！')
-    })
+    }
   },
   methods: {
     eventClick(data) {
@@ -82,6 +187,38 @@ export default {
       const index2 = this.options.findIndex(item => item.id === this.value)
       this.options[index2] = Object.assign(this.options[index2], { backgroundColor: '#e66457', borderColor: '#e66457' })
       this.active = this.options[index2]
+    },
+    onLoad(number, loading, finished, data) {
+      setTimeout(() => {
+        if (this[number] < this[data].length) {
+          this[number] += 10
+        }
+        this[loading] = false
+        if (this[number] >= this[data].length) {
+          this[finished] = true
+        }
+      }, 1000)
+    },
+    goPersonal(id) {
+      if (this.$store.state.user.info.roles.length >= 2) {
+        this.$router.push(`/user/personal?uid=${id}`)
+      }
+    },
+    initData() {
+      this.all = []
+      this.one = []
+      this.allNumber = 20
+      this.allLoading = false
+      this.allFinished = false
+      this.oneNumber = 20
+      this.oneLoading = false
+      this.oneFinished = false
+    },
+    initGroup() {
+      this.one = []
+      this.oneNumber = 20
+      this.oneLoading = false
+      this.oneFinished = false
     }
   }
 }

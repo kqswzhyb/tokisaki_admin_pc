@@ -6,15 +6,15 @@
         <h3 class="title">注册</h3>
       </div>
 
-      <el-form-item prop="username">
+      <el-form-item prop="qqNo">
         <span class="svg-container">
           <svg-icon icon-class="user" />
         </span>
         <el-input
-          ref="username"
-          v-model="form.username"
-          placeholder="用户名"
-          name="username"
+          ref="qqNo"
+          v-model="form.qqNo"
+          placeholder="QQ号码(用作帐号)"
+          name="qqNo"
           type="text"
           tabindex="1"
           auto-complete="on"
@@ -78,23 +78,8 @@
         />
       </el-form-item>
 
-      <el-form-item prop="qqNo">
-        <span class="svg-container">
-          <svg-icon icon-class="qq" style="font-size:20px" />
-        </span>
-        <el-input
-          ref="qqNo"
-          v-model="form.qqNo"
-          placeholder="QQ号码"
-          name="qqNo"
-          type="text"
-          tabindex="1"
-          auto-complete="on"
-          onkeydown="if(event.keyCode==32) return false"
-        />
-      </el-form-item>
-
       <el-button :loading="loading" :disabled="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">注册</el-button>
+      <el-button @click="cals">ssss</el-button>
     </el-form>
   </div>
 </template>
@@ -104,15 +89,6 @@ import { setToken } from '@/utils/auth'
 export default {
   name: 'Login',
   data() {
-    const validateUsername = (rule, value, callback) => {
-      if (!value) {
-        callback(new Error('请输入用户名'))
-      } else if (!(/^[\u4e00-\u9fa5A-Za-z0-9]+$/gi).test(value)) {
-        callback(new Error('只能输入汉字和英文字母和数字'))
-      } else {
-        callback()
-      }
-    }
     const validatePassword = (rule, value, callback) => {
       if (value.length < 6) {
         callback(new Error('密码长度不少于6位'))
@@ -142,7 +118,7 @@ export default {
     }
     const validateQQNo = (rule, value, callback) => {
       if (!value) {
-        callback(new Error('QQ号码不能为空'))
+        callback(new Error('QQ号码(帐号)不能为空'))
       } else if (!(/^[0-9]+$/gi).test(value)) {
         callback(new Error('只能输入数字'))
       } else {
@@ -151,14 +127,12 @@ export default {
     }
     return {
       form: {
-        username: '',
         password: '',
         confirmPassword: '',
         inviteCode: '',
         qqNo: ''
       },
       rules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
         password: [{ required: true, trigger: 'blur', validator: validatePassword }],
         confirmPassword: [{ required: true, trigger: 'blur', validator: validateConfirm }],
         inviteCode: [{ required: true, trigger: 'blur', validator: validateInviteCode }],
@@ -189,6 +163,21 @@ export default {
         this.$refs.password.focus()
       })
     },
+    cals() {
+      // this.$axios.get('/auth/qqloginCallback?code=1FAA8858CCEF0515C3C47AE2FF992E1F&state=Fri+Nov+29+12%3A34%3A14+UTC+2019').then((res) => {
+      //   if (res.status === 200) {
+      //     if (res.data.token) {
+      //       this.$store.commit('user/SET_TOKEN', res.data.token)
+      //       setToken(res.data.token)
+      //       this.$router.push({ path: this.redirect || '/' })
+      //     } else {
+      //       console.log(res.data)
+      //     }
+      //   } else {
+      //     this.$router.push('/404')
+      //   }
+      // })
+    },
     showPwd2() {
       if (this.passwordType2 === 'password') {
         this.passwordType2 = ''
@@ -204,23 +193,26 @@ export default {
         if (valid) {
           this.loading = true
           try {
-            const res = await this.$axios.post('/auth/signin', {
-              username: this.form.username,
-              password: this.form.password
+            const res = await this.$axios.post('/auth/qqblind', {
+              username: this.form.qqNo,
+              password: this.form.password,
+              inviteCode: this.form.inviteCode,
+              id: '4028b2536e553f58016e553f837f0006'
             }, {
               headers: {
                 'Content-Type': 'application/json; charset=UTF-8'
               }
             })
-            if (res.status !== 200) {
-              this.$message.error('帐号或密码错误')
-              this.loading = false
-            } else {
-              this.$store.commit('user/SET_TOKEN', res.data.token)
-              setToken(res.data.token)
-              this.$router.push({ path: this.redirect || '/' })
-              this.loading = false
-            }
+            console.log(res.data)
+            // if (res.status !== 200) {
+            //   this.$message.error('帐号或密码错误')
+            //   this.loading = false
+            // } else {
+            //   this.$store.commit('user/SET_TOKEN', res.data.token)
+            //   setToken(res.data.token)
+            //   this.$router.push({ path: this.redirect || '/' })
+            //   this.loading = false
+            // }
           } catch {
             this.$message.error('请求出错')
             this.loading = false

@@ -232,7 +232,7 @@ export default {
       totalAllLoading: false,
       totalAllFinished: false,
 
-      groupId: 0,
+      groupId: '',
       groups: [],
 
       monthRankOne: [],
@@ -253,28 +253,30 @@ export default {
   },
   watch: {
     groupId: function(val) {
-      this.$store.commit('app/openLoading', true)
-      this.initData()
-      this.$axios.get(`/v1/rank/groupRank/${val}`)
-        .then(res => {
-          if (res.status === 200) {
-            if (res.data.groupList) {
-              this.totalRankOne = res.data.groupList
+      if (val) {
+        this.$store.commit('app/openLoading', true)
+        this.initData()
+        this.$axios.get(`/v1/rank/groupRank/${val}`)
+          .then(res => {
+            if (res.status === 200) {
+              if (res.data.groupList) {
+                this.totalRankOne = res.data.groupList
+              }
+              if (res.data.groupWeekList) {
+                this.weekRankOne = res.data.groupWeekList
+              }
+              if (res.data.groupMonthList) {
+                this.monthRankOne = res.data.groupMonthList
+              }
+              this.$store.commit('app/openLoading', false)
+            } else {
+              this.$store.commit('app/openLoading', false)
+              this.$router.push('/404')
             }
-            if (res.data.groupWeekList) {
-              this.weekRankOne = res.data.groupWeekList
-            }
-            if (res.data.groupMonthList) {
-              this.monthRankOne = res.data.groupMonthList
-            }
-            this.$store.commit('app/openLoading', false)
-          } else {
-            this.$store.commit('app/openLoading', false)
-            this.$router.push('/404')
-          }
-        }).catch(() => {
-          this.$message.error('请求出错,请检查网络或刷新重试！')
-        })
+          }).catch(() => {
+            this.$message.error('请求出错,请检查网络或刷新重试！')
+          })
+      }
     }
   },
   async created() {

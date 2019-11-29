@@ -34,28 +34,73 @@
         </div>
       </el-col>
       <el-col :xs="24" :sm="12" :md="10" :lg="7">
+        <div v-if="$store.state.user.info.roles.length>=3" style="width:100%;">
+          <span>小组</span>
+          <el-select v-model="groupId" style="margin: 0 40px 20px 10px;" placeholder="请选择小组">
+            <el-option
+              v-for="item in groups"
+              :key="item.id"
+              :label="item.groupName"
+              :value="item.id"
+            />
+          </el-select>
+        </div>
         <el-tabs v-model="activeName" type="border-card">
           <el-tab-pane label="组内排行" name="one">
-            <div style="height:75vh;">
+            <div style="height:468px;">
               <el-scrollbar style="height:100%;">
-                <div v-for="(item,index) in 10" :key="item" class="flex-start" style="padding:5px 0;border-bottom:1px solid #ccc;cursor:pointer;" @click="$router.push('/user/record/2')">
-                  <div class="rank flex-center" :style="{backgroundColor: index===0?'#ff9800':index===1?'#ccc':index===2?'#b87333':'#3c9cfe'}"><span style="color:#fff;font-size:12px">{{ index+1 }}</span></div>
-                  <div class="flex-between" style="width:100%;">
-                    <div class="flex-start">
-                      <img src="https://cdn.quasar.dev/img/avatar2.jpg" style="margin-right:15px;border-radius:50%;" alt="" width="50">
-                      <div>
-                        <p>玄机妙算</p>
-                        <p style="color:#505050;font-size:14px;">02001</p>
+                <van-list
+                  v-model="oneLoading"
+                  :finished="oneFinished"
+                  finished-text="已经到底了..."
+                  loading-text=""
+                  :offset="30"
+                  @load="onLoad('oneNumber','oneLoading','oneFinished','one')"
+                >
+                  <div v-for="(item,index) in one.slice(0,oneNumber)" :key="item.id" class="flex-start" style="padding:5px 0;border-bottom:1px solid #ccc;cursor:pointer;" @click="goPersonal(item.id)">
+                    <div class="rank flex-center" :style="{backgroundColor: index===0?'#ff9800':index===1?'#ccc':index===2?'#b87333':'#3c9cfe'}"><span style="color:#fff;font-size:12px">{{ index+1 }}</span></div>
+                    <div class="flex-between" style="width:100%;">
+                      <div class="flex-start">
+                        <img src="https://cdn.quasar.dev/img/avatar2.jpg" style="margin-right:15px;border-radius:50%;" alt="" width="50">
+                        <div>
+                          <p>{{ item.nickName }}</p>
+                          <p style="color:#505050;font-size:14px;">{{ item.userCode }}</p>
+                        </div>
                       </div>
+                      <div style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
                     </div>
-                    <div><span style="color:#ff9800;">1000</span></div>
                   </div>
-                </div>
+                </van-list>
               </el-scrollbar>
             </div>
           </el-tab-pane>
           <el-tab-pane label="群内排行" name="all">
-            群内排行
+            <div style="height:468px;">
+              <el-scrollbar style="height:100%;">
+                <van-list
+                  v-model="allLoading"
+                  :finished="allFinished"
+                  finished-text="已经到底了..."
+                  loading-text=""
+                  :offset="30"
+                  @load="onLoad('allNumber','allLoading','allFinished','all')"
+                >
+                  <div v-for="(item,index) in all.slice(0,allNumber)" :key="item.id" class="flex-start" style="padding:5px 0;border-bottom:1px solid #ccc;cursor:pointer;" @click="goPersonal(item.id)">
+                    <div class="rank flex-center" :style="{backgroundColor: index===0?'#ff9800':index===1?'#ccc':index===2?'#b87333':'#3c9cfe'}"><span style="color:#fff;font-size:12px">{{ index+1 }}</span></div>
+                    <div class="flex-between" style="width:100%;">
+                      <div class="flex-start">
+                        <img src="https://cdn.quasar.dev/img/avatar2.jpg" style="margin-right:15px;border-radius:50%;" alt="" width="50">
+                        <div>
+                          <p>{{ item.nickName }}</p>
+                          <p style="color:#505050;font-size:14px;">{{ item.userCode }}</p>
+                        </div>
+                      </div>
+                      <div style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
+                    </div>
+                  </div>
+                </van-list>
+              </el-scrollbar>
+            </div>
           </el-tab-pane>
         </el-tabs>
       </el-col>
@@ -85,17 +130,18 @@
 <script>
 import SvgIcon from '../../components/SvgIcon/index'
 import MyUploader from '../../components/Upload'
-import { ImagePreview } from 'vant'
+import { ImagePreview, List as VanList } from 'vant'
 import '@vant/touch-emulator'
 export default {
   components: {
     SvgIcon,
-    MyUploader
+    MyUploader,
+    VanList
   },
   data() {
     return {
       currentDate: new Date(),
-      activeName: 'one',
+      activeName: 'all',
       images: [],
       dialogFormVisible: false,
       loading: false,
@@ -109,28 +155,70 @@ export default {
           { required: true, message: '至少上传一张图片', trigger: 'blur' }
         ]
       },
-      formLabelWidth: '120px'
+      formLabelWidth: '120px',
+      all: [],
+      one: [],
+      allNumber: 20,
+      allLoading: false,
+      allFinished: false,
+      oneNumber: 20,
+      oneLoading: false,
+      oneFinished: false,
+
+      groupId: 0,
+      groups: []
     }
   },
-  created() {
-    this.$store.commit('app/openLoading', true)
-    this.$axios.get(`/v1/task/${this.$route.params.id}`).then((res) => {
-      if (res.status === 200) {
-        this.data = res.data
-        if (res.data.taskAttachment) {
-          res.data.taskAttachment.forEach(item => {
-            this.images.push(`${this.$baseURL}/${item.attachment.attachType.slice(0, 1).toLowerCase() + item.attachment.attachType.slice(1)}/${item.attachment.attachName}.${item.attachment.attachExtName}`)
-          })
+  watch: {
+    groupId: async function(val) {
+      if (val) {
+        this.$store.commit('app/openLoading', true)
+        this.initGroup()
+        try {
+          const res = await this.$axios.get(`/v1/rank/groupRankforTask/${this.$route.params.id}/${val}`)
+          if (res.data.groupList) {
+            this.one = res.data.groupList
+          }
+          this.$store.commit('app/openLoading', false)
+        } catch (err) {
+          this.$message.error('请求出错,请检查网络或刷新重试！')
         }
-        this.$store.commit('app/openLoading', false)
       }
-      if (res.status === 202) {
+    }
+  },
+  async created() {
+    this.$store.commit('app/openLoading', true)
+    try {
+      const result = await this.$axios.get(`/v1/task/${this.$route.params.id}`)
+      if (result.status === 202) {
         this.$store.commit('app/openLoading', false)
         this.$router.push('/404')
       }
-    }).catch(() => {
+      this.data = result.data
+      if (result.data.taskAttachment) {
+        result.data.taskAttachment.forEach(item => {
+          this.images.push(`${this.$baseURL}/${item.attachment.attachType.slice(0, 1).toLowerCase() + item.attachment.attachType.slice(1)}/${item.attachment.attachName}.${item.attachment.attachExtName}`)
+        })
+      }
+      const result2 = await this.$axios.get('/v1/usergroup/listall')
+      if (result2.status === 200) {
+        this.groups = result2.data
+      } else {
+        this.$router.push('/404')
+      }
+      if (this.$store.state.user.info.user.userGroup) {
+        this.groupId = this.$store.state.user.info.user.userGroup.id
+      } else {
+        this.groupId = this.groups[0].id
+      }
+      const res2 = await this.$axios.get(`/v1/rank/groupRankforTask/${this.$route.params.id}`)
+      if (res2.data.allList) {
+        this.all = res2.data.allList
+      }
+      this.$store.commit('app/openLoading', false)
+    } catch (err) {
       this.$message.error('请求出错,请检查网络或刷新重试！')
-    })
+    }
   },
   methods: {
     ReplaceUrl(text) {
@@ -141,6 +229,28 @@ export default {
         })
       }
       return text
+    },
+    initGroup() {
+      this.one = []
+      this.oneNumber = 20
+      this.oneLoading = false
+      this.oneFinished = false
+    },
+    onLoad(number, loading, finished, data) {
+      setTimeout(() => {
+        if (this[number] < this[data].length) {
+          this[number] += 10
+        }
+        this[loading] = false
+        if (this[number] >= this[data].length) {
+          this[finished] = true
+        }
+      }, 1000)
+    },
+    goPersonal(id) {
+      if (this.$store.state.user.info.roles.length >= 2) {
+        this.$router.push(`/user/personal?uid=${id}`)
+      }
     },
     getImage(data) {
       this.form.images = data
