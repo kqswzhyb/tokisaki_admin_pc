@@ -14,7 +14,7 @@
       :size="'15%'"
     >
       <div class="avatar-bg">
-        <img v-if="!avatar" src="@/assets/images/default_user.jpg" class="drawer-avatar">
+        <img v-if="!avatar" src="http://qzapp.qlogo.cn/qzapp/101825291/4592DBBC6E4C1D9AEF937C9A21EE82F6/30" width="40" class="drawer-avatar">
         <img v-else :src="avatar" class="drawer-avatar">
         <span class="name">{{ nickName|| '未登录' }}</span>
       </div>
@@ -190,9 +190,7 @@ export default {
   background:url('../../assets/images/bg.jpg') no-repeat center 20%;
   background-size: 100%;
   .drawer-avatar {
-    margin:30px 0 6px;
-    width: 44px;
-    height: 44px;
+    margin:25px 0 6px;
     border-radius: 50%;
   }
   .name {

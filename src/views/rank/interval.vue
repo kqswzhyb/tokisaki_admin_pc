@@ -38,7 +38,7 @@
                           <p style="color:#505050;font-size:14px;">{{ item.userCode }}</p>
                         </div>
                       </div>
-                      <div style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
+                      <div v-if="$store.state.user.info.roles.length >= 2" style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
                     </div>
                   </div>
                 </van-list>
@@ -66,7 +66,7 @@
                           <p style="color:#505050;font-size:14px;">{{ item.userCode }}</p>
                         </div>
                       </div>
-                      <div style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
+                      <div v-if="$store.state.user.info.roles.length >= 2" style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
                     </div>
                   </div>
                 </van-list>
@@ -99,7 +99,7 @@
                           <p style="color:#505050;font-size:14px;">{{ item.userCode }}</p>
                         </div>
                       </div>
-                      <div style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
+                      <div v-if="$store.state.user.info.roles.length >= 2" style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
                     </div>
                   </div>
                 </van-list>
@@ -127,7 +127,7 @@
                           <p style="color:#505050;font-size:14px;">{{ item.userCode }}</p>
                         </div>
                       </div>
-                      <div style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
+                      <div v-if="$store.state.user.info.roles.length >= 2" style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
                     </div>
                   </div>
                 </van-list>
@@ -162,7 +162,7 @@
                           <p style="color:#505050;font-size:14px;">{{ item.userCode }}</p>
                         </div>
                       </div>
-                      <div style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
+                      <div v-if="$store.state.user.info.roles.length >= 2" style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
                     </div>
                   </div>
                 </van-list>
@@ -190,7 +190,7 @@
                           <p style="color:#505050;font-size:14px;">{{ item.userCode }}</p>
                         </div>
                       </div>
-                      <div style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
+                      <div v-if="$store.state.user.info.roles.length >= 2" style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
                     </div>
                   </div>
                 </van-list>
@@ -302,8 +302,12 @@ export default {
           this.weekTime = { start: res.data.weekStart, end: res.data.weekEnd }
           this.weekRankAll = res.data.weekList
           this.monthTime = { start: res.data.monthStart, end: res.data.monthEnd }
-          this.monthRankAll = res.data.monthList
-          this.totalRankAll = res.data.allList
+          if (res.data.monthList) {
+            this.monthRankAll = res.data.monthList
+          }
+          if (res.data.allList) {
+            this.totalRankAll = res.data.allList
+          }
           if (res2.data.groupList) {
             this.totalRankOne = res2.data.groupList
           }

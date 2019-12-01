@@ -31,10 +31,10 @@ import '@/permission' // permission control
  * Currently MockJs will be used in the production environment,
  * please remove it before going online! ! !
  */
-import { mockXHR } from '../mock'
-if (process.env.NODE_ENV === 'production') {
-  mockXHR()
-}
+// import { mockXHR } from '../mock'
+// if (process.env.NODE_ENV === 'production') {
+//   mockXHR()
+// }
 
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
@@ -76,7 +76,7 @@ axios.interceptors.request.use((config) => {
 // axios.defaults.withCredentials = true
 axios.defaults.baseURL = 'http://localhost:8090/api'
 Vue.prototype.$axios = axios
-Vue.prototype.$baseURL = 'https://tokisaki-admin-1257494597.cos.ap-shanghai.myqcloud.com/'
+Vue.prototype.$baseURL = 'https://tokisaki-admin-1257494597.cos.ap-shanghai.myqcloud.com'
 // set ElementUI lang to EN
 // Vue.use(ElementUI, { locale })
 // 如果想要中文版 element-ui，按如下方式声明

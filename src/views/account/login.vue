@@ -102,15 +102,15 @@ export default {
       })
     },
     goQQ() {
-      // this.$axios.get('/auth/qqlogin').then((res) => {
-      //   if (res.status === 200) {
-      //     window.location.href = res.data.url
-      //   } else {
-      //     this.$router.push('/404')
-      //   }
-      // })
-      // window.location.href = 'https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id=101825291&redirect_uri=https://tokisaki.cn/api/auth/qqloginCallback&state=Fri%20Nov%2029%2012:00:09%20UTC%202019'
-      // const url = 'https://tokisaki.cn/api/auth/qqloginCallback?code=366E8CA77C4A2193EF4DBC217DAB4A2D&state=Fri+Nov+29+12%3A00%3A09+UTC+2019'
+      this.$axios.get('/auth/qqlogin').then((res) => {
+        if (res.status === 200) {
+          window.location.href = res.data.url
+        } else {
+          this.$router.push('/404')
+        }
+      }).catch(() => {
+        this.$message.error('请求出错,请检查网络或刷新重试！')
+      })
     },
     async handleLogin() {
       this.$refs.loginForm.validate(async valid => {
@@ -135,7 +135,7 @@ export default {
               this.loading = false
             }
           } catch {
-            this.$message.error('请求出错')
+            this.$message.error('请求出错,请检查网络或刷新重试！')
             this.loading = false
           }
         } else {

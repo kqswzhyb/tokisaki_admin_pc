@@ -22,9 +22,9 @@
           <div v-html="ReplaceUrl(data.taskDetail)" />
           <div style="margin:20px 0 10px;">
             <el-button v-if="$store.state.user.info.roles.length===3" type="warning" size="mini" round @click="$router.push(`/tasks/edit/${$route.params.id}`)">修改任务</el-button>
-            <el-button type="primary" size="mini" round @click="$router.push(`/user/record/${$route.params.id}?uid=${$store.state.user.info.user.id}`)">我的提交</el-button>
+            <el-button type="primary" size="mini" round @click="$router.push(`/user/record/${$route.params.id}?uid=${$store.state.user.info.user.id}`)">提交记录</el-button>
             <el-button v-if="new Date(data.endDate).getTime() > currentDate.getTime()" type="danger" size="mini" round @click="dialogFormVisible=true">去完成任务</el-button>
-            <el-button v-if="$store.state.user.info.roles.length===3" type="success" size="mini" round style="margin: 10px 0 0 0;" @click="$router.push(`/tasks/record/${$route.params.id}`)">任务记录</el-button>
+            <el-button v-if="$store.state.user.info.roles.length===3" type="success" size="mini" round style="margin: 10px 0 0 0;" @click="$router.push(`/tasks/record/${$route.params.id}`)">提交总览</el-button>
           </div>
           <div>
             <span style="font-size:18px;color:#ff9800;">本次任务每次完成可获得：</span>
@@ -67,7 +67,7 @@
                           <p style="color:#505050;font-size:14px;">{{ item.userCode }}</p>
                         </div>
                       </div>
-                      <div style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
+                      <div v-if="$store.state.user.info.roles.length >= 2" style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
                     </div>
                   </div>
                 </van-list>
@@ -95,7 +95,7 @@
                           <p style="color:#505050;font-size:14px;">{{ item.userCode }}</p>
                         </div>
                       </div>
-                      <div style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
+                      <div v-if="$store.state.user.info.roles.length >= 2" style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
                     </div>
                   </div>
                 </van-list>
@@ -269,6 +269,7 @@ export default {
           this.$message.error('错误')
           this.loading = false
         } else {
+          this.$store.commit('user/ADD_SCORE', this.data.taskScore)
           this.$message({
             message: '提交成功',
             type: 'success'

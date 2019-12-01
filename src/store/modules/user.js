@@ -13,6 +13,9 @@ const mutations = {
   },
   SET_INFO: (state, info) => {
     state.info = info
+  },
+  ADD_SCORE: (state, score) => {
+    state.info.user.totalScore += score
   }
 }
 
@@ -27,7 +30,7 @@ const actions = {
         headers: { Authorization: `Bearer ${getToken()}` }
       }).then(res => {
         if (res.status === 200) {
-          commit('SET_INFO', res.data)
+          commit('SET_INFO', Object.assign({}, res.data, { totalScore: Number(res.data.user.totalScore) }))
         }
         resolve(res.data)
       }).catch(error => {

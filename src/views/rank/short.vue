@@ -49,7 +49,7 @@
                           <p style="color:#505050;font-size:14px;">{{ item.userCode }}</p>
                         </div>
                       </div>
-                      <div style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
+                      <div v-if="$store.state.user.info.roles.length >= 2" style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
                     </div>
                   </div>
                 </van-list>
@@ -77,7 +77,7 @@
                           <p style="color:#505050;font-size:14px;">{{ item.userCode }}</p>
                         </div>
                       </div>
-                      <div style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
+                      <div v-if="$store.state.user.info.roles.length >= 2" style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
                     </div>
                   </div>
                 </van-list>

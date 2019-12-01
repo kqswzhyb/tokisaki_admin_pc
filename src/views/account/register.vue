@@ -78,8 +78,10 @@
         />
       </el-form-item>
 
+      <p v-show="groupName" class="main">注册成功后,您将自动加入<span>{{ groupName }}！</span> </p>
+
       <el-button :loading="loading" :disabled="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">注册</el-button>
-      <el-button @click="cals">ssss</el-button>
+      <el-button @click="cals">模拟QQ授权后</el-button>
     </el-form>
   </div>
 </template>
@@ -90,7 +92,9 @@ export default {
   name: 'Login',
   data() {
     const validatePassword = (rule, value, callback) => {
-      if (value.length < 6) {
+      if (!value) {
+        callback(new Error('请输入密码'))
+      } else if (value.length < 6) {
         callback(new Error('密码长度不少于6位'))
       } else if (!(/^[\u4e00-\u9fa5A-Za-z0-9]+$/gi).test(value)) {
         callback(new Error('只能输入英文字母和数字'))
@@ -110,10 +114,16 @@ export default {
     const validateInviteCode = (rule, value, callback) => {
       if (value.length !== 8) {
         callback(new Error('邀请码长度为8位'))
-      } else if (!(/^[A-Za-z0-9]+$/gi).test(value)) {
-        callback(new Error('只能输入英文字母和数字'))
       } else {
-        callback()
+        this.$axios.get(`/auth/groupcode?code=${this.form.inviteCode}`).then((res) => {
+          if (res.status === 200) {
+            this.groupName = res.data.groupname
+            callback()
+          } else {
+            this.groupName = ''
+            callback(new Error('邀请码不存在'))
+          }
+        })
       }
     }
     const validateQQNo = (rule, value, callback) => {
@@ -130,8 +140,10 @@ export default {
         password: '',
         confirmPassword: '',
         inviteCode: '',
-        qqNo: ''
+        qqNo: '',
+        id: ''
       },
+      groupName: '',
       rules: {
         password: [{ required: true, trigger: 'blur', validator: validatePassword }],
         confirmPassword: [{ required: true, trigger: 'blur', validator: validateConfirm }],
@@ -164,19 +176,19 @@ export default {
       })
     },
     cals() {
-      // this.$axios.get('/auth/qqloginCallback?code=1FAA8858CCEF0515C3C47AE2FF992E1F&state=Fri+Nov+29+12%3A34%3A14+UTC+2019').then((res) => {
-      //   if (res.status === 200) {
-      //     if (res.data.token) {
-      //       this.$store.commit('user/SET_TOKEN', res.data.token)
-      //       setToken(res.data.token)
-      //       this.$router.push({ path: this.redirect || '/' })
-      //     } else {
-      //       console.log(res.data)
-      //     }
-      //   } else {
-      //     this.$router.push('/404')
-      //   }
-      // })
+      this.$axios.get('/auth/qqloginCallback?code=A4A656B27291E6C0DFA593D169F9F556&state=Sun+Dec+01+15%3A40%3A07+UTC+2019').then((res) => {
+        if (res.status === 200) {
+          if (res.data.token) {
+            this.$store.commit('user/SET_TOKEN', res.data.token)
+            setToken(res.data.token)
+            this.$router.push({ path: this.redirect || '/' })
+          } else {
+            this.form.id = res.data.id
+          }
+        } else {
+          this.$router.push('/404')
+        }
+      })
     },
     showPwd2() {
       if (this.passwordType2 === 'password') {
@@ -193,11 +205,11 @@ export default {
         if (valid) {
           this.loading = true
           try {
-            const res = await this.$axios.post('/auth/qqblind', {
+            const res = await this.$axios.post('/auth/qqbind', {
               username: this.form.qqNo,
               password: this.form.password,
-              inviteCode: this.form.inviteCode,
-              id: '4028b2536e553f58016e553f837f0006'
+              groupInvite: this.form.inviteCode,
+              id: this.form.id
             }, {
               headers: {
                 'Content-Type': 'application/json; charset=UTF-8'

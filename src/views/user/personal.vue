@@ -141,7 +141,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false;">取 消</el-button>
-        <el-button type="primary" @click="submitForm('form')">确 定</el-button>
+        <el-button type="primary" :loading="submitLoading" :disabled="submitLoading" @click="submitForm('form')">{{ submitLoading?'正在提交':'确 定' }}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -159,23 +159,25 @@ export default {
     var validatePass = (rule, value, callback) => {
       if (value === '') {
         callback(new Error('请输入密码'))
+      } else if (value.length < 6) {
+        callback(new Error('密码应不少于6位'))
+      } else if (!(/^[\u4e00-\u9fa5A-Za-z0-9]+$/gi).test(value)) {
+        callback(new Error('只能输入英文字母和数字'))
       } else {
-        if (this.ruleForm2.checkPass !== '') {
-          this.$refs.ruleForm2.validateField('checkPass')
-        }
         callback()
       }
     }
     var validatePass2 = (rule, value, callback) => {
       if (value === '') {
         callback(new Error('请再次输入密码'))
-      } else if (value !== this.ruleForm2.pass) {
+      } else if (value !== this.form.password) {
         callback(new Error('两次输入密码不一致!'))
       } else {
         callback()
       }
     }
     return {
+      submitLoading: false,
       roleList: [
         {
           value: 3,
@@ -266,13 +268,35 @@ export default {
         password: '',
         confirm: ''
       }
+      this.dialogFormVisible = false
     },
     submitForm(formName) {
-      this.$refs[formName].validate((valid) => {
+      this.$refs[formName].validate(async(valid) => {
         if (valid) {
-          this.dialogFormVisible = false
+          this.submitLoading = true
+          this.$axios.post('/v1/user/changePassword/', {
+            oldPassword: this.form.origin,
+            newPassword: this.form.password
+          }, {
+            headers: {
+              'Content-Type': 'application/json; charset=UTF-8'
+            }
+          }).then(res => {
+            if (res.status === 200) {
+              this.submitLoading = false
+              this.$message({
+                message: '修改成功',
+                type: 'success'
+              })
+              this.dialogFormVisible = false
+            } else {
+              this.submitLoading = false
+              this.$message.error('原密码错误')
+            }
+          }).catch(() => {
+            this.$message.error('请求出错,请检查网络或刷新重试！')
+          })
         } else {
-          console.log('error submit!!')
           return false
         }
       })

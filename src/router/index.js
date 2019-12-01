@@ -113,7 +113,7 @@ export const constantRoutes = [
         name: 'Commit',
         hidden: true,
         component: () => import('@/views/task/record'),
-        meta: { title: '提交记录', icon: 'table', role: 3 }
+        meta: { title: '提交总览', icon: 'table', role: 3 }
       },
       {
         path: 'create',
@@ -167,7 +167,7 @@ export const constantRoutes = [
         path: 'record/:id',
         component: () => import('@/views/user/record'), // Parent router-view
         name: 'Record',
-        meta: { title: '我的提交' }
+        meta: { title: '提交记录' }
       }
     ]
   },
