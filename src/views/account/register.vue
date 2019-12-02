@@ -121,7 +121,7 @@ export default {
       } else {
         this.$axios.get(`/auth/groupcode?code=${this.form.inviteCode}`).then((res) => {
           if (res.status === 200) {
-            this.groupName = res.data.groupname
+            this.groupName = res.data.groupName
             callback()
           } else {
             this.groupName = ''
@@ -175,7 +175,7 @@ export default {
   },
   created() {
     this.$store.commit('app/openLoading', true)
-    this.$axios.get('/auth/qqloginCallback?code=7921A9F87456C144C302445C1BF14628&state=Mon+Dec+02+14%3A09%3A37+UTC+2019').then((res) => {
+    this.$axios.get(`/auth/qqloginCallback?code=${this.$route.query.code}&state=${this.$route.query.state}`).then((res) => {
       if (res.status === 200) {
         if (!res.data) {
           this.$message.error('请先接受QQ授权再注册')
