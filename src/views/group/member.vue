@@ -39,12 +39,14 @@
       >
         <el-table-column align="center" label="编号" prop="userCode" />
         <el-table-column label="头像" align="center">
-          <template>
-            <el-image src="https://cdn.quasar.dev/img/avatar2.jpg" style="width:80px;" alt="" lazy />
+          <template slot-scope="scope">
+            <el-image v-if="scope.row.iconUrl" :src="scope.row.iconUrl" style="width:80px;" alt="" lazy />
+            <el-image v-else src="@/assets/images/default_user.jpg" style="width:80px;" alt="" lazy />
           </template>
         </el-table-column>
-        <el-table-column label="昵称" align="center" prop="username" />
+        <el-table-column label="昵称" align="center" prop="nickName" />
         <el-table-column label="总积分" align="center" prop="totalScore" />
+        <el-table-column label="QQ号码" align="center" prop="username" />
 
         <el-table-column class-name="status-col" label="帐号状态" align="center">
           <template slot-scope="scope">
@@ -199,7 +201,7 @@ export default {
         return {
           nickName: item.nickName,
           code: Number(item.userCode),
-          qqNo: Number(item.qqNo),
+          username: Number(item.username),
           totalScore: Number(item.totalScore),
           role: this.roleList.find(item2 => item2.value === item.roles.length).label,
           status: this.statuss.find(item2 => item2.value === item.userStatus).label

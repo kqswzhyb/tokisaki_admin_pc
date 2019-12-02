@@ -5,7 +5,14 @@
         <div style="margin:20px;display:flex;">
           <div>
             <img
-              src="https://cdn.quasar.dev/img/avatar2.jpg"
+              v-if="info.iconUrl"
+              :src="info.iconUrl"
+              width="120px;"
+              style="border-radius:10px;"
+            >
+            <img
+              v-else
+              src="@/assets/images/default_user.jpg"
               width="120px;"
               style="border-radius:10px;"
             >
@@ -19,7 +26,7 @@
             </div>
             <div class="flex-start">
               <svg-icon icon-class="star" style="margin-right:15px;font-size:20px;color:#ff9800;" />
-              <span style="color:#ff9800;" class="text-h6">{{ info.totalScore }}</span>
+              <span style="color:#ff9800;" class="text-h6">{{ info.totalScore?info.totalScore:0 }}</span>
             </div>
           </div>
         </div>
@@ -33,7 +40,7 @@
           <el-row :gutter="40" style="margin:20px 0 0 20px;">
             <el-col :xs="24" :lg="12">
               <div style="margin-bottom:30px;">
-                <span style="color:#999;">QQ：</span>{{ info.qqNo }}
+                <span style="color:#999;">QQ：</span>{{ info.username }}
               </div>
             </el-col>
             <el-col :xs="24" :lg="12">

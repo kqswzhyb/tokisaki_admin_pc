@@ -3,6 +3,7 @@
     <el-tabs v-model="activeName" type="card">
       <el-tab-pane label="短期任务" name="short">
         <van-list
+          v-if="shorts.slice(0,shortNumber).length!==0"
           v-model="loading"
           :finished="finished"
           finished-text="没有更多任务了"
@@ -27,9 +28,12 @@
             </el-col>
           </el-row>
         </van-list>
+        <div v-else style="width:100%;height:calc( 100vh - 270px );min-height:400px;" class="flex-center">
+          <span style="font-size:20px;">暂无正在进行中的短期任务</span>
+        </div>
       </el-tab-pane>
       <el-tab-pane label="长期任务" name="long">
-        <el-row style="margin-top:20px;">
+        <el-row v-if="longs.length!==0" style="margin-top:20px;">
           <el-col v-for="(o) in longs" :key="o.id" :xs="10" :sm="5" :md="4" style="margin: 0 20px 20px 0;">
             <el-card :body-style="{ padding: '0px' }">
               <div style="padding: 14px;cursor:pointer;" @click="$router.push(`/tasks/${o.id}`)">
@@ -45,6 +49,9 @@
             </el-card>
           </el-col>
         </el-row>
+        <div v-else style="width:100%;height:calc( 100vh - 270px );min-height:400px;" class="flex-center">
+          <span style="font-size:20px;">暂无正在进行中的长期任务</span>
+        </div>
       </el-tab-pane>
     </el-tabs>
   </div>

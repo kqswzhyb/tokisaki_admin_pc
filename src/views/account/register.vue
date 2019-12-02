@@ -176,9 +176,13 @@ export default {
       })
     },
     cals() {
-      this.$axios.get('/auth/qqloginCallback?code=A4A656B27291E6C0DFA593D169F9F556&state=Sun+Dec+01+15%3A40%3A07+UTC+2019').then((res) => {
+      this.$axios.get('/auth/qqloginCallback?code=75D6C86E88BB28694EFF6F8C52B4E595&state=Mon+Dec+02+11%3A50%3A54+UTC+2019').then((res) => {
         if (res.status === 200) {
           if (res.data.token) {
+            this.$message({
+              message: '登录成功',
+              type: 'success'
+            })
             this.$store.commit('user/SET_TOKEN', res.data.token)
             setToken(res.data.token)
             this.$router.push({ path: this.redirect || '/' })
@@ -186,6 +190,7 @@ export default {
             this.form.id = res.data.id
           }
         } else {
+          this.$message.error('请先接受QQ授权再注册')
           this.$router.push('/404')
         }
       })
@@ -215,16 +220,19 @@ export default {
                 'Content-Type': 'application/json; charset=UTF-8'
               }
             })
-            console.log(res.data)
-            // if (res.status !== 200) {
-            //   this.$message.error('帐号或密码错误')
-            //   this.loading = false
-            // } else {
-            //   this.$store.commit('user/SET_TOKEN', res.data.token)
-            //   setToken(res.data.token)
-            //   this.$router.push({ path: this.redirect || '/' })
-            //   this.loading = false
-            // }
+            if (res.status !== 200) {
+              this.$message.error('帐号或密码错误')
+              this.loading = false
+            } else {
+              this.$message({
+                message: '登录成功',
+                type: 'success'
+              })
+              this.$store.commit('user/SET_TOKEN', res.data.token)
+              setToken(res.data.token)
+              this.$router.push({ path: this.redirect || '/' })
+              this.loading = false
+            }
           } catch {
             this.$message.error('请求出错')
             this.loading = false

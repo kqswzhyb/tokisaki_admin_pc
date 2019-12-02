@@ -129,6 +129,10 @@ export default {
               this.$message.error('帐号或密码错误')
               this.loading = false
             } else {
+              this.$message({
+                message: '登录成功',
+                type: 'success'
+              })
               this.$store.commit('user/SET_TOKEN', res.data.token)
               setToken(res.data.token)
               this.$router.push({ path: this.redirect || '/' })

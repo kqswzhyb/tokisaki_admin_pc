@@ -44,7 +44,8 @@
                     <div class="rank flex-center" :style="{backgroundColor: index===0?'#ff9800':index===1?'#ccc':index===2?'#b87333':'#3c9cfe'}"><span style="color:#fff;font-size:12px">{{ index+1 }}</span></div>
                     <div class="flex-between" style="width:100%;">
                       <div class="flex-start">
-                        <img src="https://cdn.quasar.dev/img/avatar2.jpg" style="margin-right:15px;border-radius:50%;" alt="" width="50">
+                        <img v-if="item.iconUrl" :src="item.iconUrl" style="margin-right:15px;border-radius:50%;" alt="" width="50">
+                        <img v-else src="@/assets/images/default_user.jpg" style="margin-right:15px;border-radius:50%;" alt="" width="50">
                         <div>
                           <p>{{ item.nickName }}</p>
                           <p style="color:#505050;font-size:14px;">{{ item.userCode }}</p>
@@ -72,7 +73,8 @@
                     <div class="rank flex-center" :style="{backgroundColor: index===0?'#ff9800':index===1?'#ccc':index===2?'#b87333':'#3c9cfe'}"><span style="color:#fff;font-size:12px">{{ index+1 }}</span></div>
                     <div class="flex-between" style="width:100%;">
                       <div class="flex-start">
-                        <img src="https://cdn.quasar.dev/img/avatar2.jpg" style="margin-right:15px;border-radius:50%;" alt="" width="50">
+                        <img v-if="item.iconUrl" :src="item.iconUrl" style="margin-right:15px;border-radius:50%;" alt="" width="50">
+                        <img v-else src="@/assets/images/default_user.jpg" style="margin-right:15px;border-radius:50%;" alt="" width="50">
                         <div>
                           <p>{{ item.nickName }}</p>
                           <p style="color:#505050;font-size:14px;">{{ item.userCode }}</p>

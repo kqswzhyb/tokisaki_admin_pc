@@ -6,7 +6,7 @@
 
     <div class="right-menu">
       <img v-if="!avatar" src="@/assets/images/default_user.jpg" class="user-avatar" @click="$store.commit('app/openDrawer',true)">
-      <img v-else :src="avatar" class="user-avatar">
+      <img v-else :src="avatar" class="user-avatar" @click="$store.commit('app/openDrawer',true)">
     </div>
     <el-drawer
       :visible.sync="$store.state.app.drawer"
@@ -14,8 +14,8 @@
       :size="'15%'"
     >
       <div class="avatar-bg">
-        <img v-if="!avatar" src="http://qzapp.qlogo.cn/qzapp/101825291/4592DBBC6E4C1D9AEF937C9A21EE82F6/30" width="40" class="drawer-avatar">
-        <img v-else :src="avatar" class="drawer-avatar">
+        <img v-if="!avatar" src="@/assets/images/default_user.jpg" width="50" height="50" class="drawer-avatar">
+        <img v-else :src="avatar" class="drawer-avatar" width="50" height="50">
         <span class="name">{{ nickName|| '未登录' }}</span>
       </div>
       <ul class="right-drawer">
@@ -41,21 +41,21 @@ export default {
   data() {
     return {
       configs: [
-        {
-          path: '/user/messages',
-          icon: 'message',
-          text: '我的消息'
-        },
+        // {
+        //   path: '/user/messages',
+        //   icon: 'message',
+        //   text: '我的消息'
+        // },
         {
           path: '/tasks?active=true',
           icon: 'task',
           text: '我的任务'
         },
-        {
-          path: '/user/scores',
-          icon: 'star',
-          text: '积分明细'
-        },
+        // {
+        //   path: '/user/scores',
+        //   icon: 'star',
+        //   text: '积分明细'
+        // },
         {
           path: `/user/personal?uid=${this.$store.state.user.info.user.id}`,
           icon: 'personalcenter',
@@ -73,7 +73,7 @@ export default {
       return this.$store.state.user.info.user.nickName
     },
     avatar() {
-      return this.$store.state.user.info.avatar
+      return this.$store.state.user.info.user.iconUrl
     }
   },
   methods: {
@@ -190,7 +190,7 @@ export default {
   background:url('../../assets/images/bg.jpg') no-repeat center 20%;
   background-size: 100%;
   .drawer-avatar {
-    margin:25px 0 6px;
+    margin:40px 0 6px;
     border-radius: 50%;
   }
   .name {
