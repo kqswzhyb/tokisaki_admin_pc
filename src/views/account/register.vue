@@ -1,6 +1,6 @@
 <template>
   <div class="login-container">
-    <el-form ref="form" :model="form" :rules="rules" class="login-form" auto-complete="on" label-position="left">
+    <el-form v-show="!loading2" ref="form" :model="form" :rules="rules" class="login-form" auto-complete="on" label-position="left">
 
       <div class="title-container">
         <h3 class="title">注册</h3>
@@ -81,15 +81,19 @@
       <p v-show="groupName" class="main">注册成功后,您将自动加入<span>{{ groupName }}！</span> </p>
 
       <el-button :loading="loading" :disabled="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">注册</el-button>
-      <el-button @click="cals">模拟QQ授权后</el-button>
     </el-form>
+    <Loading v-show="loading2" />
   </div>
 </template>
 
 <script>
 import { setToken } from '@/utils/auth'
+import Loading from '../../components/loading'
 export default {
   name: 'Login',
+  components: {
+    Loading
+  },
   data() {
     const validatePassword = (rule, value, callback) => {
       if (!value) {
@@ -156,6 +160,11 @@ export default {
       redirect: undefined
     }
   },
+  computed: {
+    loading2() {
+      return this.$store.state.app.loading
+    }
+  },
   watch: {
     $route: {
       handler: function(route) {
@@ -163,6 +172,31 @@ export default {
       },
       immediate: true
     }
+  },
+  created() {
+    this.$store.commit('app/openLoading', true)
+    this.$axios.get('/auth/qqloginCallback?code=7921A9F87456C144C302445C1BF14628&state=Mon+Dec+02+14%3A09%3A37+UTC+2019').then((res) => {
+      if (res.status === 200) {
+        if (!res.data) {
+          this.$message.error('请先接受QQ授权再注册')
+          this.$store.commit('app/openLoading', false)
+          this.$router.push('/home')
+          return
+        }
+        if (res.data.token) {
+          this.$message({
+            message: '登录成功',
+            type: 'success'
+          })
+          this.$store.commit('user/SET_TOKEN', res.data.token)
+          setToken(res.data.token)
+          this.$router.push({ path: this.redirect || '/' })
+        } else {
+          this.form.id = res.data.id
+          this.$store.commit('app/openLoading', false)
+        }
+      }
+    })
   },
   methods: {
     showPwd() {
@@ -173,26 +207,6 @@ export default {
       }
       this.$nextTick(() => {
         this.$refs.password.focus()
-      })
-    },
-    cals() {
-      this.$axios.get('/auth/qqloginCallback?code=75D6C86E88BB28694EFF6F8C52B4E595&state=Mon+Dec+02+11%3A50%3A54+UTC+2019').then((res) => {
-        if (res.status === 200) {
-          if (res.data.token) {
-            this.$message({
-              message: '登录成功',
-              type: 'success'
-            })
-            this.$store.commit('user/SET_TOKEN', res.data.token)
-            setToken(res.data.token)
-            this.$router.push({ path: this.redirect || '/' })
-          } else {
-            this.form.id = res.data.id
-          }
-        } else {
-          this.$message.error('请先接受QQ授权再注册')
-          this.$router.push('/404')
-        }
       })
     },
     showPwd2() {
