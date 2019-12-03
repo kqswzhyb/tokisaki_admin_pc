@@ -24,7 +24,7 @@
         </el-select>
       </div>
       <div style="margin:0 0 20px 20px;">
-        <ExportExcel v-if="$store.state.user.info.roles.length>=2&&data.length!==0" :data="excel" :t-header="['昵称','头像','QQ号码','总积分','角色','帐号状态']" />
+        <ExportExcel v-if="$store.state.user.info.roles.length>=2&&data.length!==0" :data="excel" :t-header="['小组','昵称','头像','QQ号码','总积分','角色','帐号状态']" />
       </div>
 
     </div>
@@ -234,6 +234,7 @@ export default {
     formatData(data) {
       this.excel = data.map(item => {
         return {
+          group: item.userGroup.groupName,
           nickName: item.nickName,
           iconUrl: item.iconUrl ? item.iconUrl : '',
           username: item.username,
