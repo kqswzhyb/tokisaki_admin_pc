@@ -24,41 +24,53 @@
         </el-select>
       </div>
       <div style="margin:0 0 20px 20px;">
-        <ExportExcel v-if="$store.state.user.info.roles.length>=2&&data.length!==0" :data="excel" :t-header="['昵称','小组编号','QQ号码','总积分','角色','帐号状态']" />
+        <ExportExcel v-if="$store.state.user.info.roles.length>=2&&data.length!==0" :data="excel" :t-header="['昵称','头像','QQ号码','总积分','角色','帐号状态']" />
       </div>
 
     </div>
     <div style="box-shadow: 0px 5px 15px 0px rgba(0, 0, 0, 0.08);">
-      <el-table
-        v-loading="listLoading"
-        :data="data"
-        element-loading-text="加载中..."
-        border
-        fit
-        highlight-current-row
+      <van-list
+        v-model="loading"
+        :finished="finished"
+        finished-text="没有更多数据了"
+        loading-text=""
+        :offset="30"
+        @load="onLoad"
       >
-        <el-table-column align="center" label="编号" prop="userCode" />
-        <el-table-column label="头像" align="center">
-          <template slot-scope="scope">
-            <el-image v-if="scope.row.iconUrl" :src="scope.row.iconUrl" style="width:80px;" alt="" lazy />
-            <el-image v-else src="@/assets/images/default_user.jpg" style="width:80px;" alt="" lazy />
-          </template>
-        </el-table-column>
-        <el-table-column label="昵称" align="center" prop="nickName" />
-        <el-table-column label="总积分" align="center" prop="totalScore" />
-        <el-table-column label="QQ号码" align="center" prop="username" />
+        <el-table
+          v-loading="listLoading"
+          :data="data.slice(0,number)"
+          element-loading-text="加载中..."
+          border
+          fit
+          highlight-current-row
+        >
+          <el-table-column label="头像" align="center">
+            <template slot-scope="scope">
+              <el-image v-if="scope.row.iconUrl" :src="scope.row.iconUrl" style="width:60px;height:60px;" alt="" lazy />
+              <img v-else src="@/assets/images/default_user.jpg" width="60" alt="">
+            </template>
+          </el-table-column>
+          <el-table-column label="昵称" align="center" prop="nickName" />
+          <el-table-column label="总积分" align="center">
+            <template slot-scope="scope">
+              <span>{{ scope.row.totalScore?scope.row.totalScore:0 }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="QQ号码" align="center" prop="username" />
 
-        <el-table-column class-name="status-col" label="帐号状态" align="center">
-          <template slot-scope="scope">
-            <span style="border-bottom:1px dashed #000;cursor:pointer;" @click="editStatus(scope.row.id,scope.row.userStatus,scope.row.roles.length)">{{ statuss.find(item=>item.value===scope.row.userStatus).label }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" label="身份">
-          <template slot-scope="scope">
-            <span style="border-bottom:1px dashed #000;cursor:pointer;" @click="editRole(scope.row.id,scope.row.roles.length)">{{ roleList.find(item=>item.value===scope.row.roles.length).label }}</span>
-          </template>
-        </el-table-column>
-      </el-table>
+          <el-table-column class-name="status-col" label="帐号状态" align="center">
+            <template slot-scope="scope">
+              <span style="border-bottom:1px dashed #000;cursor:pointer;" @click="editStatus(scope.row.id,scope.row.userStatus,scope.row.roles.length)">{{ statuss.find(item=>item.value===scope.row.userStatus).label }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column align="center" label="身份">
+            <template slot-scope="scope">
+              <span style="border-bottom:1px dashed #000;cursor:pointer;" @click="editRole(scope.row.id,scope.row.roles.length)">{{ roleList.find(item=>item.value===scope.row.roles.length).label }}</span>
+            </template>
+          </el-table-column>
+        </el-table>
+      </van-list>
     </div>
 
     <el-dialog title="修改" :visible.sync="dialogFormVisible" @close="reset">
@@ -82,13 +94,18 @@
 
 <script>
 import ExportExcel from '../../components/ExportExcel'
+import { List as VanList } from 'vant'
 export default {
   components: {
-    ExportExcel
+    ExportExcel,
+    VanList
   },
   data() {
     return {
       listLoading: false,
+      loading: false,
+      finished: false,
+      number: 10,
       selectId: '',
       selectStatus: '',
       selectRole: '',
@@ -140,6 +157,7 @@ export default {
         }
         this.data = result.data.filter(item => item.roles.length !== 3)
         this.formatData(this.data)
+        this.initData()
         this.listLoading = false
       } catch (err) {
         this.$message.error('请求出错,请检查网络或刷新重试！')
@@ -163,6 +181,7 @@ export default {
         }
         this.data = result.data.filter(item => item.roles.length !== 3)
         this.formatData(this.data)
+        this.initData()
         this.listLoading = false
       } catch (err) {
         this.$message.error('请求出错,请检查网络或刷新重试！')
@@ -196,13 +215,29 @@ export default {
         this.selectId = id
       }
     },
+    initData() {
+      this.loading = false
+      this.finished = false
+      this.number = 10
+    },
+    onLoad() {
+      setTimeout(() => {
+        if (this.number < this.data.length) {
+          this.number += 10
+        }
+        this.loading = false
+        if (this.number >= this.data.length) {
+          this.finished = true
+        }
+      }, 1000)
+    },
     formatData(data) {
       this.excel = data.map(item => {
         return {
           nickName: item.nickName,
-          code: Number(item.userCode),
-          username: Number(item.username),
-          totalScore: Number(item.totalScore),
+          iconUrl: item.iconUrl ? item.iconUrl : '',
+          username: item.username,
+          totalScore: item.totalScore ? Number(item.totalScore) : 0,
           role: this.roleList.find(item2 => item2.value === item.roles.length).label,
           status: this.statuss.find(item2 => item2.value === item.userStatus).label
         }

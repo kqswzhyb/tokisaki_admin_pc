@@ -21,9 +21,6 @@
             <div style="margin-bottom:15px;">
               <span class="main" style="font-size:18px;">{{ info.nickName }}</span>
             </div>
-            <div style="margin-bottom:15px;">
-              <span style="color:#505050;font-size:14px;">{{ info.userCode }}</span>
-            </div>
             <div class="flex-start">
               <svg-icon icon-class="star" style="margin-right:15px;font-size:20px;color:#ff9800;" />
               <span style="color:#ff9800;" class="text-h6">{{ info.totalScore?info.totalScore:0 }}</span>

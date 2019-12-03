@@ -1,7 +1,7 @@
 <template>
   <div style="padding:20px;">
     <div style="margin-bottom:20px;">
-      当前用户：<span style="color:#505050;font-size:18px;">{{ nickName }}</span>
+      当前用户：<span style="color:#505050;font-size:18px;cursor:pointer;" @click="$router.push(`/user/personal?uid=${id}`)">{{ nickName }}</span>
     </div>
     <div style="margin-bottom:20px;">
       当前任务：<span
@@ -73,7 +73,8 @@ export default {
       data: [],
       taskName: '',
       nickName: '',
-      role: 0
+      role: 0,
+      id: ''
     }
   },
   created() {
@@ -83,6 +84,7 @@ export default {
         if (res.status === 200 && res2.status === 200 && res3.status === 200) {
           this.data = res.data
           this.taskName = res2.data.taskName
+          this.id = res3.data.id
           this.nickName = res3.data.nickName
           this.role = res3.data.roles.length
           this.data = this.data.map(item => {

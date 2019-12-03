@@ -39,7 +39,7 @@
           style="margin-bottom:15px;"
         >
           <el-card>
-            <p style="padding-bottom:10px;border-bottom:1px solid #E1E1E1;" class="flex-between"><span class="main" style="font-size:14px;">{{ item.user.userCode }}</span>{{ item.user.nickName }}<span style="font-size:14px;color:#666;">{{ item.finishedDate| prettyDate }}</span></p>
+            <p style="padding-bottom:10px;border-bottom:1px solid #E1E1E1;cursor:pointer;" class="flex-between" @click="$router.push(`/user/personal?uid=${item.user.id}`)">{{ item.user.nickName }}<span style="font-size:14px;color:#666;">{{ item.finishedDate| prettyDate }}</span></p>
             <div>
               <span style="color:#505050;">获得积分：</span> <span style="color:#ff9800;border-bottom:1px dashed #000;cursor:pointer;" @click="open(index,item.id,item.task.taskScore)">{{ item.taskScore }}</span>
               分

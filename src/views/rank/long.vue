@@ -48,7 +48,6 @@
                         <img v-else src="@/assets/images/default_user.jpg" style="margin-right:15px;border-radius:50%;" alt="" width="50">
                         <div>
                           <p>{{ item.nickName }}</p>
-                          <p style="color:#505050;font-size:14px;">{{ item.userCode }}</p>
                         </div>
                       </div>
                       <div v-if="$store.state.user.info.roles.length >= 2" style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
@@ -77,7 +76,6 @@
                         <img v-else src="@/assets/images/default_user.jpg" style="margin-right:15px;border-radius:50%;" alt="" width="50">
                         <div>
                           <p>{{ item.nickName }}</p>
-                          <p style="color:#505050;font-size:14px;">{{ item.userCode }}</p>
                         </div>
                       </div>
                       <div v-if="$store.state.user.info.roles.length >= 2" style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>

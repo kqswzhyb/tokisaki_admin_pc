@@ -13,7 +13,7 @@
         <el-input
           ref="qqNo"
           v-model="form.qqNo"
-          placeholder="QQ号码(用作帐号)"
+          placeholder="QQ号码(用作帐号——重要！！！)"
           name="qqNo"
           type="text"
           tabindex="1"
