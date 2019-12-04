@@ -80,6 +80,16 @@
 
       <p v-show="groupName" class="main">注册成功后,您将自动加入<span>{{ groupName }}！</span> </p>
 
+      <div class="flex-between" style="items-align:flex-start;margin-bottom:22px;">
+        <el-form-item prop="captcha" style="width:250px;margin:0;">
+          <el-input
+            v-model="form.captcha"
+            placeholder="验证码"
+            auto-complete="on"
+          />
+        </el-form-item>
+        <img :src="img" style="cursor:pointer;" width="160" alt="" @click="getCaptcha">
+      </div>
       <el-button :loading="loading" :disabled="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">注册</el-button>
     </el-form>
     <Loading v-show="loading2" />
@@ -147,12 +157,14 @@ export default {
         qqNo: '',
         id: ''
       },
+      img: '',
       groupName: '',
       rules: {
         password: [{ required: true, trigger: 'blur', validator: validatePassword }],
         confirmPassword: [{ required: true, trigger: 'blur', validator: validateConfirm }],
         inviteCode: [{ required: true, trigger: 'blur', validator: validateInviteCode }],
-        qqNo: [{ required: true, trigger: 'blur', validator: validateQQNo }]
+        qqNo: [{ required: true, trigger: 'blur', validator: validateQQNo }],
+        captcha: [{ required: true, trigger: 'blur', message: '请输入验证码' }]
       },
       loading: false,
       passwordType: 'password',
@@ -193,12 +205,25 @@ export default {
           this.$router.push({ path: this.redirect || '/' })
         } else {
           this.form.id = res.data.id
+          this.getCaptcha()
           this.$store.commit('app/openLoading', false)
         }
       }
     })
   },
   methods: {
+    getCaptcha() {
+      this.$axios.get('/auth/getcaptcha', {
+        responseType: 'arraybuffer'
+      }).then((res) => {
+        this.img = 'data:image/png;base64,' + btoa(
+          new Uint8Array(res.data)
+            .reduce((data, byte) => data + String.fromCharCode(byte), '')
+        )
+      }).catch(() => {
+        this.$message.error('请求出错,请检查网络或刷新重试！')
+      })
+    },
     showPwd() {
       if (this.passwordType === 'password') {
         this.passwordType = ''
@@ -228,23 +253,32 @@ export default {
               username: this.form.qqNo,
               password: this.form.password,
               groupInvite: this.form.inviteCode,
-              id: this.form.id
+              id: this.form.id,
+              code: this.form.captcha
             }, {
               headers: {
                 'Content-Type': 'application/json; charset=UTF-8'
               }
             })
             if (res.status !== 200) {
-              this.$message.error('帐号或密码错误')
+              this.$message.error('密码或验证码错误')
+              this.getCaptcha()
+              this.form.captcha = ''
               this.loading = false
             } else {
-              this.$message({
-                message: '登录成功',
-                type: 'success'
-              })
-              this.$store.commit('user/SET_TOKEN', res.data.token)
-              setToken(res.data.token)
-              this.$router.push({ path: this.redirect || '/' })
+              if (res.data.token) {
+                this.$message({
+                  message: '登录成功',
+                  type: 'success'
+                })
+                this.$store.commit('user/SET_TOKEN', res.data.token)
+                setToken(res.data.token)
+                this.$router.push({ path: this.redirect || '/' })
+              } else {
+                this.$message.error('密码或验证码错误')
+                this.getCaptcha()
+                this.form.captcha = ''
+              }
               this.loading = false
             }
           } catch {

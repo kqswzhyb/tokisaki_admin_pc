@@ -34,12 +34,22 @@
           name="password"
           tabindex="2"
           auto-complete="on"
-          @keyup.enter.native="handleLogin"
         />
         <span class="show-pwd" @click="showPwd">
           <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
         </span>
       </el-form-item>
+      <div class="flex-between" style="items-align:flex-start;margin-bottom:22px;">
+        <el-form-item prop="captcha" style="width:250px;margin:0;">
+          <el-input
+            v-model="loginForm.captcha"
+            placeholder="验证码"
+            auto-complete="on"
+            @keyup.enter.native="handleLogin"
+          />
+        </el-form-item>
+        <img :src="img" style="cursor:pointer;" width="160" alt="" @click="getCaptcha">
+      </div>
 
       <el-button :loading="loading" :disabled="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">登录</el-button>
       <div style="text-align:right;">
@@ -71,15 +81,18 @@ export default {
     return {
       loginForm: {
         username: 'admin',
-        password: 'password'
+        password: 'password',
+        captcha: ''
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        password: [{ required: true, trigger: 'blur', validator: validatePassword }]
+        password: [{ required: true, trigger: 'blur', validator: validatePassword }],
+        captcha: [{ required: true, trigger: 'blur', message: '请输入验证码' }]
       },
       loading: false,
       passwordType: 'password',
-      redirect: undefined
+      redirect: undefined,
+      img: ''
     }
   },
   watch: {
@@ -90,7 +103,22 @@ export default {
       immediate: true
     }
   },
+  created() {
+    this.getCaptcha()
+  },
   methods: {
+    getCaptcha() {
+      this.$axios.get('/auth/getcaptcha', {
+        responseType: 'arraybuffer'
+      }).then((res) => {
+        this.img = 'data:image/png;base64,' + btoa(
+          new Uint8Array(res.data)
+            .reduce((data, byte) => data + String.fromCharCode(byte), '')
+        )
+      }).catch(() => {
+        this.$message.error('请求出错,请检查网络或刷新重试！')
+      })
+    },
     showPwd() {
       if (this.passwordType === 'password') {
         this.passwordType = ''
@@ -119,23 +147,32 @@ export default {
           try {
             const res = await this.$axios.post('/auth/signin', {
               username: this.loginForm.username,
-              password: this.loginForm.password
+              password: this.loginForm.password,
+              code: this.loginForm.captcha
             }, {
               headers: {
                 'Content-Type': 'application/json; charset=UTF-8'
               }
             })
             if (res.status !== 200) {
-              this.$message.error('帐号或密码错误')
+              this.$message.error('密码或验证码错误')
+              this.getCaptcha()
+              this.loginForm.captcha = ''
               this.loading = false
             } else {
-              this.$message({
-                message: '登录成功',
-                type: 'success'
-              })
-              this.$store.commit('user/SET_TOKEN', res.data.token)
-              setToken(res.data.token)
-              this.$router.push({ path: this.redirect || '/' })
+              if (res.data.token) {
+                this.$message({
+                  message: '登录成功',
+                  type: 'success'
+                })
+                this.$store.commit('user/SET_TOKEN', res.data.token)
+                setToken(res.data.token)
+                this.$router.push({ path: this.redirect || '/' })
+              } else {
+                this.$message.error('密码或验证码错误')
+                this.getCaptcha()
+                this.loginForm.captcha = ''
+              }
               this.loading = false
             }
           } catch {
