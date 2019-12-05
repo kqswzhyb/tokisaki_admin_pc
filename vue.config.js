@@ -1,6 +1,7 @@
 'use strict'
 const path = require('path')
 const defaultSettings = require('./src/settings.js')
+const CompressionPlugin = require('compression-webpack-plugin')
 
 function resolve(dir) {
   return path.join(__dirname, dir)
@@ -60,23 +61,24 @@ module.exports = {
     },
     externals: {
       vue: 'Vue',
+      'vuex': 'Vuex',
       'element-ui': 'ELEMENT',
-      vant: 'vant'
+      vant: 'vant',
+      'axios': 'axios'
     }
   },
   chainWebpack(config) {
     const cdn = {
       css: [
-        // element-ui css
         'https://unpkg.com/element-ui@2.12.0/lib/theme-chalk/index.css',
         'https://cdn.jsdelivr.net/npm/vant@2.2/lib/index.css'
       ],
       js: [
-        // vue must at first!
         'https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js',
-        // element-ui js
+        'https://cdnjs.cloudflare.com/ajax/libs/vuex/3.1.0/vuex.min.js',
         'https://cdnjs.cloudflare.com/ajax/libs/element-ui/2.12.0/index.js',
-        'https://cdn.jsdelivr.net/npm/vant@2.2/lib/vant.min.js'
+        'https://cdn.jsdelivr.net/npm/vant@2.2/lib/vant.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.1/axios.min.js'
       ]
     }
     config.plugin('html')
@@ -103,7 +105,12 @@ module.exports = {
         symbolId: 'icon-[name]'
       })
       .end()
-
+    config.module
+      .rule('images')
+      .use('image-webpack-loader')
+      .loader('image-webpack-loader')
+      .options({ bypassOnDebug: true })
+      .end()
     // set preserveWhitespace
     config.module
       .rule('vue')
@@ -115,12 +122,17 @@ module.exports = {
       })
       .end()
 
-    config
-    // https://webpack.js.org/configuration/devtool/#development
-      .when(process.env.NODE_ENV === 'development',
-        config => config.devtool('cheap-source-map')
-      )
-
+    if (process.env.NODE_ENV === 'production') {
+      return {
+        plugins: [
+          new CompressionPlugin({
+            test: /\.js$|\.html$|\.css$|\.jpg$|\.jpeg$|\.png/, // 需要压缩的文件类型
+            threshold: 10240, // 归档需要进行压缩的文件大小最小值，我这个是10K以上的进行压缩
+            deleteOriginalAssets: false // 是否删除原文件
+          })
+        ]
+      }
+    }
     config
       .when(process.env.NODE_ENV !== 'development',
         config => {
@@ -150,7 +162,7 @@ module.exports = {
                 commons: {
                   name: 'chunk-commons',
                   test: resolve('src/components'), // can customize your rules
-                  minChunks: 3, //  minimum common number
+                  minChunks: 2, //  minimum common number
                   priority: 5,
                   reuseExistingChunk: true
                 }

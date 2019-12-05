@@ -17,7 +17,7 @@
 
 <script>
 // import { Button as VanButton } from 'vant'
-import axios from 'axios'
+// import axios from 'axios'
 import JSZip from 'jszip'
 import FileSaver from 'file-saver'
 export default {

@@ -1,6 +1,6 @@
 import { getToken, removeToken } from '@/utils/auth'
 import router, { resetRouter, constantRoutes } from '@/router'
-import axios from 'axios'
+// import axios from 'axios'
 
 const state = {
   token: getToken(),

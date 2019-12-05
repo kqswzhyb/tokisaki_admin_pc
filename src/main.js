@@ -47,7 +47,7 @@ Vue.filter('simplePrettyDate', dateString => {
 })
 
 import { getToken } from '@/utils/auth'
-import axios from 'axios'
+// import axios from 'axios'
 const noToken = ['/auth/signin']
 axios.interceptors.request.use((config) => {
   if (!noToken.includes(config.url.substring(0, 25))) {
