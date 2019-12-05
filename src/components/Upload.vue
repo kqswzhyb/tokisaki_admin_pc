@@ -8,11 +8,11 @@
 </template>
 
 <script>
-import { Uploader as VanUploader, Toast } from 'vant'
+// import { Uploader as VanUploader, Toast } from 'vant'
 export default {
-  components: {
-    VanUploader
-  },
+  // components: {
+  //   VanUploader
+  // },
   props: {
     size: {
       type: Number,
@@ -88,11 +88,11 @@ export default {
     },
     beforeRead(file) {
       if (file instanceof Object && file.size >= this.size) {
-        Toast('上传单个图片不能大于3MB')
+        vant.Toast('上传单个图片不能大于3MB')
         return false
       }
       if (file instanceof Array && !file.every(item => item.size <= this.size)) {
-        Toast('上传单个图片不能大于3MB')
+        vant.Toast('上传单个图片不能大于3MB')
         return false
       }
       return true

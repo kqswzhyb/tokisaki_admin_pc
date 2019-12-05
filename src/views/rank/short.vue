@@ -92,11 +92,11 @@
 <script>
 import FullCalendar from '@fullcalendar/vue'
 import dayGridPlugin from '@fullcalendar/daygrid'
-import { List as VanList } from 'vant'
+// import { List as VanList } from 'vant'
 export default {
   components: {
-    FullCalendar,
-    VanList
+    FullCalendar
+    // VanList
   },
   data() {
     return {

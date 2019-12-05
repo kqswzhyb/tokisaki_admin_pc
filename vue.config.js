@@ -57,9 +57,33 @@ module.exports = {
       alias: {
         '@': resolve('src')
       }
+    },
+    externals: {
+      vue: 'Vue',
+      'element-ui': 'ELEMENT',
+      vant: 'vant'
     }
   },
   chainWebpack(config) {
+    const cdn = {
+      css: [
+        // element-ui css
+        'https://unpkg.com/element-ui@2.12.0/lib/theme-chalk/index.css',
+        'https://cdn.jsdelivr.net/npm/vant@2.2/lib/index.css'
+      ],
+      js: [
+        // vue must at first!
+        'https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js',
+        // element-ui js
+        'https://cdnjs.cloudflare.com/ajax/libs/element-ui/2.12.0/index.js',
+        'https://cdn.jsdelivr.net/npm/vant@2.2/lib/vant.min.js'
+      ]
+    }
+    config.plugin('html')
+      .tap(args => {
+        args[0].cdn = cdn
+        return args
+      })
     config.plugins.delete('preload') // TODO: need test
     config.plugins.delete('prefetch') // TODO: need test
 
@@ -118,11 +142,11 @@ module.exports = {
                   priority: 10,
                   chunks: 'initial' // only package third parties that are initially dependent
                 },
-                elementUI: {
-                  name: 'chunk-elementUI', // split elementUI into a single package
-                  priority: 20, // the weight needs to be larger than libs and app or it will be packaged into libs or app
-                  test: /[\\/]node_modules[\\/]_?element-ui(.*)/ // in order to adapt to cnpm
-                },
+                // elementUI: {
+                //   name: 'chunk-elementUI', // split elementUI into a single package
+                //   priority: 20, // the weight needs to be larger than libs and app or it will be packaged into libs or app
+                //   test: /[\\/]node_modules[\\/]_?element-ui(.*)/ // in order to adapt to cnpm
+                // },
                 commons: {
                   name: 'chunk-commons',
                   test: resolve('src/components'), // can customize your rules

@@ -94,11 +94,11 @@
 
 <script>
 import ExportExcel from '../../components/ExportExcel'
-import { List as VanList } from 'vant'
+// import { List as VanList } from 'vant'
 export default {
   components: {
-    ExportExcel,
-    VanList
+    ExportExcel
+    // VanList
   },
   data() {
     return {

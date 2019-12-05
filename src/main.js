@@ -1,11 +1,11 @@
-import Vue from 'vue'
+// import Vue from 'vue'
 
 import 'normalize.css/normalize.css' // A modern alternative to CSS resets
 
-import ElementUI from 'element-ui'
-import 'vant/lib/index.css'
+// import ElementUI from 'element-ui'
+// import 'vant/lib/index.css'
 import '@vant/touch-emulator'
-import 'element-ui/lib/theme-chalk/index.css'
+// import 'element-ui/lib/theme-chalk/index.css'
 // import locale from 'element-ui/lib/locale/lang/en' // lang i18n
 import VueQuillEditor from 'vue-quill-editor'
 
@@ -61,13 +61,13 @@ axios.interceptors.request.use((config) => {
 })
 
 axios.defaults.withCredentials = true
-axios.defaults.baseURL = 'https://www.kurumiqq.com/api'
+axios.defaults.baseURL = 'http://localhost:8090/api'
 Vue.prototype.$axios = axios
 Vue.prototype.$baseURL = 'https://tokisaki-admin-1257494597.cos.ap-shanghai.myqcloud.com'
 // set ElementUI lang to EN
 // Vue.use(ElementUI, { locale })
 // 如果想要中文版 element-ui，按如下方式声明
-Vue.use(ElementUI)
+// Vue.use(ElementUI)
 Vue.use(VueQuillEditor)
 
 Vue.config.productionTip = false

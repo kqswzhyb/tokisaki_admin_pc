@@ -153,10 +153,10 @@
 
 <script>
 import SvgIcon from '../../components/SvgIcon/index'
-import { List as VanList } from 'vant'
+// import { List as VanList } from 'vant'
 export default {
   components: {
-    VanList,
+    // VanList,
     SvgIcon
   },
   data() {

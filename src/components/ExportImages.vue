@@ -16,14 +16,14 @@
 </template>
 
 <script>
-import { Button as VanButton } from 'vant'
+// import { Button as VanButton } from 'vant'
 import axios from 'axios'
 import JSZip from 'jszip'
 import FileSaver from 'file-saver'
 export default {
-  components: {
-    VanButton
-  },
+  // components: {
+  //   VanButton
+  // },
   props: {
     data: {
       type: Array,

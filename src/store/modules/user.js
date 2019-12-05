@@ -26,7 +26,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       axios({
         method: 'GET',
-        url: 'https://www.kurumiqq.com/api/me',
+        url: 'http://localhost:8090/api/me',
         headers: { Authorization: `Bearer ${getToken()}` }
       }).then(res => {
         if (res.status === 200) {

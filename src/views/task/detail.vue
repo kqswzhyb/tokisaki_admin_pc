@@ -130,13 +130,13 @@
 <script>
 import SvgIcon from '../../components/SvgIcon/index'
 import MyUploader from '../../components/Upload'
-import { ImagePreview, List as VanList } from 'vant'
+import { ImagePreview } from 'vant'
 import '@vant/touch-emulator'
 export default {
   components: {
     SvgIcon,
-    MyUploader,
-    VanList
+    MyUploader
+    // VanList
   },
   data() {
     return {

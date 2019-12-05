@@ -204,11 +204,11 @@
 </template>
 
 <script>
-import { List as VanList } from 'vant'
+// import { List as VanList } from 'vant'
 export default {
-  components: {
-    VanList
-  },
+  // components: {
+  //   VanList
+  // },
   data() {
     return {
       week: 'all',

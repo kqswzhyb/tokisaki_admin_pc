@@ -71,12 +71,12 @@
 <script>
 import ExportImages from '../../components/ExportImages'
 import SvgIcon from '../../components/SvgIcon/index'
-import { ImagePreview, List as VanList } from 'vant'
+import { ImagePreview } from 'vant'
 export default {
   components: {
     SvgIcon,
-    ExportImages,
-    VanList
+    ExportImages
+    // VanList
   },
   data() {
     return {
