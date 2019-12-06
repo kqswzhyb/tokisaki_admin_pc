@@ -21,6 +21,7 @@
       <span style="font-size:24px;">没有提交过</span>
     </div>
     <van-list
+      v-else
       v-model="loading"
       :finished="finished"
       finished-text="没有更多数据了"
@@ -39,7 +40,7 @@
           style="margin-bottom:15px;"
         >
           <el-card>
-            <p style="padding-bottom:10px;border-bottom:1px solid #E1E1E1;cursor:pointer;" class="flex-between" @click="$router.push(`/user/personal?uid=${item.user.id}`)">{{ item.user.nickName }}<span style="font-size:14px;color:#666;">{{ item.finishedDate| prettyDate }}</span></p>
+            <p style="padding-bottom:10px;border-bottom:1px solid #E1E1E1;cursor:pointer;" class="flex-between" @click="$router.push(`/user/personal?uid=${item.user.id}`)"><span>{{ `${item.user.nickName} (${item.user.username})` }}</span>{{ item.user.userGroup?item.user.userGroup.groupName:'暂无小组' }}<span style="font-size:14px;color:#666;">{{ item.finishedDate| prettyDate }}</span></p>
             <div>
               <span style="color:#505050;">获得积分：</span> <span style="color:#ff9800;border-bottom:1px dashed #000;cursor:pointer;" @click="open(index,item.id,item.task.taskScore)">{{ item.taskScore }}</span>
               分

@@ -160,6 +160,9 @@ export default {
               this.loginForm.captcha = ''
               this.loading = false
             } else {
+              if (res.data.status === 'frozen') {
+                this.$message.error('该帐号已被冻结')
+              }
               if (res.data.token) {
                 this.$message({
                   message: '登录成功',

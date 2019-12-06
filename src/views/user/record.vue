@@ -124,7 +124,7 @@ export default {
               }
             })
             if (res.status !== 200) {
-              this.$message.error(`判定积分不能大于${score}`)
+              this.$message.error('请求出错')
               this.loading = false
             } else {
               this.data[index].taskScore = value

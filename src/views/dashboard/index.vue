@@ -135,7 +135,7 @@ export default {
             }
           })
           const id = this.$store.state.user.info.user.id
-          this.rank = { week: res2.data.weekList ? `${res2.data.weekList ? res2.data.weekList.findIndex(item => item.id === id) : -1 + 1} / ${res2.data.weekList ? res2.data.weekList.length : 0}` : '0 / 0', month: res2.data.monthList ? `${res2.data.monthList ? res2.data.monthList.findIndex(item => item.id === id) : -1 + 1} / ${res2.data.monthList ? res2.data.monthList.length : 0}` : '0 / 0', total: `${res2.data.allList ? res2.data.allList.findIndex(item => item.id === id) : -1 + 1} / ${res2.data.allList ? res2.data.allList.length : 0}` }
+          this.rank = { week: res2.data.weekList ? `${res2.data.weekList ? res2.data.weekList.findIndex(item => item.id === id) === -1 ? 0 : res2.data.weekList.findIndex(item => item.id === id) + 1 : -1 + 1} / ${res2.data.weekList ? res2.data.weekList.length : 0}` : '0 / 0', month: res2.data.monthList ? `${res2.data.monthList ? res2.data.monthList.findIndex(item => item.id === id) === -1 ? 0 : res2.data.monthList.findIndex(item => item.id === id) + 1 : -1 + 1} / ${res2.data.monthList ? res2.data.monthList.length : 0}` : '0 / 0', total: `${res2.data.allList ? res2.data.allList.findIndex(item => item.id === id) === -1 ? 0 : res2.data.allList.findIndex(item => item.id === id) + 1 : -1 + 1} / ${res2.data.allList ? res2.data.allList.length : 0}` }
           this.shorts.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
           this.longs.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
           this.$store.commit('app/openLoading', false)

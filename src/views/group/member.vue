@@ -45,10 +45,15 @@
           fit
           highlight-current-row
         >
+          <el-table-column label="小组" align="center">
+            <template slot-scope="scope">
+              <span>{{ scope.row.userGroup ? scope.row.userGroup.groupName : '' }}</span>
+            </template>
+          </el-table-column>
           <el-table-column label="头像" align="center">
             <template slot-scope="scope">
-              <el-image v-if="scope.row.iconUrl" :src="scope.row.iconUrl" style="width:60px;height:60px;" alt="" lazy />
-              <img v-else src="@/assets/images/default_user.jpg" width="60" alt="">
+              <el-image v-if="scope.row.iconUrl" :src="scope.row.iconUrl" style="width:60px;height:60px;cursor:pointer;" alt="" lazy @click="$router.push(`/user/personal?uid=${scope.row.id}`)" />
+              <img v-else src="@/assets/images/default_user.jpg" style="cursor:pointer;" width="60" alt="" @click="$router.push(`/user/personal?uid=${scope.row.id}`)">
             </template>
           </el-table-column>
           <el-table-column label="昵称" align="center" prop="nickName" />
@@ -72,23 +77,6 @@
         </el-table>
       </van-list>
     </div>
-
-    <el-dialog title="修改" :visible.sync="dialogFormVisible" @close="reset">
-      <el-form>
-        <el-form-item v-if="selectRole!==''" label="身份" :label-width="formLabelWidth">
-          <el-radio v-model="selectRole" :label="1">组员</el-radio>
-          <el-radio v-model="selectRole" :label="2">组长</el-radio>
-        </el-form-item>
-        <el-form-item v-if="selectStatus!==''" label="状态" :label-width="formLabelWidth">
-          <el-radio v-model="selectStatus" label="Normal">正常</el-radio>
-          <el-radio v-model="selectStatus" label="Frozen">冻结</el-radio>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
@@ -106,9 +94,6 @@ export default {
       loading: false,
       finished: false,
       number: 10,
-      selectId: '',
-      selectStatus: '',
-      selectRole: '',
       group: 0,
       groups: [],
       status: 'All',
@@ -210,9 +195,24 @@ export default {
   methods: {
     editStatus(id, status, role) {
       if (this.$store.state.user.info.roles.length > role) {
-        this.dialogFormVisible = true
-        this.selectStatus = status
-        this.selectId = id
+        this.$confirm(`将此用户帐号状态设置为${status === 'Normal' ? '冻结' : '正常'}, 是否继续?`, '帐号状态更改', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$axios.post(`/v1/user/changeuserstatus/${id}/`).then(res => {
+            if (res.status === 200) {
+              const index = this.data.findIndex(item => item.id === id)
+              this.$set(this.data, index, Object.assign({}, this.data[index], { userStatus: status === 'Normal' ? 'Frozen' : 'Normal' }))
+              this.$message({
+                type: 'success',
+                message: '设置成功!'
+              })
+            }
+          }).catch(() => {
+            this.$message.error('请求出错,请检查网络或刷新重试！')
+          })
+        })
       }
     },
     initData() {
@@ -234,10 +234,10 @@ export default {
     formatData(data) {
       this.excel = data.map(item => {
         return {
-          group: item.userGroup.groupName,
+          group: item.userGroup ? item.userGroup.groupName : '',
           nickName: item.nickName,
           iconUrl: item.iconUrl ? item.iconUrl : '',
-          username: item.username,
+          username: Number(item.username),
           totalScore: item.totalScore ? Number(item.totalScore) : 0,
           role: this.roleList.find(item2 => item2.value === item.roles.length).label,
           status: this.statuss.find(item2 => item2.value === item.userStatus).label
@@ -245,15 +245,26 @@ export default {
       })
     },
     editRole(id, role) {
-      if (this.$store.state.user.info.roles.length > role) {
-        this.dialogFormVisible = true
-        this.selectRole = role
-        this.selectId = id
+      if (this.$store.state.user.info.roles.length >= 2) {
+        this.$confirm(`将此用户设置为${role === 2 ? '组员' : '组长'}, 是否继续?`, '权限更改', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$axios.post(`/v1/user/changeuserrole/${id}/`).then(res => {
+            if (res.status === 200) {
+              const index = this.data.findIndex(item => item.id === id)
+              this.$set(this.data, index, Object.assign({}, this.data[index], { roles: role === 2 ? ['ROLE_USER'] : ['ROLE_USER', 'ROLE_LEADER'] }))
+              this.$message({
+                type: 'success',
+                message: '设置成功!'
+              })
+            }
+          }).catch(() => {
+            this.$message.error('请求出错,请检查网络或刷新重试！')
+          })
+        })
       }
-    },
-    reset() {
-      this.selectRole = ''
-      this.selectStatus = ''
     }
   }
 }

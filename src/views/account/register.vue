@@ -189,6 +189,12 @@ export default {
     this.$store.commit('app/openLoading', true)
     this.$axios.get(`/auth/qqloginCallback?code=${this.$route.query.code}&state=${this.$route.query.state}`).then((res) => {
       if (res.status === 200) {
+        if (res.data.status === 'frozen') {
+          this.$message.error('该帐号已被冻结')
+          this.$store.commit('app/openLoading', false)
+          this.$router.push('/home')
+          return
+        }
         if (!res.data) {
           this.$message.error('请先接受QQ授权再注册')
           this.$store.commit('app/openLoading', false)
@@ -261,7 +267,7 @@ export default {
               }
             })
             if (res.status !== 200) {
-              this.$message.error('密码或验证码错误')
+              this.$message.error('QQ未授权或验证码错误')
               this.getCaptcha()
               this.form.captcha = ''
               this.loading = false
@@ -275,7 +281,7 @@ export default {
                 setToken(res.data.token)
                 this.$router.push({ path: this.redirect || '/' })
               } else {
-                this.$message.error('密码或验证码错误')
+                this.$message.error('QQ未授权或验证码错误')
                 this.getCaptcha()
                 this.form.captcha = ''
               }
