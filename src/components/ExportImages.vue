@@ -12,6 +12,7 @@
     <div v-if="percentage != 0" style="margin-left:20px;">
       <el-progress :stroke-width="5" type="circle" :width="78" :percentage="percentage" :format="format" color="#e66457" />
     </div>
+    <div v-if="flag>0" style="color:#666;margin-left:20px;">{{ flag===1?'正在打包为压缩文件':"导出完成" }}</div>
   </div>
 </template>
 
@@ -38,18 +39,18 @@ export default {
     return {
       loading: false,
       current: {},
-      percentage: 0
+      percentage: 0,
+      flag: 0
     }
   },
   methods: {
     format(percentage) {
-      return percentage === 100 ? '图片完成' : `${parseInt(percentage)}%`
+      return percentage === 100 ? '下载完成' : `${parseInt(percentage)}%`
     },
     async handleBatchDownload(imgList) {
-      console.log(imgList)
       let current = 0
       const length = imgList.length
-      const data = imgList
+      const data = imgList.filter(item => !(!item || item === ''))
       const zip = new JSZip()
       let result
       // 当图片个数为1时直接导出，否则以zip打包导出
@@ -76,17 +77,21 @@ export default {
           }
           const arr = item.split('/')
           const file = arr[arr.length - 1]
-          zip.file(file, result.data, {
-            binary: true
-          })
+          if (result.data) {
+            zip.file(file, result.data, {
+              binary: true
+            })
+          }
           current += 1
           if (current === length) {
+            this.flag = 1
             zip
               .generateAsync({
                 type: 'blob'
               })
-              .then(content => {
-                FileSaver.saveAs(content, `${this.fileName}.zip`)
+              .then(async content => {
+                await FileSaver.saveAs(content, `${this.fileName}.zip`)
+                this.flag = 2
               })
           }
         })

@@ -7,7 +7,8 @@
         @click="$router.push(`/tasks/${$route.params.id}`)"
       >{{ taskName }}</span>
     </div>
-    <div style="margin-bottom:20px;">
+    <div style="margin-bottom:20px;" class="flex-start">
+      <p style="margin:0 20px 0 0;">总共有 <span class="main">{{ data.length||0 }}</span> 次提交</p>
       <ExportImages :data="images" />
     </div>
     <div
@@ -77,7 +78,6 @@ export default {
   components: {
     SvgIcon,
     ExportImages
-    // VanList
   },
   data() {
     return {
@@ -96,12 +96,11 @@ export default {
         if (res.status === 200 && res2.status === 200) {
           this.data = res.data
           this.taskName = res2.data.taskName
-          this.data = this.data.map(item => {
-            return Object.assign({}, item, { images: item.utAttachment && item.utAttachment.map(item2 => `${this.$baseURL}/${item2.attachment.attachType.slice(0, 1).toLowerCase() + item2.attachment.attachType.slice(1)}/${item2.attachment.attachName}.${item2.attachment.attachExtName}`) || [] })
-          })
+          this.data = this.data.map(item => Object.assign({}, item, { images: item.utAttachment && item.utAttachment.map(item2 => item2.attachment.attachExtName && `${this.$baseURL}/${item2.attachment.attachType.slice(0, 1).toLowerCase() + item2.attachment.attachType.slice(1)}/${item2.attachment.attachName}.${item2.attachment.attachExtName}`) || [] }))
           this.data.forEach(item => {
             if (item.images.length !== 0 && item.taskScore !== 0) { this.images = this.images.concat(item.images) }
           })
+          console.log(this.images)
           this.$store.commit('app/openLoading', false)
         }
         if (res.status === 202) {

@@ -109,7 +109,8 @@ export default {
   methods: {
     getCaptcha() {
       this.$axios.get('/auth/getcaptcha', {
-        responseType: 'arraybuffer'
+        responseType: 'arraybuffer',
+        withCredentials: true
       }).then((res) => {
         this.img = 'data:image/png;base64,' + btoa(
           new Uint8Array(res.data)
@@ -152,7 +153,8 @@ export default {
             }, {
               headers: {
                 'Content-Type': 'application/json; charset=UTF-8'
-              }
+              },
+              withCredentials: true
             })
             if (res.status !== 200) {
               this.$message.error('密码或验证码错误')

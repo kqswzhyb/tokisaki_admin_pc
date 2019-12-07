@@ -93,6 +93,33 @@
                         <img v-else src="@/assets/images/default_user.jpg" style="margin-right:15px;border-radius:50%;" alt="" width="50">
                         <div>
                           <p>{{ item.nickName }}</p>
+                          <p style="padding:0;font-size:14px;color:#505050;">{{ item.userGroup?item.userGroup.groupName:"暂无小组" }}</p>
+                        </div>
+                      </div>
+                      <div v-if="$store.state.user.info.roles.length >= 2" style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
+                    </div>
+                  </div>
+                </van-list>
+              </el-scrollbar>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane v-if="$store.state.user.info.roles.length >= 3" label="小组排行" name="group">
+            <div style="height:478px;">
+              <el-scrollbar style="height:100%;">
+                <van-list
+                  v-model="groupLoading"
+                  :finished="groupFinished"
+                  finished-text="已经到底了..."
+                  loading-text=""
+                  :offset="30"
+                  @load="onLoad('groupNumber','groupLoading','groupFinished','group')"
+                >
+                  <div v-for="(item,index) in group.slice(0,groupNumber)" :key="item.id" class="flex-start" style="padding:5px 0;border-bottom:1px solid #ccc;cursor:pointer;" @click="goPersonal(item.id)">
+                    <div class="rank flex-center" :style="{backgroundColor: index===0?'#ff9800':index===1?'#ccc':index===2?'#b87333':'#3c9cfe'}"><span style="color:#fff;font-size:12px">{{ index+1 }}</span></div>
+                    <div class="flex-between" style="width:100%;">
+                      <div class="flex-start">
+                        <div>
+                          <p>{{ item.groupName }}</p>
                         </div>
                       </div>
                       <div v-if="$store.state.user.info.roles.length >= 2" style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
@@ -158,12 +185,16 @@ export default {
       formLabelWidth: '120px',
       all: [],
       one: [],
+      group: [],
       allNumber: 20,
       allLoading: false,
       allFinished: false,
       oneNumber: 20,
       oneLoading: false,
       oneFinished: false,
+      groupNumber: 20,
+      groupLoading: false,
+      groupFinished: false,
 
       groupId: 0,
       groups: []
@@ -214,6 +245,9 @@ export default {
       const res2 = await this.$axios.get(`/v1/rank/groupRankforTask/${this.$route.params.id}`)
       if (res2.data.allList) {
         this.all = res2.data.allList
+      }
+      if (res2.data.userGroupList) {
+        this.group = res2.data.userGroupList
       }
       this.$store.commit('app/openLoading', false)
     } catch (err) {

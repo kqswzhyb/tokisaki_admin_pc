@@ -23,6 +23,9 @@
           />
         </el-select>
       </div>
+      <div class="flex-center" style="margin:0 0 20px 20px;">
+        <p style="margin:0 20px;">找到数据 <span class="main">{{ data.length||0 }}</span> 条</p>
+      </div>
       <div style="margin:0 0 20px 20px;">
         <ExportExcel v-if="$store.state.user.info.roles.length>=2&&data.length!==0" :data="excel" :t-header="['小组','昵称','头像','QQ号码','总积分','角色','帐号状态']" />
       </div>
@@ -245,7 +248,7 @@ export default {
       })
     },
     editRole(id, role) {
-      if (this.$store.state.user.info.roles.length >= 2) {
+      if (this.$store.state.user.info.roles.length >= 2 && this.$store.state.user.info.user.id !== id) {
         this.$confirm(`将此用户设置为${role === 2 ? '组员' : '组长'}, 是否继续?`, '权限更改', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',

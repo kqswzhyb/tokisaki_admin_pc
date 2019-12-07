@@ -64,6 +64,33 @@
                         <img v-else src="@/assets/images/default_user.jpg" style="margin-right:15px;border-radius:50%;" alt="" width="50">
                         <div>
                           <p>{{ item.nickName }}</p>
+                          <p style="padding:0;font-size:14px;color:#505050;">{{ item.userGroup?item.userGroup.groupName:"暂无小组" }}</p>
+                        </div>
+                      </div>
+                      <div v-if="$store.state.user.info.roles.length >= 2" style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
+                    </div>
+                  </div>
+                </van-list>
+              </el-scrollbar>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane v-if="$store.state.user.info.roles.length >= 3" label="小组排行" name="group">
+            <div style="height:478px;">
+              <el-scrollbar style="height:100%;">
+                <van-list
+                  v-model="weekGroupLoading"
+                  :finished="weekGroupFinished"
+                  finished-text="已经到底了..."
+                  loading-text=""
+                  :offset="30"
+                  @load="onLoad('weekGroupNumber','weekGroupLoading','weekGroupFinished','weekRankGroup')"
+                >
+                  <div v-for="(item,index) in weekRankGroup.slice(0,weekGroupNumber)" :key="item.id" class="flex-start" style="padding:5px 0;border-bottom:1px solid #ccc;cursor:pointer;" @click="goPersonal(item.id)">
+                    <div class="rank flex-center" :style="{backgroundColor: index===0?'#ff9800':index===1?'#ccc':index===2?'#b87333':'#3c9cfe'}"><span style="color:#fff;font-size:12px">{{ index+1 }}</span></div>
+                    <div class="flex-between" style="width:100%;">
+                      <div class="flex-start">
+                        <div>
+                          <p>{{ item.groupName }}</p>
                         </div>
                       </div>
                       <div v-if="$store.state.user.info.roles.length >= 2" style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
@@ -125,6 +152,33 @@
                         <img v-else src="@/assets/images/default_user.jpg" style="margin-right:15px;border-radius:50%;" alt="" width="50">
                         <div>
                           <p>{{ item.nickName }}</p>
+                          <p style="padding:0;font-size:14px;color:#505050;">{{ item.userGroup?item.userGroup.groupName:"暂无小组" }}</p>
+                        </div>
+                      </div>
+                      <div v-if="$store.state.user.info.roles.length >= 2" style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
+                    </div>
+                  </div>
+                </van-list>
+              </el-scrollbar>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane v-if="$store.state.user.info.roles.length >= 3" label="小组排行" name="group">
+            <div style="height:478px;">
+              <el-scrollbar style="height:100%;">
+                <van-list
+                  v-model="totalGroupLoading"
+                  :finished="totalGroupFinished"
+                  finished-text="已经到底了..."
+                  loading-text=""
+                  :offset="30"
+                  @load="onLoad('totalGroupNumber','totalGroupLoading','totalGroupFinished','totalRankGroup')"
+                >
+                  <div v-for="(item,index) in totalRankGroup.slice(0,totalGroupNumber)" :key="item.id" class="flex-start" style="padding:5px 0;border-bottom:1px solid #ccc;cursor:pointer;" @click="goPersonal(item.id)">
+                    <div class="rank flex-center" :style="{backgroundColor: index===0?'#ff9800':index===1?'#ccc':index===2?'#b87333':'#3c9cfe'}"><span style="color:#fff;font-size:12px">{{ index+1 }}</span></div>
+                    <div class="flex-between" style="width:100%;">
+                      <div class="flex-start">
+                        <div>
+                          <p>{{ item.groupName }}</p>
                         </div>
                       </div>
                       <div v-if="$store.state.user.info.roles.length >= 2" style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
@@ -188,6 +242,33 @@
                         <img v-else src="@/assets/images/default_user.jpg" style="margin-right:15px;border-radius:50%;" alt="" width="50">
                         <div>
                           <p>{{ item.nickName }}</p>
+                          <p style="padding:0;font-size:14px;color:#505050;">{{ item.userGroup?item.userGroup.groupName:"暂无小组" }}</p>
+                        </div>
+                      </div>
+                      <div v-if="$store.state.user.info.roles.length >= 2" style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
+                    </div>
+                  </div>
+                </van-list>
+              </el-scrollbar>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane v-if="$store.state.user.info.roles.length >= 3" label="小组排行" name="group">
+            <div style="height:478px;">
+              <el-scrollbar style="height:100%;">
+                <van-list
+                  v-model="monthGroupLoading"
+                  :finished="monthGroupFinished"
+                  finished-text="已经到底了..."
+                  loading-text=""
+                  :offset="30"
+                  @load="onLoad('monthGroupNumber','monthGroupLoading','monthGroupFinished','monthRankGroup')"
+                >
+                  <div v-for="(item,index) in monthRankGroup.slice(0,monthGroupNumber)" :key="item.id" class="flex-start" style="padding:5px 0;border-bottom:1px solid #ccc;cursor:pointer;" @click="goPersonal(item.id)">
+                    <div class="rank flex-center" :style="{backgroundColor: index===0?'#ff9800':index===1?'#ccc':index===2?'#b87333':'#3c9cfe'}"><span style="color:#fff;font-size:12px">{{ index+1 }}</span></div>
+                    <div class="flex-between" style="width:100%;">
+                      <div class="flex-start">
+                        <div>
+                          <p>{{ item.groupName }}</p>
                         </div>
                       </div>
                       <div v-if="$store.state.user.info.roles.length >= 2" style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
@@ -248,7 +329,22 @@ export default {
       totalRankOne: [],
       totalOneNumber: 20,
       totalOneLoading: false,
-      totalOneFinished: false
+      totalOneFinished: false,
+
+      weekRankGroup: [],
+      weekGroupNumber: 20,
+      weekGroupLoading: false,
+      weekGroupFinished: false,
+
+      monthRankGroup: [],
+      monthGroupNumber: 20,
+      monthGroupLoading: false,
+      monthGroupFinished: false,
+
+      totalRankGroup: [],
+      totalGroupNumber: 20,
+      totalGroupLoading: false,
+      totalGroupFinished: false
     }
   },
   watch: {
@@ -300,6 +396,9 @@ export default {
       .then(this.$axios.spread((res, res2) => {
         if (res.status === 200 && res2.status === 200) {
           this.weekTime = { start: res.data.weekStart, end: res.data.weekEnd }
+          this.weekRankGroup = res.data.userGroupWeekList
+          this.monthRankGroup = res.data.userGroupMonthList
+          this.totalRankGroup = res.data.userGroupList
           this.weekRankAll = res.data.weekList
           this.monthTime = { start: res.data.monthStart, end: res.data.monthEnd }
           if (res.data.monthList) {

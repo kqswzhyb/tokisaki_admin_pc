@@ -60,7 +60,7 @@ axios.interceptors.request.use((config) => {
   return config
 })
 
-axios.defaults.withCredentials = true
+// axios.defaults.withCredentials = true
 axios.defaults.baseURL = 'https://www.kurumiqq.com/api'
 Vue.prototype.$axios = axios
 Vue.prototype.$baseURL = 'https://tokisaki-admin-1257494597.cos.ap-shanghai.myqcloud.com'
