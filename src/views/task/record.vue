@@ -100,7 +100,6 @@ export default {
           this.data.forEach(item => {
             if (item.images.length !== 0 && item.taskScore !== 0) { this.images = this.images.concat(item.images) }
           })
-          console.log(this.images)
           this.$store.commit('app/openLoading', false)
         }
         if (res.status === 202) {
