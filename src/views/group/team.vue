@@ -49,21 +49,14 @@ export default {
           label: '停用'
         }
       ],
-      data: [],
       dialogFormVisible: false,
       formLabelWidth: '120px'
     }
   },
-  created() {
-    this.$store.commit('app/openLoading', true)
-    this.$axios.get('/v1/usergroup/listall').then((res) => {
-      if (res.status === 200) {
-        this.data = res.data
-        this.$store.commit('app/openLoading', false)
-      }
-    }).catch(() => {
-      this.$message.error('请求出错,请检查网络或刷新重试！')
-    })
+  computed: {
+    data() {
+      return this.$store.state.group.groups
+    }
   },
   methods: {
     open(id, name) {
@@ -82,7 +75,6 @@ export default {
             message: '更换成功'
           })
         } catch (err) {
-          console.log(err)
           this.$message.error('请求出错,请检查网络或刷新重试！')
         }
       })
@@ -106,7 +98,6 @@ export default {
             message: '创建成功'
           })
         } catch (err) {
-          console.log(err)
           this.$message.error('请求出错,请检查网络或刷新重试！')
         }
       })
@@ -130,7 +121,6 @@ export default {
             message: '修改成功'
           })
         } catch (err) {
-          console.log(err)
           this.$message.error('请求出错,请检查网络或刷新重试！')
         }
       }

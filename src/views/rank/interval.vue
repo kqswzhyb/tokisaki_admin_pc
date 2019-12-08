@@ -285,36 +285,26 @@
 </template>
 
 <script>
-// import { List as VanList } from 'vant'
 export default {
-  // components: {
-  //   VanList
-  // },
   data() {
     return {
       week: 'all',
       month: 'all',
       total: 'all',
 
-      weekTime: {},
-      weekRankAll: [],
       weekAllNumber: 20,
       weekAllLoading: false,
       weekAllFinished: false,
 
-      monthTime: {},
-      monthRankAll: [],
       monthAllNumber: 20,
       monthAllLoading: false,
       monthAllFinished: false,
 
-      totalRankAll: [],
       totalAllNumber: 20,
       totalAllLoading: false,
       totalAllFinished: false,
 
       groupId: '',
-      groups: [],
 
       monthRankOne: [],
       monthOneNumber: 20,
@@ -331,20 +321,46 @@ export default {
       totalOneLoading: false,
       totalOneFinished: false,
 
-      weekRankGroup: [],
       weekGroupNumber: 20,
       weekGroupLoading: false,
       weekGroupFinished: false,
 
-      monthRankGroup: [],
       monthGroupNumber: 20,
       monthGroupLoading: false,
       monthGroupFinished: false,
 
-      totalRankGroup: [],
       totalGroupNumber: 20,
       totalGroupLoading: false,
       totalGroupFinished: false
+    }
+  },
+  computed: {
+    groups() {
+      return this.$store.state.group.groups
+    },
+    weekTime() {
+      return this.$store.state.rank.weekTime
+    },
+    monthTime() {
+      return this.$store.state.rank.monthTime
+    },
+    weekRankGroup() {
+      return this.$store.state.rank.weekRankGroup
+    },
+    monthRankGroup() {
+      return this.$store.state.rank.monthRankGroup
+    },
+    totalRankGroup() {
+      return this.$store.state.rank.totalRankGroup
+    },
+    weekRankAll() {
+      return this.$store.state.rank.weekRankAll
+    },
+    monthRankAll() {
+      return this.$store.state.rank.monthRankAll
+    },
+    totalRankAll() {
+      return this.$store.state.rank.totalRankAll
     }
   },
   watch: {
@@ -377,53 +393,12 @@ export default {
   },
   async created() {
     this.$store.commit('app/openLoading', true)
-    try {
-      const result = await this.$axios.get('/v1/usergroup/listall')
-      if (result.status === 200) {
-        this.groups = result.data
-      } else {
-        this.$router.push('/404')
-      }
-    } catch (err) {
-      this.$message.error('请求出错,请检查网络或刷新重试！')
-    }
     if (this.$store.state.user.info.user.userGroup) {
       this.groupId = this.$store.state.user.info.user.userGroup.id
     } else {
       this.groupId = this.groups[0].id
     }
-    this.$axios.all([this.$axios.get(`/v1/rank/groupRank`), this.$axios.get(`/v1/rank/groupRank/${this.groupId}`)])
-      .then(this.$axios.spread((res, res2) => {
-        if (res.status === 200 && res2.status === 200) {
-          this.weekTime = { start: res.data.weekStart, end: res.data.weekEnd }
-          this.weekRankGroup = res.data.userGroupWeekList
-          this.monthRankGroup = res.data.userGroupMonthList
-          this.totalRankGroup = res.data.userGroupList
-          this.weekRankAll = res.data.weekList
-          this.monthTime = { start: res.data.monthStart, end: res.data.monthEnd }
-          if (res.data.monthList) {
-            this.monthRankAll = res.data.monthList
-          }
-          if (res.data.allList) {
-            this.totalRankAll = res.data.allList
-          }
-          if (res2.data.groupList) {
-            this.totalRankOne = res2.data.groupList
-          }
-          if (res2.data.groupWeekList) {
-            this.weekRankOne = res2.data.groupWeekList
-          }
-          if (res2.data.groupMonthList) {
-            this.monthRankOne = res2.data.groupMonthList
-          }
-          this.$store.commit('app/openLoading', false)
-        } else {
-          this.$store.commit('app/openLoading', false)
-          this.$router.push('/404')
-        }
-      })).catch(() => {
-        this.$message.error('请求出错,请检查网络或刷新重试！')
-      })
+    this.$store.commit('app/openLoading', false)
   },
   methods: {
     onLoad(number, loading, finished, data) {

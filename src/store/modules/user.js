@@ -24,11 +24,7 @@ const actions = {
   // get user info
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
-      axios({
-        method: 'GET',
-        url: 'https://www.kurumiqq.com/api/me',
-        headers: { Authorization: `Bearer ${getToken()}` }
-      }).then(res => {
+      axios.get('/me').then(res => {
         if (res.status === 200) {
           const info = Object.assign({}, res.data)
           res.data.user.totalScore = res.data.user.totalScore ? Number(res.data.user.totalScore) : 0

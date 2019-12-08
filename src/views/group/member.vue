@@ -85,11 +85,9 @@
 
 <script>
 import ExportExcel from '../../components/ExportExcel'
-// import { List as VanList } from 'vant'
 export default {
   components: {
     ExportExcel
-    // VanList
   },
   data() {
     return {
@@ -98,7 +96,6 @@ export default {
       finished: false,
       number: 10,
       group: 0,
-      groups: [],
       status: 'All',
       statuss: [{
         value: 'All',
@@ -124,6 +121,11 @@ export default {
       excel: [],
       dialogFormVisible: false,
       formLabelWidth: '120px'
+    }
+  },
+  computed: {
+    groups() {
+      return [{ id: 0, groupName: '全部' }, ...this.$store.state.group.groups]
     }
   },
   watch: {
@@ -176,23 +178,16 @@ export default {
       }
     }
   },
-  created() {
+  async created() {
     this.$store.commit('app/openLoading', true)
     if (this.$store.state.user.info.user.userGroup) {
       this.group = this.$store.state.user.info.user.userGroup.id
       this.$store.commit('app/openLoading', false)
     } else {
-      this.$axios.get('/v1/usergroup/listall').then(async(res) => {
-        if (res.status === 200) {
-          this.groups = [{ id: 0, groupName: '全部' }, ...res.data]
-          const result = await this.$axios.get('/v1/user')
-          this.data = result.data.filter(item => item.roles.length !== 3)
-          this.formatData(this.data)
-          this.$store.commit('app/openLoading', false)
-        }
-      }).catch(() => {
-        this.$message.error('请求出错,请检查网络或刷新重试！')
-      })
+      const result = await this.$axios.get('/v1/user')
+      this.data = result.data.filter(item => item.roles.length !== 3)
+      this.formatData(this.data)
+      this.$store.commit('app/openLoading', false)
     }
   },
   methods: {

@@ -196,8 +196,12 @@ export default {
       groupLoading: false,
       groupFinished: false,
 
-      groupId: 0,
-      groups: []
+      groupId: 0
+    }
+  },
+  computed: {
+    groups() {
+      return this.$store.state.group.groups
     }
   },
   watch: {
@@ -230,12 +234,6 @@ export default {
         result.data.taskAttachment.forEach(item => {
           this.images.push(`${this.$baseURL}/${item.attachment.attachType.slice(0, 1).toLowerCase() + item.attachment.attachType.slice(1)}/${item.attachment.attachName}.${item.attachment.attachExtName}`)
         })
-      }
-      const result2 = await this.$axios.get('/v1/usergroup/listall')
-      if (result2.status === 200) {
-        this.groups = result2.data
-      } else {
-        this.$router.push('/404')
       }
       if (this.$store.state.user.info.user.userGroup) {
         this.groupId = this.$store.state.user.info.user.userGroup.id

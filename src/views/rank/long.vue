@@ -119,11 +119,7 @@
 </template>
 
 <script>
-// import { List as VanList } from 'vant'
 export default {
-  // components: {
-  //   VanList
-  // },
   data() {
     return {
       activeName: 'all',
@@ -143,8 +139,15 @@ export default {
       groupLoading: false,
       groupFinished: false,
 
-      groupId: '',
-      groups: []
+      groupId: ''
+    }
+  },
+  computed: {
+    groups() {
+      return this.$store.state.group.groups
+    },
+    longs() {
+      return this.$store.state.task.longs
     }
   },
   watch: {
@@ -189,19 +192,12 @@ export default {
   async created() {
     this.$store.commit('app/openLoading', true)
     try {
-      const result = await this.$axios.get('/v1/usergroup/listall')
-      if (result.status === 200) {
-        this.groups = result.data
-      } else {
-        this.$router.push('/404')
-      }
       if (this.$store.state.user.info.user.userGroup) {
         this.groupId = this.$store.state.user.info.user.userGroup.id
       } else {
         this.groupId = this.groups[0].id
       }
-      const result2 = await this.$axios.get('/v1/task/search/?taskType=LongTerm')
-      this.options = result2.data.sort((a, b) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime())
+      this.options = this.longs.sort((a, b) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime())
       this.value = this.options[0].id
       this.$store.commit('app/openLoading', false)
     } catch (err) {

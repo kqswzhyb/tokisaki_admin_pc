@@ -47,7 +47,7 @@ export default {
         //   text: '我的消息'
         // },
         {
-          path: '/tasks?active=true',
+          path: '/tasks',
           icon: 'task',
           text: '我的任务'
         },
@@ -74,6 +74,17 @@ export default {
     },
     avatar() {
       return this.$store.state.user.info.user.iconUrl
+    }
+  },
+  async created() {
+    this.$store.commit('app/openLoading', true)
+    try {
+      await this.$store.dispatch('rank/getRank')
+      await this.$store.dispatch('task/getTask')
+      await this.$store.dispatch('group/getGroups')
+      this.$store.commit('app/openLoading', false)
+    } catch (err) {
+      this.$message.error('请求出错,请检查网络或刷新重试！')
     }
   },
   methods: {

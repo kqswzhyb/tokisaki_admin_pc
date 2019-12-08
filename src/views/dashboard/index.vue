@@ -116,38 +116,19 @@ export default {
   },
   data() {
     return {
-      currentDate: new Date(),
-      shorts: [],
-      longs: [],
-      rank: {}
+      currentDate: new Date()
     }
   },
-  created() {
-    this.$store.commit('app/openLoading', true)
-    this.$axios.all([this.$axios.get(`/v1/task`), this.$axios.get('/v1/rank/groupRank')])
-      .then(this.$axios.spread((res, res2) => {
-        if (res.status === 200 && res2.status === 200) {
-          res.data.forEach(item => {
-            if (item.taskType === 'ShortTerm') {
-              this.shorts.push(item)
-            } else {
-              this.longs.push(item)
-            }
-          })
-          const id = this.$store.state.user.info.user.id
-          this.rank = { week: res2.data.weekList ? `${res2.data.weekList ? res2.data.weekList.findIndex(item => item.id === id) === -1 ? 0 : res2.data.weekList.findIndex(item => item.id === id) + 1 : -1 + 1} / ${res2.data.weekList ? res2.data.weekList.length : 0}` : '0 / 0', month: res2.data.monthList ? `${res2.data.monthList ? res2.data.monthList.findIndex(item => item.id === id) === -1 ? 0 : res2.data.monthList.findIndex(item => item.id === id) + 1 : -1 + 1} / ${res2.data.monthList ? res2.data.monthList.length : 0}` : '0 / 0', total: `${res2.data.allList ? res2.data.allList.findIndex(item => item.id === id) === -1 ? 0 : res2.data.allList.findIndex(item => item.id === id) + 1 : -1 + 1} / ${res2.data.allList ? res2.data.allList.length : 0}` }
-          this.shorts.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
-          this.longs.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
-          this.$store.commit('app/openLoading', false)
-        } else {
-          this.$store.commit('app/openLoading', false)
-          this.$router.push('/404')
-        }
-      })).catch(() => {
-        this.$message.error('请求出错,请检查网络或刷新重试！')
-      })
-  },
-  methods: {
+  computed: {
+    rank() {
+      return this.$store.state.rank.rank
+    },
+    shorts() {
+      return this.$store.state.task.shorts
+    },
+    longs() {
+      return this.$store.state.task.longs
+    }
   }
 }
 </script>

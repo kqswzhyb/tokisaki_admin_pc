@@ -119,11 +119,9 @@
 <script>
 import FullCalendar from '@fullcalendar/vue'
 import dayGridPlugin from '@fullcalendar/daygrid'
-// import { List as VanList } from 'vant'
 export default {
   components: {
     FullCalendar
-    // VanList
   },
   data() {
     return {
@@ -146,8 +144,15 @@ export default {
       groupLoading: false,
       groupFinished: false,
 
-      groupId: '',
-      groups: []
+      groupId: ''
+    }
+  },
+  computed: {
+    groups() {
+      return this.$store.state.group.groups
+    },
+    shorts() {
+      return this.$store.state.task.shorts
     }
   },
   watch: {
@@ -192,19 +197,12 @@ export default {
   async created() {
     this.$store.commit('app/openLoading', true)
     try {
-      const result = await this.$axios.get('/v1/usergroup/listall')
-      if (result.status === 200) {
-        this.groups = result.data
-      } else {
-        this.$router.push('/404')
-      }
       if (this.$store.state.user.info.user.userGroup) {
         this.groupId = this.$store.state.user.info.user.userGroup.id
       } else {
         this.groupId = this.groups[0].id
       }
-      const result2 = await this.$axios.get('/v1/task/search/?taskType=ShortTerm')
-      this.options = result2.data.map(item => ({ ...item, start: item.startDate, end: item.endDate, title: item.taskName, backgroundColor: '#3788d8', borderColor: '#3788d8' })).sort((a, b) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime())
+      this.options = this.shorts.map(item => ({ ...item, start: item.startDate, end: item.endDate, title: item.taskName, backgroundColor: '#3788d8', borderColor: '#3788d8' })).sort((a, b) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime())
       this.value = this.options[0].id
       this.options[0] = Object.assign(this.options[0], { backgroundColor: '#e66457', borderColor: '#e66457' })
       this.active = this.options[0]
