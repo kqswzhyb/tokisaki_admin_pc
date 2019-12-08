@@ -64,6 +64,7 @@ export default {
         ]
       },
       images: [],
+      timer: '',
       pickerOption: {
         disabledDate(time) {
           return time.getTime() < Date.now() - 8.64e7
@@ -108,25 +109,32 @@ export default {
       }
     }
   },
+  computed: {
+    groups() {
+      return this.$store.state.group.groups
+    },
+    tasks() {
+      return this.$store.state.task.tasks.find(item => item.id === this.$route.params.id)
+    }
+  },
   created() {
     this.$store.commit('app/openLoading', true)
-    this.$axios.get(`/v1/task/${this.$route.params.id}`).then((res) => {
-      if (res.status === 200) {
-        this.form.name = res.data.taskName
-        this.form.type = res.data.taskType
-        this.form.score = res.data.taskScore
-        this.form.content = res.data.taskDetail
-        this.form.date = [res.data.startDate, res.data.endDate]
-        if (res.data.taskAttachment) {
-          res.data.taskAttachment.forEach(item => {
+    this.timer = setInterval(async() => {
+      if (this.groups[0]) {
+        clearInterval(this.timer)
+        this.form.name = this.tasks.taskName
+        this.form.type = this.tasks.taskType
+        this.form.score = this.tasks.taskScore
+        this.form.content = this.tasks.taskDetail
+        this.form.date = [this.tasks.startDate, this.tasks.endDate]
+        if (this.tasks.taskAttachment) {
+          this.tasks.taskAttachment.forEach(item => {
             this.images.push(Object.assign({}, { url: `${this.$baseURL}/${item.attachment.attachType.slice(0, 1).toLowerCase() + item.attachment.attachType.slice(1)}/${item.attachment.attachName}.${item.attachment.attachExtName}`, attachment: item.attachment }))
           })
         }
         this.$store.commit('app/openLoading', false)
       }
-    }).catch(() => {
-      this.$message.error('请求出错,请检查网络或刷新重试！')
-    })
+    }, 500)
   },
   methods: {
     getImage(data) {

@@ -331,7 +331,8 @@ export default {
 
       totalGroupNumber: 20,
       totalGroupLoading: false,
-      totalGroupFinished: false
+      totalGroupFinished: false,
+      timer: ''
     }
   },
   computed: {
@@ -393,12 +394,18 @@ export default {
   },
   async created() {
     this.$store.commit('app/openLoading', true)
-    if (this.$store.state.user.info.user.userGroup) {
-      this.groupId = this.$store.state.user.info.user.userGroup.id
-    } else {
-      this.groupId = this.groups[0].id
-    }
-    this.$store.commit('app/openLoading', false)
+    this.timer = setInterval(async() => {
+      if (this.groups[0]) {
+        clearInterval(this.timer)
+        this.$store.commit('app/openLoading', true)
+        if (this.$store.state.user.info.user.userGroup) {
+          this.groupId = this.$store.state.user.info.user.userGroup.id
+        } else {
+          this.groupId = this.groups[0].id
+        }
+        this.$store.commit('app/openLoading', false)
+      }
+    }, 10)
   },
   methods: {
     onLoad(number, loading, finished, data) {

@@ -120,7 +120,8 @@ export default {
       data: [],
       excel: [],
       dialogFormVisible: false,
-      formLabelWidth: '120px'
+      formLabelWidth: '120px',
+      timer: ''
     }
   },
   computed: {
@@ -178,17 +179,21 @@ export default {
       }
     }
   },
-  async created() {
+  created() {
     this.$store.commit('app/openLoading', true)
-    if (this.$store.state.user.info.user.userGroup) {
-      this.group = this.$store.state.user.info.user.userGroup.id
-      this.$store.commit('app/openLoading', false)
-    } else {
-      const result = await this.$axios.get('/v1/user')
-      this.data = result.data.filter(item => item.roles.length !== 3)
-      this.formatData(this.data)
-      this.$store.commit('app/openLoading', false)
-    }
+    this.timer = setInterval(async() => {
+      if (this.groups[0]) {
+        clearInterval(this.timer)
+        if (this.$store.state.user.info.user.userGroup) {
+          this.group = this.$store.state.user.info.user.userGroup.id
+        } else {
+          const result = await this.$axios.get('/v1/user')
+          this.data = result.data.filter(item => item.roles.length !== 3)
+          this.formatData(this.data)
+        }
+        this.$store.commit('app/openLoading', false)
+      }
+    }, 500)
   },
   methods: {
     editStatus(id, status, role) {

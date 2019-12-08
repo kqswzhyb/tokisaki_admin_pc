@@ -225,7 +225,16 @@ export default {
           { required: true, validator: validatePass2, trigger: 'blur' }
         ]
       },
-      formLabelWidth: '120px'
+      formLabelWidth: '120px',
+      timer: ''
+    }
+  },
+  computed: {
+    groups() {
+      return this.$store.state.group.groups
+    },
+    task() {
+      return this.$store.state.task.tasks
     }
   },
   watch: {
@@ -239,13 +248,19 @@ export default {
   methods: {
     getData() {
       this.$store.commit('app/openLoading', true)
-      this.$axios.all([this.$axios.get(`/v1/user/${this.$route.query.uid}`), this.$axios.get(`/v1/usertask/user/${this.$route.query.uid}/`), this.$axios.get(`/v1/task`)])
-        .then(this.$axios.spread((res, res2, res3) => {
-          if (res.status === 200 && res2.status === 200 && res3.status === 200) {
+      this.$axios.all([this.$axios.get(`/v1/user/${this.$route.query.uid}`), this.$axios.get(`/v1/usertask/user/${this.$route.query.uid}/`)])
+        .then(this.$axios.spread((res, res2) => {
+          if (res.status === 200 && res2.status === 200) {
             this.info = res.data
             const taskIdList = Array.from(new Set(res2.data.map(item => item.task.id)))
-            this.tasks = taskIdList.map(item => res3.data.find(item2 => item2.id === item))
-            this.$store.commit('app/openLoading', false)
+            this.timer = setInterval(async() => {
+              this.$store.commit('app/openLoading', true)
+              if (this.groups[0]) {
+                clearInterval(this.timer)
+                this.tasks = taskIdList.map(item => this.task.find(item2 => item2.id === item))
+                this.$store.commit('app/openLoading', false)
+              }
+            }, 500)
           } else {
             this.$store.commit('app/openLoading', false)
             this.$router.push('/404')

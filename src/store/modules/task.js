@@ -1,6 +1,7 @@
 const state = {
-  shorts: {},
-  longs: {}
+  shorts: [],
+  longs: [],
+  tasks: []
 }
 
 const mutations = {
@@ -33,6 +34,9 @@ const mutations = {
       item => new Date(item.endDate).getTime() < new Date().getTime()
     ))
     state.longs = longs
+  },
+  setTasks: (state, tasks) => {
+    state.tasks = tasks
   }
 }
 
@@ -43,6 +47,7 @@ const actions = {
         if (res.status === 200) {
           commit('setShorts', res.data)
           commit('setLongs', res.data)
+          commit('setTasks', res.data)
         }
         resolve(res.data)
       }).catch(error => {

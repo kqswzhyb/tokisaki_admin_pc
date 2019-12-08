@@ -139,7 +139,8 @@ export default {
       groupLoading: false,
       groupFinished: false,
 
-      groupId: ''
+      groupId: '',
+      timer: ''
     }
   },
   computed: {
@@ -191,18 +192,20 @@ export default {
   },
   async created() {
     this.$store.commit('app/openLoading', true)
-    try {
-      if (this.$store.state.user.info.user.userGroup) {
-        this.groupId = this.$store.state.user.info.user.userGroup.id
-      } else {
-        this.groupId = this.groups[0].id
+    this.timer = setInterval(async() => {
+      if (this.groups[0]) {
+        clearInterval(this.timer)
+        this.$store.commit('app/openLoading', true)
+        if (this.$store.state.user.info.user.userGroup) {
+          this.groupId = this.$store.state.user.info.user.userGroup.id
+        } else {
+          this.groupId = this.groups[0].id
+        }
+        this.options = this.longs.sort((a, b) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime())
+        this.value = this.options[0].id
+        this.$store.commit('app/openLoading', false)
       }
-      this.options = this.longs.sort((a, b) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime())
-      this.value = this.options[0].id
-      this.$store.commit('app/openLoading', false)
-    } catch (err) {
-      this.$message.error('请求出错,请检查网络或刷新重试！')
-    }
+    }, 10)
   },
   methods: {
     onLoad(number, loading, finished, data) {

@@ -77,20 +77,34 @@ export default {
       id: ''
     }
   },
+  computed: {
+    groups() {
+      return this.$store.state.group.groups
+    },
+    task() {
+      return this.$store.state.task.tasks.find(item => item.id === this.$route.params.id)
+    }
+  },
   created() {
     this.$store.commit('app/openLoading', true)
-    this.$axios.all([this.$axios.get(`/v1/usertask/user/${this.$route.query.uid}/task/${this.$route.params.id}/`), this.$axios.get(`/v1/task/${this.$route.params.id}`), this.$axios.get(`/v1/user/${this.$route.query.uid}`)])
-      .then(this.$axios.spread((res, res2, res3) => {
-        if (res.status === 200 && res2.status === 200 && res3.status === 200) {
+    this.$axios.all([this.$axios.get(`/v1/usertask/user/${this.$route.query.uid}/task/${this.$route.params.id}/`), this.$axios.get(`/v1/user/${this.$route.query.uid}`)])
+      .then(this.$axios.spread((res, res3) => {
+        if (res.status === 200 && res3.status === 200) {
           this.data = res.data
-          this.taskName = res2.data.taskName
+          this.timer = setInterval(async() => {
+            this.$store.commit('app/openLoading', true)
+            if (this.groups[0]) {
+              clearInterval(this.timer)
+              this.taskName = this.task.taskName
+              this.$store.commit('app/openLoading', false)
+            }
+          }, 500)
           this.id = res3.data.id
           this.nickName = res3.data.nickName
           this.role = res3.data.roles.length
           this.data = this.data.map(item => {
             return Object.assign({}, item, { images: item.utAttachment && item.utAttachment.map(item2 => `${this.$baseURL}/${item2.attachment.attachType.slice(0, 1).toLowerCase() + item2.attachment.attachType.slice(1)}/${item2.attachment.attachName}.${item2.attachment.attachExtName}`) || [] })
           })
-          this.$store.commit('app/openLoading', false)
         } else {
           this.$store.commit('app/openLoading', false)
           this.$router.push('/404')

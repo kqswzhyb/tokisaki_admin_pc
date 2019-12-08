@@ -196,12 +196,16 @@ export default {
       groupLoading: false,
       groupFinished: false,
 
-      groupId: 0
+      groupId: 0,
+      timer: ''
     }
   },
   computed: {
     groups() {
       return this.$store.state.group.groups
+    },
+    tasks() {
+      return this.$store.state.task.tasks.find(item => item.id === this.$route.params.id)
     }
   },
   watch: {
@@ -224,22 +228,24 @@ export default {
   async created() {
     this.$store.commit('app/openLoading', true)
     try {
-      const result = await this.$axios.get(`/v1/task/${this.$route.params.id}`)
-      if (result.status === 202) {
-        this.$store.commit('app/openLoading', false)
-        this.$router.push('/404')
-      }
-      this.data = result.data
-      if (result.data.taskAttachment) {
-        result.data.taskAttachment.forEach(item => {
-          this.images.push(`${this.$baseURL}/${item.attachment.attachType.slice(0, 1).toLowerCase() + item.attachment.attachType.slice(1)}/${item.attachment.attachName}.${item.attachment.attachExtName}`)
-        })
-      }
-      if (this.$store.state.user.info.user.userGroup) {
-        this.groupId = this.$store.state.user.info.user.userGroup.id
-      } else {
-        this.groupId = this.groups[0].id
-      }
+      this.timer = setInterval(async() => {
+        this.$store.commit('app/openLoading', true)
+        if (this.groups[0] && this.all.length !== 0) {
+          clearInterval(this.timer)
+          this.data = this.tasks
+          if (this.tasks.taskAttachment) {
+            this.tasks.taskAttachment.forEach(item => {
+              this.images.push(`${this.$baseURL}/${item.attachment.attachType.slice(0, 1).toLowerCase() + item.attachment.attachType.slice(1)}/${item.attachment.attachName}.${item.attachment.attachExtName}`)
+            })
+          }
+          if (this.$store.state.user.info.user.userGroup) {
+            this.groupId = this.$store.state.user.info.user.userGroup.id
+          } else {
+            this.groupId = this.groups[0].id
+          }
+          this.$store.commit('app/openLoading', false)
+        }
+      }, 10)
       const res2 = await this.$axios.get(`/v1/rank/groupRankforTask/${this.$route.params.id}`)
       if (res2.data.allList) {
         this.all = res2.data.allList
@@ -247,7 +253,6 @@ export default {
       if (res2.data.userGroupList) {
         this.group = res2.data.userGroupList
       }
-      this.$store.commit('app/openLoading', false)
     } catch (err) {
       this.$message.error('请求出错,请检查网络或刷新重试！')
     }

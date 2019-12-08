@@ -50,13 +50,23 @@ export default {
         }
       ],
       dialogFormVisible: false,
-      formLabelWidth: '120px'
+      formLabelWidth: '120px',
+      timer: ''
     }
   },
   computed: {
     data() {
       return this.$store.state.group.groups
     }
+  },
+  created() {
+    this.$store.commit('app/openLoading', true)
+    this.timer = setInterval(async() => {
+      if (this.data[0]) {
+        clearInterval(this.timer)
+        this.$store.commit('app/openLoading', false)
+      }
+    }, 500)
   },
   methods: {
     open(id, name) {
@@ -91,7 +101,7 @@ export default {
             headers: {
               'Content-Type': 'application/json; charset=UTF-8'
             }})
-          const res = await this.$axios.get('/v1/usergroup/listall')
+          const res = await this.$store.dispatch('group/getGroups')
           this.data = res.data
           this.$message({
             type: 'success',

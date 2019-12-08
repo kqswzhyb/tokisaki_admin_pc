@@ -144,7 +144,8 @@ export default {
       groupLoading: false,
       groupFinished: false,
 
-      groupId: ''
+      groupId: '',
+      timer: ''
     }
   },
   computed: {
@@ -196,20 +197,22 @@ export default {
   },
   async created() {
     this.$store.commit('app/openLoading', true)
-    try {
-      if (this.$store.state.user.info.user.userGroup) {
-        this.groupId = this.$store.state.user.info.user.userGroup.id
-      } else {
-        this.groupId = this.groups[0].id
+    this.timer = setInterval(async() => {
+      if (this.groups[0]) {
+        clearInterval(this.timer)
+        this.$store.commit('app/openLoading', true)
+        if (this.$store.state.user.info.user.userGroup) {
+          this.groupId = this.$store.state.user.info.user.userGroup.id
+        } else {
+          this.groupId = this.groups[0].id
+        }
+        this.options = this.shorts.map(item => ({ ...item, start: item.startDate, end: item.endDate, title: item.taskName, backgroundColor: '#3788d8', borderColor: '#3788d8' })).sort((a, b) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime())
+        this.value = this.options[0].id
+        this.options[0] = Object.assign(this.options[0], { backgroundColor: '#e66457', borderColor: '#e66457' })
+        this.active = this.options[0]
+        this.$store.commit('app/openLoading', false)
       }
-      this.options = this.shorts.map(item => ({ ...item, start: item.startDate, end: item.endDate, title: item.taskName, backgroundColor: '#3788d8', borderColor: '#3788d8' })).sort((a, b) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime())
-      this.value = this.options[0].id
-      this.options[0] = Object.assign(this.options[0], { backgroundColor: '#e66457', borderColor: '#e66457' })
-      this.active = this.options[0]
-      this.$store.commit('app/openLoading', false)
-    } catch (err) {
-      this.$message.error('请求出错,请检查网络或刷新重试！')
-    }
+    }, 10)
   },
   methods: {
     eventClick(data) {

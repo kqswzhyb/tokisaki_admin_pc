@@ -86,29 +86,40 @@ export default {
       taskName: '',
       loading: false,
       finished: false,
-      number: 10
+      number: 10,
+      timer: ''
     }
   },
-  created() {
-    this.$store.commit('app/openLoading', true)
-    this.$axios.all([this.$axios.get(`/v1/usertask/task/${this.$route.params.id}/`), this.$axios.get(`/v1/task/${this.$route.params.id}`)])
-      .then(this.$axios.spread((res, res2) => {
-        if (res.status === 200 && res2.status === 200) {
-          this.data = res.data
-          this.taskName = res2.data.taskName
-          this.data = this.data.map(item => Object.assign({}, item, { images: item.utAttachment && item.utAttachment.map(item2 => item2.attachment.attachExtName && `${this.$baseURL}/${item2.attachment.attachType.slice(0, 1).toLowerCase() + item2.attachment.attachType.slice(1)}/${item2.attachment.attachName}.${item2.attachment.attachExtName}`) || [] }))
-          this.data.forEach(item => {
-            if (item.images.length !== 0 && item.taskScore !== 0) { this.images = this.images.concat(item.images) }
-          })
+  computed: {
+    groups() {
+      return this.$store.state.group.groups
+    },
+    tasks() {
+      return this.$store.state.task.tasks.find(item => item.id === this.$route.params.id)
+    }
+  },
+  async created() {
+    try {
+      this.timer = setInterval(() => {
+        this.$store.commit('app/openLoading', true)
+        if (this.groups[0] && this.data.length !== 0) {
+          clearInterval(this.timer)
+          this.taskName = this.tasks.taskName
           this.$store.commit('app/openLoading', false)
         }
-        if (res.status === 202) {
-          this.$store.commit('app/openLoading', false)
-          this.$router.push('/404')
-        }
-      })).catch(() => {
-        this.$message.error('请求出错,请检查网络或刷新重试！')
-      })
+      }, 500)
+      const res = await this.$axios.get(`/v1/usertask/task/${this.$route.params.id}/`)
+      if (res.status === 200) {
+        this.data = res.data
+        this.data = this.data.map(item => Object.assign({}, item, { images: item.utAttachment && item.utAttachment.map(item2 => item2.attachment.attachExtName && `${this.$baseURL}/${item2.attachment.attachType.slice(0, 1).toLowerCase() + item2.attachment.attachType.slice(1)}/${item2.attachment.attachName}.${item2.attachment.attachExtName}`) || [] }))
+        this.data.forEach(item => {
+          if (item.images.length !== 0 && item.taskScore !== 0) { this.images = this.images.concat(item.images) }
+        })
+        this.$store.commit('app/openLoading', false)
+      }
+    } catch (err) {
+      this.$message.error('请求出错,请检查网络或刷新重试！')
+    }
   },
   methods: {
     onLoad() {
