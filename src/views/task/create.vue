@@ -32,7 +32,7 @@
         />
       </el-form-item>
       <el-form-item label="图片">
-        <MyUploader ref="child" :size="1024*1024*3" :count="6" @input="getImages" @img="getImage" />
+        <MyUploader ref="child" :count="6" @input="getImages" @img="getImage" />
       </el-form-item>
       <el-form-item>
         <el-button :loading="loading" :disabled="loading" type="primary" @click="onSubmit">{{ loading?'正在提交':'立即创建' }}</el-button>

@@ -143,7 +143,7 @@
           />
         </el-form-item>
         <el-form-item label="图片" :label-width="formLabelWidth" prop="images">
-          <MyUploader ref="child" type="UserTask" :size="1024*1024*3" :count="6" @input="getImages" @img="getImage" />
+          <MyUploader ref="child" type="UserTask" :count="6" @input="getImages" @img="getImage" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">

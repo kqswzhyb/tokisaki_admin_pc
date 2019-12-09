@@ -9,6 +9,9 @@
     </div>
     <div style="margin-bottom:20px;" class="flex-start">
       <p style="margin:0 20px 0 0;">总共有 <span class="main">{{ data.length||0 }}</span> 次提交</p>
+
+    </div>
+    <div style="margin-bottom:20px;">
       <ExportImages :data="images" />
     </div>
     <div

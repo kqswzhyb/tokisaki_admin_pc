@@ -39,6 +39,9 @@
           <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
         </span>
       </el-form-item>
+      <div class="flex-start" style="items-align:flex-start;margin-bottom:22px;">
+        <el-checkbox v-model="remain">记住密码</el-checkbox>
+      </div>
       <div class="flex-between" style="items-align:flex-start;margin-bottom:22px;">
         <el-form-item prop="captcha" style="width:250px;margin:0;">
           <el-input
@@ -92,7 +95,8 @@ export default {
       loading: false,
       passwordType: 'password',
       redirect: undefined,
-      img: ''
+      img: '',
+      remain: true
     }
   },
   watch: {
@@ -104,6 +108,10 @@ export default {
     }
   },
   created() {
+    if (localStorage.getItem('remain') === 'true') {
+      this.loginForm.username = localStorage.getItem('username')
+      this.loginForm.password = localStorage.getItem('password')
+    }
     this.getCaptcha()
   },
   methods: {
@@ -166,6 +174,15 @@ export default {
                 this.$message.error('该帐号已被冻结')
               }
               if (res.data.token) {
+                if (this.remain) {
+                  localStorage.setItem('remain', 'true')
+                  localStorage.setItem('username', this.loginForm.username)
+                  localStorage.setItem('password', this.loginForm.password)
+                } else {
+                  localStorage.setItem('remain', 'false')
+                  localStorage.setItem('username', '')
+                  localStorage.setItem('password', '')
+                }
                 this.$message({
                   message: '登录成功',
                   type: 'success'

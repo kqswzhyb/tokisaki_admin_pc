@@ -51,10 +51,6 @@ import { getToken } from '@/utils/auth'
 const noToken = ['/auth/signin']
 axios.interceptors.request.use((config) => {
   if (!noToken.includes(config.url.substring(0, 25))) {
-    // if (config.method !== 'POST') {
-    //   config.data = true
-    // }
-    // config.headers['Content-Type'] = 'application/x-www-form-urlencoded;charset=utf-8'
     config.headers['Authorization'] = `Bearer ${getToken()}`
   }
   return config

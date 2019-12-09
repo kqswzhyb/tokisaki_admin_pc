@@ -58,7 +58,7 @@
           <el-input v-model="form.score" type="number" :min="0" placeholder="请输入积分" />
         </el-form-item>
         <el-form-item label="图片" :label-width="formLabelWidth" prop="images">
-          <MyUploader ref="child" type="ScoreAward" :image="form.images" :size="1024*1024*3" :count="1" @input="getImages" @img="getImage" />
+          <MyUploader ref="child" type="ScoreAward" :image="form.images" :count="1" @input="getImages" @img="getImage" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
