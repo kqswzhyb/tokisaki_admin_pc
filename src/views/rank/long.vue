@@ -88,16 +88,15 @@ export default {
           this.$refs.one.initData()
         }
         try {
-          const res = await this.$axios.get(`/v1/rank/groupRankforTask/${val}`)
-          const res2 = await this.$axios.get(`/v1/rank/groupRankforTask/${val}/${this.groupId}`)
+          const res = await this.$axios.get(`/v1/rank/groupRankforTask/${val}/${this.groupId}`)
           if (res.data.allList) {
             this.all = res.data.allList
           }
           if (res.data.userGroupList) {
             this.group = res.data.userGroupList
           }
-          if (res2.data.groupList) {
-            this.one = res2.data.groupList
+          if (res.data.groupList) {
+            this.one = res.data.groupList
           }
           this.$store.commit('app/openLoading', false)
         } catch (err) {
@@ -135,7 +134,9 @@ export default {
           this.groupId = this.groups[0].id
         }
         this.options = this.longs.sort((a, b) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime())
-        this.value = this.options[0].id
+        this.$nextTick(() => {
+          this.value = this.options[0].id
+        })
         this.$store.commit('app/openLoading', false)
       }
     }, 10)

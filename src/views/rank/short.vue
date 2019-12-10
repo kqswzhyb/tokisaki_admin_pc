@@ -91,13 +91,12 @@ export default {
           this.$refs.one.initData()
         }
         try {
-          const res = await this.$axios.get(`/v1/rank/groupRankforTask/${val}`)
-          const res2 = await this.$axios.get(`/v1/rank/groupRankforTask/${val}/${this.groupId}`)
+          const res = await this.$axios.get(`/v1/rank/groupRankforTask/${val}/${this.groupId}`)
           if (res.data.allList) {
             this.all = res.data.allList
           }
-          if (res2.data.groupList) {
-            this.one = res2.data.groupList
+          if (res.data.groupList) {
+            this.one = res.data.groupList
           }
           if (res.data.userGroupList) {
             this.group = res.data.userGroupList
@@ -138,7 +137,9 @@ export default {
           this.groupId = this.groups[0].id
         }
         this.options = this.shorts.map(item => ({ ...item, start: item.startDate, end: item.endDate, title: item.taskName, backgroundColor: '#3788d8', borderColor: '#3788d8' })).sort((a, b) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime())
-        this.value = this.options[0].id
+        this.$nextTick(() => {
+          this.value = this.options[0].id
+        })
         this.options[0] = Object.assign(this.options[0], { backgroundColor: '#e66457', borderColor: '#e66457' })
         this.active = this.options[0]
         this.$store.commit('app/openLoading', false)

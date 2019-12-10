@@ -60,11 +60,7 @@
             </template>
           </el-table-column>
           <el-table-column label="昵称" align="center" prop="nickName" />
-          <el-table-column label="总积分" align="center">
-            <template slot-scope="scope">
-              <span>{{ scope.row.totalScore?scope.row.totalScore:0 }}</span>
-            </template>
-          </el-table-column>
+          <el-table-column label="总积分" align="center" prop="totalScore" sortable />
           <el-table-column label="QQ号码" align="center" prop="username" />
 
           <el-table-column class-name="status-col" label="帐号状态" align="center">
@@ -181,7 +177,9 @@ export default {
   },
   created() {
     this.$store.commit('app/openLoading', true)
+    this.listLoading = true
     this.timer = setInterval(async() => {
+      this.$store.commit('app/openLoading', true)
       if (this.groups[0]) {
         clearInterval(this.timer)
         if (this.$store.state.user.info.user.userGroup) {
@@ -191,6 +189,7 @@ export default {
           this.data = result.data.filter(item => item.roles.length !== 3)
           this.formatData(this.data)
         }
+        this.listLoading = false
         this.$store.commit('app/openLoading', false)
       }
     }, 500)
