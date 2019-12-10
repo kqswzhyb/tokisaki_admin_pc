@@ -51,11 +51,11 @@ export default {
           icon: 'task',
           text: '我的任务'
         },
-        // {
-        //   path: '/user/scores',
-        //   icon: 'star',
-        //   text: '积分明细'
-        // },
+        {
+          path: `/user/scores?uid=${this.$store.state.user.info.user.id}`,
+          icon: 'star',
+          text: '积分明细'
+        },
         {
           path: `/user/personal?uid=${this.$store.state.user.info.user.id}`,
           icon: 'personalcenter',
@@ -70,19 +70,19 @@ export default {
       'info'
     ]),
     nickName() {
-      return this.$store.state.user.info.user.nickName
+      return Object.keys(this.$store.state.user.info).length !== 0 && this.$store.state.user.info.user.nickName
     },
     avatar() {
-      return this.$store.state.user.info.user.iconUrl
+      return Object.keys(this.$store.state.user.info).length !== 0 && this.$store.state.user.info.user.iconUrl && this.$store.state.user.info.user.iconUrl.replace('http', 'https')
     }
   },
   async created() {
     this.$store.commit('app/openLoading', true)
     try {
-      await this.$store.dispatch('rank/getRank')
-      await this.$store.dispatch('task/getTask')
-      await this.$store.dispatch('group/getGroups')
-      this.$store.commit('app/openLoading', false)
+      const flag = await this.$store.dispatch('user/getCommon')
+      if (flag) {
+        this.$store.commit('app/openLoading', false)
+      }
     } catch (err) {
       this.$message.error('请求出错,请检查网络或刷新重试！')
     }

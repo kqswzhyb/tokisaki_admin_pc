@@ -6,7 +6,7 @@
           <div>
             <img
               v-if="info.iconUrl"
-              :src="info.iconUrl"
+              :src="info.iconUrl.replace('http','https')"
               width="120px;"
               style="border-radius:10px;"
             >
@@ -21,7 +21,7 @@
             <div style="margin-bottom:15px;">
               <span class="main" style="font-size:18px;">{{ info.nickName }}</span>
             </div>
-            <div class="flex-start">
+            <div class="flex-start" style="cursor:pointer;" @click="$router.push(`/user/scores?uid=${$route.query.uid}`)">
               <svg-icon icon-class="star" style="margin-right:15px;font-size:20px;color:#ff9800;" />
               <span style="color:#ff9800;" class="text-h6">{{ info.totalScore?info.totalScore:0 }}</span>
             </div>

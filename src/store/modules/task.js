@@ -41,19 +41,10 @@ const mutations = {
 }
 
 const actions = {
-  getTask({ commit, state }) {
-    return new Promise((resolve, reject) => {
-      axios.get('/v1/task').then(res => {
-        if (res.status === 200) {
-          commit('setShorts', res.data)
-          commit('setLongs', res.data)
-          commit('setTasks', res.data)
-        }
-        resolve(res.data)
-      }).catch(error => {
-        reject(error)
-      })
-    })
+  getTask({ commit, state }, res) {
+    commit('setShorts', res.data)
+    commit('setLongs', res.data)
+    commit('setTasks', res.data)
   }
 }
 

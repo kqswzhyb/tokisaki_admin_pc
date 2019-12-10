@@ -40,6 +40,19 @@ const actions = {
       })
     })
   },
+  getCommon({ commit, dispatch, state, rootState }) {
+    return new Promise((resolve, reject) => {
+      axios.all([axios.get('/v1/usergroup/listall'), axios.get('/v1/rank/groupRank'), axios.get('/v1/task')])
+        .then(axios.spread((res, res2, res3) => {
+          dispatch('rank/getRank', res2, { root: true })
+          dispatch('task/getTask', res3, { root: true })
+          dispatch('group/getGroups', res, { root: true })
+          resolve(true)
+        })).catch(() => {
+          reject(new Error('请求错误'))
+        })
+    })
+  },
 
   // user logout
   logout({ commit }) {

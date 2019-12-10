@@ -29,87 +29,13 @@
         <p>本次任务结束时间: {{ active.endDate|prettyDate }}</p>
         <el-tabs v-model="activeName" type="border-card">
           <el-tab-pane label="组内排行" name="one">
-            <div style="height:468px;">
-              <el-scrollbar style="height:100%;">
-                <van-list
-                  v-model="oneLoading"
-                  :finished="oneFinished"
-                  finished-text="已经到底了..."
-                  loading-text=""
-                  :offset="30"
-                  @load="onLoad('oneNumber','oneLoading','oneFinished','one')"
-                >
-                  <div v-for="(item,index) in one.slice(0,oneNumber)" :key="item.id" class="flex-start" style="padding:5px 0;border-bottom:1px solid #ccc;cursor:pointer;" @click="goPersonal(item.id)">
-                    <div class="rank flex-center" :style="{backgroundColor: index===0?'#ff9800':index===1?'#ccc':index===2?'#b87333':'#3c9cfe'}"><span style="color:#fff;font-size:12px">{{ index+1 }}</span></div>
-                    <div class="flex-between" style="width:100%;">
-                      <div class="flex-start">
-                        <img v-if="item.iconUrl" :src="item.iconUrl" style="margin-right:15px;border-radius:50%;" alt="" width="50">
-                        <img v-else src="@/assets/images/default_user.jpg" style="margin-right:15px;border-radius:50%;" alt="" width="50">
-                        <div>
-                          <p>{{ item.nickName }}</p>
-                        </div>
-                      </div>
-                      <div v-if="$store.state.user.info.roles.length >= 2" style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
-                    </div>
-                  </div>
-                </van-list>
-              </el-scrollbar>
-            </div>
+            <RankList ref="one" :height="468" :ranks="one" />
           </el-tab-pane>
           <el-tab-pane label="群内排行" name="all">
-            <div style="height:468px;">
-              <el-scrollbar style="height:100%;">
-                <van-list
-                  v-model="allLoading"
-                  :finished="allFinished"
-                  finished-text="已经到底了..."
-                  loading-text=""
-                  :offset="30"
-                  @load="onLoad('allNumber','allLoading','allFinished','all')"
-                >
-                  <div v-for="(item,index) in all.slice(0,allNumber)" :key="item.id" class="flex-start" style="padding:5px 0;border-bottom:1px solid #ccc;cursor:pointer;" @click="goPersonal(item.id)">
-                    <div class="rank flex-center" :style="{backgroundColor: index===0?'#ff9800':index===1?'#ccc':index===2?'#b87333':'#3c9cfe'}"><span style="color:#fff;font-size:12px">{{ index+1 }}</span></div>
-                    <div class="flex-between" style="width:100%;">
-                      <div class="flex-start">
-                        <img v-if="item.iconUrl" :src="item.iconUrl" style="margin-right:15px;border-radius:50%;" alt="" width="50">
-                        <img v-else src="@/assets/images/default_user.jpg" style="margin-right:15px;border-radius:50%;" alt="" width="50">
-                        <div>
-                          <p>{{ item.nickName }}</p>
-                          <p style="padding:0;font-size:14px;color:#505050;">{{ item.userGroup?item.userGroup.groupName:"暂无小组" }}</p>
-                        </div>
-                      </div>
-                      <div v-if="$store.state.user.info.roles.length >= 2" style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
-                    </div>
-                  </div>
-                </van-list>
-              </el-scrollbar>
-            </div>
+            <RankList ref="all" :height="468" :ranks="all" />
           </el-tab-pane>
           <el-tab-pane v-if="$store.state.user.info.roles.length >= 3" label="小组排行" name="group">
-            <div style="height:478px;">
-              <el-scrollbar style="height:100%;">
-                <van-list
-                  v-model="groupLoading"
-                  :finished="groupFinished"
-                  finished-text="已经到底了..."
-                  loading-text=""
-                  :offset="30"
-                  @load="onLoad('groupNumber','groupLoading','groupFinished','group')"
-                >
-                  <div v-for="(item,index) in group.slice(0,groupNumber)" :key="item.id" class="flex-start" style="padding:5px 0;border-bottom:1px solid #ccc;cursor:pointer;" @click="goPersonal(item.id)">
-                    <div class="rank flex-center" :style="{backgroundColor: index===0?'#ff9800':index===1?'#ccc':index===2?'#b87333':'#3c9cfe'}"><span style="color:#fff;font-size:12px">{{ index+1 }}</span></div>
-                    <div class="flex-between" style="width:100%;">
-                      <div class="flex-start">
-                        <div>
-                          <p>{{ item.groupName }}</p>
-                        </div>
-                      </div>
-                      <div v-if="$store.state.user.info.roles.length >= 2" style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
-                    </div>
-                  </div>
-                </van-list>
-              </el-scrollbar>
-            </div>
+            <RankTemplate ref="group" :height="478" :ranks="group" />
           </el-tab-pane>
         </el-tabs>
       </el-col>
@@ -119,9 +45,13 @@
 <script>
 import FullCalendar from '@fullcalendar/vue'
 import dayGridPlugin from '@fullcalendar/daygrid'
+import RankTemplate from '../../components/RankTemplate'
+import RankList from '../../components/RankList'
 export default {
   components: {
-    FullCalendar
+    FullCalendar,
+    RankTemplate,
+    RankList
   },
   data() {
     return {
@@ -134,15 +64,6 @@ export default {
       all: [],
       one: [],
       group: [],
-      allNumber: 20,
-      allLoading: false,
-      allFinished: false,
-      oneNumber: 20,
-      oneLoading: false,
-      oneFinished: false,
-      groupNumber: 20,
-      groupLoading: false,
-      groupFinished: false,
 
       groupId: '',
       timer: ''
@@ -160,18 +81,26 @@ export default {
     value: async function(val) {
       if (val && this.groupId) {
         this.$store.commit('app/openLoading', true)
-        this.initData()
+        if (this.$refs.group) {
+          this.$refs.group.initData()
+        }
+        if (this.$refs.all) {
+          this.$refs.all.initData()
+        }
+        if (this.$refs.one) {
+          this.$refs.one.initData()
+        }
         try {
-          const res2 = await this.$axios.get(`/v1/rank/groupRankforTask/${val}`)
-          const res3 = await this.$axios.get(`/v1/rank/groupRankforTask/${val}/${this.groupId}`)
-          if (res2.data.allList) {
-            this.all = res2.data.allList
+          const res = await this.$axios.get(`/v1/rank/groupRankforTask/${val}`)
+          const res2 = await this.$axios.get(`/v1/rank/groupRankforTask/${val}/${this.groupId}`)
+          if (res.data.allList) {
+            this.all = res.data.allList
           }
-          if (res3.data.groupList) {
-            this.one = res3.data.groupList
+          if (res2.data.groupList) {
+            this.one = res2.data.groupList
           }
-          if (res2.data.userGroupList) {
-            this.group = res2.data.userGroupList
+          if (res.data.userGroupList) {
+            this.group = res.data.userGroupList
           }
           this.$store.commit('app/openLoading', false)
         } catch (err) {
@@ -182,7 +111,9 @@ export default {
     groupId: async function(val) {
       if (val && this.value) {
         this.$store.commit('app/openLoading', true)
-        this.initGroup()
+        if (this.$refs.one) {
+          this.$refs.one.initData()
+        }
         try {
           const res = await this.$axios.get(`/v1/rank/groupRankforTask/${this.value}/${val}`)
           if (res.data.groupList) {
@@ -222,38 +153,6 @@ export default {
       const index2 = this.options.findIndex(item => item.id === this.value)
       this.options[index2] = Object.assign(this.options[index2], { backgroundColor: '#e66457', borderColor: '#e66457' })
       this.active = this.options[index2]
-    },
-    onLoad(number, loading, finished, data) {
-      setTimeout(() => {
-        if (this[number] < this[data].length) {
-          this[number] += 10
-        }
-        this[loading] = false
-        if (this[number] >= this[data].length) {
-          this[finished] = true
-        }
-      }, 1000)
-    },
-    goPersonal(id) {
-      if (this.$store.state.user.info.roles.length >= 2) {
-        this.$router.push(`/user/personal?uid=${id}`)
-      }
-    },
-    initData() {
-      this.all = []
-      this.one = []
-      this.allNumber = 20
-      this.allLoading = false
-      this.allFinished = false
-      this.oneNumber = 20
-      this.oneLoading = false
-      this.oneFinished = false
-    },
-    initGroup() {
-      this.one = []
-      this.oneNumber = 20
-      this.oneLoading = false
-      this.oneFinished = false
     }
   }
 }

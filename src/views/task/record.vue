@@ -33,15 +33,11 @@
       :offset="30"
       @load="onLoad"
     >
-      <el-row :gutter="40">
+      <el-row :gutter="40" class="all">
         <el-col
           v-for="(item, index) in data.slice(0,number)"
           :key="item.id"
-          :xs="24"
-          :sm="20"
-          :md="16"
-          :lg="12"
-          style="margin-bottom:15px;"
+          class="item"
         >
           <el-card>
             <p style="padding-bottom:10px;border-bottom:1px solid #E1E1E1;cursor:pointer;" class="flex-between" @click="$router.push(`/user/personal?uid=${item.user.id}`)"><span>{{ `${item.user.nickName} (${item.user.username})` }}</span>{{ item.user.userGroup?item.user.userGroup.groupName:'暂无小组' }}<span style="font-size:14px;color:#666;">{{ item.finishedDate| prettyDate }}</span></p>
@@ -189,5 +185,17 @@ export default {
 </script>
 
 <style>
-
+.all {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: repeat(2, 1fr);
+}
+.item:nth-of-type(1) {
+  grid-row: 1 / 4;
+  grid-column: 1;
+}
+.item:nth-of-type(2) {
+  grid-row: 1 / 3;
+  grid-column: 2;
+}
 </style>

@@ -16,7 +16,8 @@
               class="flex-between"
               style="font-weight: 400;color: rgb(31, 47, 61);font-size:22px;"
             >{{ data.taskName }}<svg-icon :icon-class="new Date(data.endDate).getTime()>currentDate.getTime()?'working':'finish'" style="font-size:40px;" /></h4>
-            <p style="font-size:18px;color:#505050;">任务时间：{{ data.startDate | prettyDate }} ————{{ data.endDate | prettyDate }}</p>
+            <p style="font-size:18px;color:#505050;"><span class="main" style="font-size:16px;"> 从 </span>{{ data.startDate | prettyDate }}</p>
+            <p style="font-size:18px;color:#505050;"><span class="main" style="font-size:16px;"> 至 </span> {{ data.endDate | prettyDate }}</p>
             <p style="font-size:14px;color:#666;">by <span class="main">{{ data.createUser&&data.createUser.nickName || '管理员' }}</span></p>
           </div>
           <div v-html="ReplaceUrl(data.taskDetail)" />
@@ -47,87 +48,13 @@
         </div>
         <el-tabs v-model="activeName" type="border-card">
           <el-tab-pane label="组内排行" name="one">
-            <div style="height:468px;">
-              <el-scrollbar style="height:100%;">
-                <van-list
-                  v-model="oneLoading"
-                  :finished="oneFinished"
-                  finished-text="已经到底了..."
-                  loading-text=""
-                  :offset="30"
-                  @load="onLoad('oneNumber','oneLoading','oneFinished','one')"
-                >
-                  <div v-for="(item,index) in one.slice(0,oneNumber)" :key="item.id" class="flex-start" style="padding:5px 0;border-bottom:1px solid #ccc;cursor:pointer;" @click="goPersonal(item.id)">
-                    <div class="rank flex-center" :style="{backgroundColor: index===0?'#ff9800':index===1?'#ccc':index===2?'#b87333':'#3c9cfe'}"><span style="color:#fff;font-size:12px">{{ index+1 }}</span></div>
-                    <div class="flex-between" style="width:100%;">
-                      <div class="flex-start">
-                        <img v-if="item.iconUrl" :src="item.iconUrl" style="margin-right:15px;border-radius:50%;" alt="" width="50">
-                        <img v-else src="@/assets/images/default_user.jpg" style="margin-right:15px;border-radius:50%;" alt="" width="50">
-                        <div>
-                          <p>{{ item.nickName }}</p>
-                        </div>
-                      </div>
-                      <div v-if="$store.state.user.info.roles.length >= 2" style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
-                    </div>
-                  </div>
-                </van-list>
-              </el-scrollbar>
-            </div>
+            <RankList ref="one" :height="468" :ranks="one" />
           </el-tab-pane>
           <el-tab-pane label="群内排行" name="all">
-            <div style="height:468px;">
-              <el-scrollbar style="height:100%;">
-                <van-list
-                  v-model="allLoading"
-                  :finished="allFinished"
-                  finished-text="已经到底了..."
-                  loading-text=""
-                  :offset="30"
-                  @load="onLoad('allNumber','allLoading','allFinished','all')"
-                >
-                  <div v-for="(item,index) in all.slice(0,allNumber)" :key="item.id" class="flex-start" style="padding:5px 0;border-bottom:1px solid #ccc;cursor:pointer;" @click="goPersonal(item.id)">
-                    <div class="rank flex-center" :style="{backgroundColor: index===0?'#ff9800':index===1?'#ccc':index===2?'#b87333':'#3c9cfe'}"><span style="color:#fff;font-size:12px">{{ index+1 }}</span></div>
-                    <div class="flex-between" style="width:100%;">
-                      <div class="flex-start">
-                        <img v-if="item.iconUrl" :src="item.iconUrl" style="margin-right:15px;border-radius:50%;" alt="" width="50">
-                        <img v-else src="@/assets/images/default_user.jpg" style="margin-right:15px;border-radius:50%;" alt="" width="50">
-                        <div>
-                          <p>{{ item.nickName }}</p>
-                          <p style="padding:0;font-size:14px;color:#505050;">{{ item.userGroup?item.userGroup.groupName:"暂无小组" }}</p>
-                        </div>
-                      </div>
-                      <div v-if="$store.state.user.info.roles.length >= 2" style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
-                    </div>
-                  </div>
-                </van-list>
-              </el-scrollbar>
-            </div>
+            <RankList ref="all" :height="468" :ranks="all" />
           </el-tab-pane>
           <el-tab-pane v-if="$store.state.user.info.roles.length >= 3" label="小组排行" name="group">
-            <div style="height:478px;">
-              <el-scrollbar style="height:100%;">
-                <van-list
-                  v-model="groupLoading"
-                  :finished="groupFinished"
-                  finished-text="已经到底了..."
-                  loading-text=""
-                  :offset="30"
-                  @load="onLoad('groupNumber','groupLoading','groupFinished','group')"
-                >
-                  <div v-for="(item,index) in group.slice(0,groupNumber)" :key="item.id" class="flex-start" style="padding:5px 0;border-bottom:1px solid #ccc;cursor:pointer;" @click="goPersonal(item.id)">
-                    <div class="rank flex-center" :style="{backgroundColor: index===0?'#ff9800':index===1?'#ccc':index===2?'#b87333':'#3c9cfe'}"><span style="color:#fff;font-size:12px">{{ index+1 }}</span></div>
-                    <div class="flex-between" style="width:100%;">
-                      <div class="flex-start">
-                        <div>
-                          <p>{{ item.groupName }}</p>
-                        </div>
-                      </div>
-                      <div v-if="$store.state.user.info.roles.length >= 2" style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
-                    </div>
-                  </div>
-                </van-list>
-              </el-scrollbar>
-            </div>
+            <RankTemplate ref="group" :height="478" :ranks="group" />
           </el-tab-pane>
         </el-tabs>
       </el-col>
@@ -158,12 +85,14 @@
 import SvgIcon from '../../components/SvgIcon/index'
 import MyUploader from '../../components/Upload'
 import { ImagePreview } from 'vant'
-import '@vant/touch-emulator'
+import RankTemplate from '../../components/RankTemplate'
+import RankList from '../../components/RankList'
 export default {
   components: {
     SvgIcon,
-    MyUploader
-    // VanList
+    MyUploader,
+    RankTemplate,
+    RankList
   },
   data() {
     return {
@@ -186,15 +115,6 @@ export default {
       all: [],
       one: [],
       group: [],
-      allNumber: 20,
-      allLoading: false,
-      allFinished: false,
-      oneNumber: 20,
-      oneLoading: false,
-      oneFinished: false,
-      groupNumber: 20,
-      groupLoading: false,
-      groupFinished: false,
 
       groupId: 0,
       timer: ''
@@ -212,7 +132,9 @@ export default {
     groupId: async function(val) {
       if (val) {
         this.$store.commit('app/openLoading', true)
-        this.initGroup()
+        if (this.$refs.one) {
+          this.$refs.one.initData()
+        }
         try {
           const res = await this.$axios.get(`/v1/rank/groupRankforTask/${this.$route.params.id}/${val}`)
           if (res.data.groupList) {
@@ -246,12 +168,12 @@ export default {
           this.$store.commit('app/openLoading', false)
         }
       }, 10)
-      const res2 = await this.$axios.get(`/v1/rank/groupRankforTask/${this.$route.params.id}`)
-      if (res2.data.allList) {
-        this.all = res2.data.allList
+      const res = await this.$axios.get(`/v1/rank/groupRankforTask/${this.$route.params.id}`)
+      if (res.data.allList) {
+        this.all = res.data.allList
       }
-      if (res2.data.userGroupList) {
-        this.group = res2.data.userGroupList
+      if (res.data.userGroupList) {
+        this.group = res.data.userGroupList
       }
     } catch (err) {
       this.$message.error('请求出错,请检查网络或刷新重试！')
@@ -266,28 +188,6 @@ export default {
         })
       }
       return text
-    },
-    initGroup() {
-      this.one = []
-      this.oneNumber = 20
-      this.oneLoading = false
-      this.oneFinished = false
-    },
-    onLoad(number, loading, finished, data) {
-      setTimeout(() => {
-        if (this[number] < this[data].length) {
-          this[number] += 10
-        }
-        this[loading] = false
-        if (this[number] >= this[data].length) {
-          this[finished] = true
-        }
-      }, 1000)
-    },
-    goPersonal(id) {
-      if (this.$store.state.user.info.roles.length >= 2) {
-        this.$router.push(`/user/personal?uid=${id}`)
-      }
     },
     getImage(data) {
       this.form.images = data

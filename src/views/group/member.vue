@@ -55,7 +55,7 @@
           </el-table-column>
           <el-table-column label="头像" align="center">
             <template slot-scope="scope">
-              <el-image v-if="scope.row.iconUrl" :src="scope.row.iconUrl" style="width:60px;height:60px;cursor:pointer;" alt="" lazy @click="$router.push(`/user/personal?uid=${scope.row.id}`)" />
+              <el-image v-if="scope.row.iconUrl" :src="scope.row.iconUrl.replace('http','https')" style="width:60px;height:60px;cursor:pointer;" alt="" lazy @click="$router.push(`/user/personal?uid=${scope.row.id}`)" />
               <img v-else src="@/assets/images/default_user.jpg" style="cursor:pointer;" width="60" alt="" @click="$router.push(`/user/personal?uid=${scope.row.id}`)">
             </template>
           </el-table-column>
@@ -239,7 +239,7 @@ export default {
         return {
           group: item.userGroup ? item.userGroup.groupName : '',
           nickName: item.nickName,
-          iconUrl: item.iconUrl ? item.iconUrl : '',
+          iconUrl: item.iconUrl ? item.iconUrl.replace('http', 'https') : '',
           username: Number(item.username),
           totalScore: item.totalScore ? Number(item.totalScore) : 0,
           role: this.roleList.find(item2 => item2.value === item.roles.length).label,
