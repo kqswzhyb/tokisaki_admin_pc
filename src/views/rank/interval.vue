@@ -128,26 +128,10 @@ export default {
         if (this.$refs.wone) {
           this.$refs.wone.initData()
         }
-        this.$axios.get(`/v1/rank/groupRank/${val}`)
-          .then(res => {
-            if (res.status === 200) {
-              if (res.data.groupList) {
-                this.totalRankOne = res.data.groupList
-              }
-              if (res.data.groupWeekList) {
-                this.weekRankOne = res.data.groupWeekList
-              }
-              if (res.data.groupMonthList) {
-                this.monthRankOne = res.data.groupMonthList
-              }
-              this.$store.commit('app/openLoading', false)
-            } else {
-              this.$store.commit('app/openLoading', false)
-              this.$router.push('/404')
-            }
-          }).catch(() => {
-            this.$message.error('请求出错,请检查网络或刷新重试！')
-          })
+        this.weekRankOne = this.weekRankAll.filter(item => item.userGroup.id === val)
+        this.monthRankOne = this.monthRankAll.filter(item => item.userGroup.id === val)
+        this.totalRankOne = this.totalRankAll.filter(item => item.userGroup.id === val)
+        this.$store.commit('app/openLoading', false)
       }
     }
   },

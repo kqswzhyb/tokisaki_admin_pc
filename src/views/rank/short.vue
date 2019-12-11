@@ -95,9 +95,8 @@ export default {
           if (res.data.allList) {
             this.all = res.data.allList
           }
-          if (res.data.groupList) {
-            this.one = res.data.groupList
-          }
+          this.one = this.all.filter(item => item.userGroup.id === this.groupId)
+          this.$store.commit('app/openLoading', false)
           if (res.data.userGroupList) {
             this.group = res.data.userGroupList
           }
@@ -113,15 +112,8 @@ export default {
         if (this.$refs.one) {
           this.$refs.one.initData()
         }
-        try {
-          const res = await this.$axios.get(`/v1/rank/groupRankforTask/${this.value}/${val}`)
-          if (res.data.groupList) {
-            this.one = res.data.groupList
-          }
-          this.$store.commit('app/openLoading', false)
-        } catch (err) {
-          this.$message.error('请求出错,请检查网络或刷新重试！')
-        }
+        this.one = this.all.filter(item => item.userGroup.id === val)
+        this.$store.commit('app/openLoading', false)
       }
     }
   },

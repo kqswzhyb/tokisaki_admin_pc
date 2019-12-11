@@ -70,7 +70,7 @@
           />
         </el-form-item>
         <el-form-item label="图片" :label-width="formLabelWidth" prop="images">
-          <MyUploader ref="child" type="UserTask" :count="6" @input="getImages" @img="getImage" />
+          <MyUploader ref="child" type="UserTask" @input="getImages" @img="getImage" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -135,15 +135,8 @@ export default {
         if (this.$refs.one) {
           this.$refs.one.initData()
         }
-        try {
-          const res = await this.$axios.get(`/v1/rank/groupRankforTask/${this.$route.params.id}/${val}`)
-          if (res.data.groupList) {
-            this.one = res.data.groupList
-          }
-          this.$store.commit('app/openLoading', false)
-        } catch (err) {
-          this.$message.error('请求出错,请检查网络或刷新重试！')
-        }
+        this.one = this.all.filter(item => item.userGroup.id === val)
+        this.$store.commit('app/openLoading', false)
       }
     }
   },

@@ -184,12 +184,13 @@ export default {
         clearInterval(this.timer)
         if (this.$store.state.user.info.user.userGroup) {
           this.group = this.$store.state.user.info.user.userGroup.id
+          this.listLoading = false
         } else {
           const result = await this.$axios.get('/v1/user')
           this.data = result.data.filter(item => item.roles.length !== 3)
           this.formatData(this.data)
+          this.listLoading = false
         }
-        this.listLoading = false
         this.$store.commit('app/openLoading', false)
       }
     }, 500)
