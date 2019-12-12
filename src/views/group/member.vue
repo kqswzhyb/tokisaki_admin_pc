@@ -114,6 +114,7 @@ export default {
         }
       ],
       data: [],
+      list: [],
       excel: [],
       dialogFormVisible: false,
       formLabelWidth: '120px',
@@ -129,20 +130,26 @@ export default {
     status: async function(val) {
       try {
         this.listLoading = true
-        let result
         if (val === 'All' && this.group === 0) {
-          result = await this.$axios.get('/v1/user')
+          this.data = Array.from(this.list)
         }
         if (val === 'All' && this.group !== 0) {
-          result = await this.$axios.get(`/v1/user/search/?groupId=${this.group}`)
+          this.data = this.list.filter(
+            item => item.userGroup.id === this.group
+          )
         }
         if (val !== 'All' && this.group === 0) {
-          result = await this.$axios.get(`/v1/user/search/?userStatus=${val}`)
+          this.data = this.list.filter(
+            item => item.userStatus === val
+          )
         }
         if (val !== 'All' && this.group !== 0) {
-          result = await this.$axios.get(`/v1/user/search/?groupId=${this.group}&&userStatus=${val}`)
+          this.data = this.list.filter(
+            item =>
+              item.userStatus === val &&
+                  item.userGroup.id === this.group
+          )
         }
-        this.data = result.data.filter(item => item.roles.length !== 3)
         this.formatData(this.data)
         this.initData()
         this.listLoading = false
@@ -153,20 +160,26 @@ export default {
     group: async function(val) {
       try {
         this.listLoading = true
-        let result
         if (this.status === 'All' && val === 0) {
-          result = await this.$axios.get('/v1/user')
+          this.data = Array.from(this.list)
         }
         if (this.status === 'All' && val !== 0) {
-          result = await this.$axios.get(`/v1/user/search/?groupId=${val}`)
+          this.data = this.list.filter(
+            item => item.userGroup.id === val
+          )
         }
         if (this.status !== 'All' && val === 0) {
-          result = await this.$axios.get(`/v1/user/search/?userStatus=${this.status}`)
+          this.data = this.list.filter(
+            item => item.userStatus === this.status
+          )
         }
         if (this.status !== 'All' && val !== 0) {
-          result = await this.$axios.get(`/v1/user/search/?groupId=${val}&&userStatus=${this.status}`)
+          this.data = this.list.filter(
+            item =>
+              item.userStatus === this.status &&
+                  item.userGroup.id === val
+          )
         }
-        this.data = result.data.filter(item => item.roles.length !== 3)
         this.formatData(this.data)
         this.initData()
         this.listLoading = false
@@ -183,11 +196,18 @@ export default {
       if (this.groups[0]) {
         clearInterval(this.timer)
         if (this.$store.state.user.info.user.userGroup) {
+          const result = await this.$axios.get(
+            `/v1/user/search/?groupId=${
+              this.$store.state.user.info.user.userGroup.id
+            }`
+          )
+          this.list = result.data.filter(item => item.roles.length !== 3)
           this.group = this.$store.state.user.info.user.userGroup.id
           this.listLoading = false
         } else {
           const result = await this.$axios.get('/v1/user')
-          this.data = result.data.filter(item => item.roles.length !== 3)
+          this.list = result.data.filter(item => item.roles.length !== 3)
+          this.data = Array.from(this.list)
           this.formatData(this.data)
           this.listLoading = false
         }

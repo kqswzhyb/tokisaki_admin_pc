@@ -42,7 +42,7 @@
             </el-col>
             <el-col :xs="24" :lg="12">
               <div style="margin-bottom:30px;">
-                <span style="color:#999;">身份：</span>{{ info.roles&& roleList.find(item=>item.value===info.roles.length).label }}
+                <span style="color:#999;">身份：</span>{{ info.roles&& roleList.find(item=>item.value===(info.roles && info.roles.length)).label }}
               </div>
             </el-col>
           </el-row>

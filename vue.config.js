@@ -65,7 +65,14 @@ module.exports = {
       'element-ui': 'ELEMENT',
       vant: 'vant',
       'axios': 'axios'
-    }
+    },
+    plugins: [
+      new CompressionPlugin({
+        test: /\.js$|\.html$|\.css$|\.jpg$|\.jpeg$|\.png/, // 需要压缩的文件类型
+        threshold: 10240, // 归档需要进行压缩的文件大小最小值，我这个是10K以上的进行压缩
+        deleteOriginalAssets: false // 是否删除原文件
+      })
+    ]
   },
   chainWebpack(config) {
     const cdn = {
@@ -122,17 +129,17 @@ module.exports = {
       })
       .end()
 
-    if (process.env.NODE_ENV === 'production') {
-      return {
-        plugins: [
-          new CompressionPlugin({
-            test: /\.js$|\.html$|\.css$|\.jpg$|\.jpeg$|\.png/, // 需要压缩的文件类型
-            threshold: 10240, // 归档需要进行压缩的文件大小最小值，我这个是10K以上的进行压缩
-            deleteOriginalAssets: false // 是否删除原文件
-          })
-        ]
-      }
-    }
+    // if (process.env.NODE_ENV === 'production') {
+    //   return {
+    //     plugins: [
+    //       new CompressionPlugin({
+    //         test: /\.js$|\.html$|\.css$|\.jpg$|\.jpeg$|\.png/, // 需要压缩的文件类型
+    //         threshold: 10240, // 归档需要进行压缩的文件大小最小值，我这个是10K以上的进行压缩
+    //         deleteOriginalAssets: false // 是否删除原文件
+    //       })
+    //     ]
+    //   }
+    // }
     config
       .when(process.env.NODE_ENV !== 'development',
         config => {
