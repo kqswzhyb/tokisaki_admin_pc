@@ -257,7 +257,11 @@ export default {
               this.$store.commit('app/openLoading', true)
               if (this.groups[0]) {
                 clearInterval(this.timer)
-                this.tasks = taskIdList.map(item => this.task.find(item2 => item2.id === item))
+                this.tasks = taskIdList.map(item => this.task.find(item2 => item2.id === item)).sort(
+                  (a, b) =>
+                    new Date(b.startDate).getTime() -
+                        new Date(a.startDate).getTime()
+                )
                 this.$store.commit('app/openLoading', false)
               }
             }, 500)
