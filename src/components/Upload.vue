@@ -12,7 +12,7 @@ export default {
   props: {
     size: {
       type: Number,
-      default: 1024 * 1024 * 5
+      default: 1024 * 1024 * 8
     },
     count: {
       type: Number,
@@ -88,11 +88,11 @@ export default {
     },
     beforeRead(file) {
       if (!(file instanceof Array) && file.size >= this.size) {
-        this.$message.error('上传单个图片不能大于5MB')
+        this.$message.error('上传单个图片不能大于8MB')
         return false
       }
       if (file instanceof Array && !file.every(item => item.size <= this.size)) {
-        this.$message.error('上传单个图片不能大于5MB')
+        this.$message.error('上传单个图片不能大于8MB')
         return false
       }
       return true
