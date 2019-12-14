@@ -128,9 +128,10 @@ export default {
         if (this.$refs.wone) {
           this.$refs.wone.initData()
         }
-        this.weekRankOne = this.weekRankAll.filter(item => item.userGroup.id === val)
-        this.monthRankOne = this.monthRankAll.filter(item => item.userGroup.id === val)
-        this.totalRankOne = this.totalRankAll.filter(item => item.userGroup.id === val)
+        this.weekRankOne = this.weekRankAll.filter(item => item.groupId === val)
+        this.monthRankOne = this.monthRankAll.filter(item => item.groupId === val)
+        this.totalRankOne = this.totalRankAll.filter(item => item.groupId === val)
+        console.log(this.weekRankOne)
         this.$store.commit('app/openLoading', false)
       }
     }

@@ -9,7 +9,7 @@
         :offset="30"
         @load="onLoad"
       >
-        <div v-for="(item,index) in ranks.slice(0,number)" :key="item.id" class="flex-start" style="padding:5px 0;border-bottom:1px solid #ccc;cursor:pointer;" @click="goPersonal(item.id)">
+        <div v-for="(item,index) in ranks.slice(0,number)" :key="item.id" class="flex-start" style="padding:5px 0;border-bottom:1px solid #ccc;cursor:pointer;" @click="goPersonal(item.userId)">
           <div class="rank flex-center" :style="{backgroundColor: index===0?'#ff9800':index===1?'#ccc':index===2?'#b87333':'#3c9cfe'}"><span style="color:#fff;font-size:12px">{{ index+1 }}</span></div>
           <div class="flex-between" style="width:100%;">
             <div class="flex-start">
@@ -17,7 +17,7 @@
               <img v-else src="@/assets/images/default_user.jpg" style="margin-right:15px;border-radius:50%;" alt="" width="50">
               <div>
                 <p>{{ item.nickName }}</p>
-                <p style="color:#666;">{{ item.userGroup.groupName }}</p>
+                <p style="color:#666;">{{ groups.find(item2=>item2.id===item.groupId).groupName }}</p>
               </div>
             </div>
             <div v-if="$store.state.user.info.roles.length >= 2" style="margin-right:12px;"><span style="color:#ff9800;">{{ item.totalScore }}</span></div>
@@ -45,6 +45,11 @@ export default {
       number: 20,
       loading: false,
       finished: false
+    }
+  },
+  computed: {
+    groups() {
+      return this.$store.state.group.groups
     }
   },
   methods: {

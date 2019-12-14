@@ -135,7 +135,7 @@ export default {
         if (this.$refs.one) {
           this.$refs.one.initData()
         }
-        this.one = this.all.filter(item => item.userGroup.id === val)
+        this.one = this.all.filter(item => item.groupId === val)
         this.$store.commit('app/openLoading', false)
       }
     }

@@ -95,7 +95,7 @@ export default {
           if (res.data.allList) {
             this.all = res.data.allList
           }
-          this.one = this.all.filter(item => item.userGroup.id === this.groupId)
+          this.one = this.all.filter(item => item.groupId === this.groupId)
           this.$store.commit('app/openLoading', false)
           if (res.data.userGroupList) {
             this.group = res.data.userGroupList
@@ -112,7 +112,7 @@ export default {
         if (this.$refs.one) {
           this.$refs.one.initData()
         }
-        this.one = this.all.filter(item => item.userGroup.id === val)
+        this.one = this.all.filter(item => item.groupId === val)
         this.$store.commit('app/openLoading', false)
       }
     }

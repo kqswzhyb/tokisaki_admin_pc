@@ -95,7 +95,7 @@ export default {
           if (res.data.userGroupList) {
             this.group = res.data.userGroupList
           }
-          this.one = this.all.filter(item => item.userGroup.id === this.groupId)
+          this.one = this.all.filter(item => item.groupId === this.groupId)
           this.$store.commit('app/openLoading', false)
         } catch (err) {
           this.$message.error('请求出错,请检查网络或刷新重试！')
@@ -108,7 +108,7 @@ export default {
         if (this.$refs.one) {
           this.$refs.one.initData()
         }
-        this.one = this.all.filter(item => item.userGroup.id === val)
+        this.one = this.all.filter(item => item.groupId === val)
         this.$store.commit('app/openLoading', false)
       }
     }
