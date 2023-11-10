@@ -22,7 +22,7 @@
     "@fullcalendar/timegrid": "^4.3.0",
     "@fullcalendar/vue": "^4.3.1",
     "@vant/touch-emulator": "^1.1.0",
-    "axios": "0.18.1",
+    "axios": "1.6.0",
     "dayjs": "^1.8.17",
     "element-ui": "^2.12.0",
     "file-saver": "^2.0.2",
